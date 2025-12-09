@@ -778,7 +778,7 @@
             }
 
             /* スマホ縦：必須列を強制表示 */
-            /* 表示する列: POS, No, STATUS, Driver, BestTime, Gap, LastLap, Laps */
+            /* 表示する列: POS, No, STATUS, Driver, BestTime, Gap, LastLap */
             #listtitle .listtable th,
             .listtable td {
                 display: table-cell !important;
@@ -791,7 +791,6 @@
             .listtable th.driver,
             .listtable th.col-best,
             .listtable th.time,
-            .listtable th.lap:not(.col-lapno),
             .listtable td.pos,
             .listtable td.no,
             .listtable td.info,
@@ -799,25 +798,27 @@
             .listtable td.col-best,
             .listtable td[id$="_best"],
             .listtable td[id$="_gap"],
-            .listtable td[id$="_last"],
-            .listtable td[id$="_lap"] {
+            .listtable td[id$="_last"] {
                 display: table-cell !important;
             }
 
-            /* スマホ縦で非表示にする列: Diff, (L), PIT, POSUP, セクター, スピード */
+            /* スマホ縦で非表示にする列: Diff, (L), PIT, POSUP, Laps, セクター, スピード */
             #listtitle .listtable th.col-diff,
             #listtitle .listtable th.col-lapno,
             #listtitle .listtable th.col-pit,
             #listtitle .listtable th.col-sec,
             #listtitle .listtable th.col-speed,
+            #listtitle .listtable th.lap:not(.col-lapno),
             .listtable td.col-diff,
             .listtable td.col-lapno,
             .listtable td.col-pit,
             .listtable td.col-sec,
             .listtable td.col-speed,
+            .listtable td.lap:not(.col-lapno),
             .listtable td[id$="_diff"],
             .listtable td[id$="_bestlap"],
             .listtable td[id$="_pit"],
+            .listtable td[id$="_lap"],
             .listtable td[id$="_sec1"],
             .listtable td[id$="_sec2"],
             .listtable td[id$="_sec3"],
@@ -840,7 +841,7 @@
                 table-layout: fixed !important;
                 width: 100% !important;
                 min-width: auto !important;
-                font-size: 9px;
+                font-size: 11px;
                 background: transparent;
             }
 
@@ -893,7 +894,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
-                font-size: 10px;
+                font-size: 11px;
             }
 
             .listtable td.driver div {
@@ -902,7 +903,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                font-size: 10px;
+                font-size: 11px;
             }
 
             /* BestTime列 */
@@ -914,7 +915,7 @@
                 max-width: 54px !important;
                 text-align: right !important;
                 padding-right: 3px !important;
-                font-size: 9px;
+                font-size: 11px;
             }
 
             /* Gap列 - 明示的にID指定 */
@@ -926,7 +927,7 @@
                 max-width: 48px !important;
                 text-align: right !important;
                 padding-right: 3px !important;
-                font-size: 9px;
+                font-size: 11px;
             }
             
             /* LastLap列 - 明示的にID指定 */
@@ -936,7 +937,7 @@
                 max-width: 48px !important;
                 text-align: right !important;
                 padding-right: 3px !important;
-                font-size: 9px;
+                font-size: 11px;
             }
 
             /* Gap/LastLap列のdiv要素もCSS制御 */
@@ -951,16 +952,7 @@
                 text-align: right !important;
             }
 
-            /* Laps列 */
-            .listtable th.lap:not(.col-lapno),
-            .listtable td.lap:not(.col-lapno),
-            .listtable td[id$="_lap"] {
-                width: 30px !important;
-                min-width: 30px !important;
-                max-width: 30px !important;
-                text-align: center;
-                font-size: 9px;
-            }
+
         }
 
         /* ===== スマホ横：セクター & Speed 以外は全部表示 ===== */
