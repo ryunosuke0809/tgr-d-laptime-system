@@ -458,6 +458,19 @@
             /* ヘッダは固定、高さは自動 */
             .table-scroll #listtitle {
                 flex: 0 0 auto;
+                overflow-y: scroll;
+                scrollbar-gutter: stable;
+                padding-right: 0 !important;
+            }
+            
+            /* ヘッダーのスクロールバーを透明に */
+            .table-scroll #listtitle::-webkit-scrollbar {
+                width: 15px;
+                background: transparent;
+            }
+            
+            .table-scroll #listtitle::-webkit-scrollbar-thumb {
+                background: transparent;
             }
 
             /* ListArea だけ縦スクロール（ヘッダと同じ幅なので列がズレない） */
