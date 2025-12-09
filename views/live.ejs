@@ -752,7 +752,8 @@
                 background: #000;
             }
 
-            /* Diff / (L) / PIT を消す（BestTimeは表示する） */
+            /* スマホ縦で非表示にする列: Diff, (L), PIT, POSUP（順位変動アイコン） */
+            /* 表示する列: POS, No, STATUS, Driver, BestTime, Gap, LastLap, Laps */
             #listtitle .listtable th.col-diff,
             #listtitle .listtable th.col-lapno,
             #listtitle .listtable th.col-pit,
@@ -761,7 +762,13 @@
             .listtable td.col-pit,
             .listtable td[id$="_diff"],
             .listtable td[id$="_bestlap"],
-            .listtable td[id$="_pit"] {
+            .listtable td[id$="_pit"],
+            .listtable td.posup {
+                display: none;
+            }
+
+            /* racemode="R"の場合の空のth（POSUP用）も非表示 */
+            #listtitle .listtable th.pos:empty {
                 display: none;
             }
 
@@ -792,16 +799,6 @@
             }
 
             /* 各列の幅を明示的に指定してヘッダーとデータを揃える */
-            /* POSUP列（順位変動アイコン - racemode="R"の場合のみ） */
-            .listtable th.pos:empty,
-            .listtable td.posup {
-                width: 20px;
-                min-width: 20px;
-                max-width: 20px;
-                text-align: center;
-                padding: 2px 1px;
-            }
-
             /* POS列 */
             .listtable th.pos,
             .listtable td.pos {
@@ -1675,8 +1672,8 @@
 
 
         var uri = "<%= (typeof wsUri   !== 'undefined' ? wsUri   : 'ws://www.racelive.jp:8061/get') %>";
-        var sector = "<%= (typeof sector  !== 'undefined' ? sector  : '0') %>";
-        var speed = "<%= (typeof speed   !== 'undefined' ? speed   : 'OFF') %>";
+        var sector = "<%= (typeof sector  !== 'undefined' ? sector  : '3') %>";
+        var speed = "<%= (typeof speed   !== 'undefined' ? speed   : 'ON') %>";
         var circuit = "<%= (typeof circuit !== 'undefined' ? circuit : 'fsw') %>";
     </script>
 

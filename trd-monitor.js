@@ -53,8 +53,8 @@ app.get('/monitor/live', (req, res) => {
     title: 'TGR-D Timing Monitor',
     headerLabel: 'Practice2 - LIVE',
     wsUri: ws || 'ws://www.racelive.jp:8061/get',
-    sector: sector || '0',
-    speed: speed || 'OFF',
+    sector: sector || '3',
+    speed: speed || 'ON',
     circuit: circuit || 'fsw',
     backTo: '/monitor/'      // ← 戻るボタンのフォールバック先（このメニューページのパス）
   });

@@ -294,9 +294,9 @@ function setDriverData(data) {
                 }
             }
             if (lang == "EN") {
-                $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>');
+                $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>');
             } else {
-                $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>');
+                $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>');
             }
             //$(c + "_tire").html('<img src="' + tireImg + '" width="16" border=0>');
             $(c + "_maker").html('<img src="' + makerImg + '" width="16" border=0>');
@@ -314,7 +314,7 @@ function setListTitle() {
             '<th class="pos">POS</th>' +
             '<th class="no_title">No.</th>' +
             '<th class="info"></th>' +
-            '<th class="driver">Driver/Team</th>' +
+            '<th class="driver">Driver</th>' +
             //'<th class="tire">T</th>' +
             //'<th class="maker">E</th>' +
             '<th class="time col-best">BestTime</th>' +
@@ -346,7 +346,7 @@ function setListTitle() {
             '<th class="pos">POS</th>' +
             '<th class="no_title">No.</th>' +
             '<th class="info"></th>' +
-            '<th class="driver">Driver/Team</th>' +
+            '<th class="driver">Driver</th>' +
             //'<th class="tire">T</th>' +
             //'<th class="maker">E</th>' +
             '<th class="lap">Laps</th>' +
@@ -447,9 +447,9 @@ function setRowData(data) {
             '<td class="no" id="' + c + '_no">' + data.CARNO + '</td>' +
             '<td class="info" id="' + c + '_status"><img src="' + pitImg + '" width="16" border=0></td>';
         if (lang == "EN") {
-            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>';
+            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>';
         } else {
-            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>';
+            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>';
         }
         //html += '<td class="tire" id="' + c + '_tire"><img src="' + tireImg + '" width="16" border=0></td>' +
         //html += '<td class="maker" id="' + c + '_maker"><img src="' + makerImg + '" width="16" border=0></td>' +
@@ -483,9 +483,9 @@ function setRowData(data) {
             '<td class="no" id="' + c + '_no">' + data.CARNO + '</td>' +
             '<td class="info" id="' + c + '_status"><img src="' + pitImg + '" width="16" border=0></td>';
         if (lang == "EN") {
-            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>';
+            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>';
         } else {
-            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>';
+            html += '<td class="driver" id="' + c + '_driver"><div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>';
         }
         //html += '<td class="tire" id="' + c + '_tire"><img src="' + tireImg + '" width="16" border=0></td>' +
         //html += '<td class="maker" id="' + c + '_maker"><img src="' + makerImg + '" width="16" border=0></td>' +
