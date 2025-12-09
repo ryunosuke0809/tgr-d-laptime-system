@@ -6,16 +6,31 @@ body {
 	position:relative;
 	border:0 solid #fff;
 	overflow:hidden;
-	color:#fff
+	color:#fff;
+	margin: 0;
+	padding: 0;
+}
+#trackContainer {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 100vh;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
 #liveTrack {
+	transform-origin: 0 0;
+	transition: transform 0.1s ease-out;
 }
 .track {
 	top: 0px;
 	left: 0px;
     width: 1440px;
     height: 810px;
-    position: absolute;
+    position: relative;
     z-index: 1;
 }
 .course {
@@ -51,15 +66,15 @@ button.car {
     height: 64px;
     margin : 5px ;
 
-    /* •¶šƒTƒCƒY‚ğ1.4em‚Éw’è */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Cï¿½Yï¿½ï¿½1.4emï¿½Éwï¿½ï¿½ */
     font-size: 1.4em;
 
-    /* •¶š‚Ì‘¾‚³‚ğbold‚Éw’è */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ï¿½ï¿½ï¿½boldï¿½Éwï¿½ï¿½ */
     font-weight: bold;
 
     padding: 10px 10px;
 
-    /* •¶šF‚ğ”’F‚Éw’è */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½Fï¿½ğ”’Fï¿½Éwï¿½ï¿½ */
     color: #fff;
 
     border-style: solid;
@@ -68,7 +83,7 @@ button.car {
 
     text-shadow: 1px 1px 2px #000;
 
-    /* ŠpŠÛ‚Ìw’è */
+    /* ï¿½pï¿½Û‚Ìwï¿½ï¿½ */
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
@@ -76,7 +91,7 @@ button.car {
 }
 
 button.car:hover {
-    /* “§–¾“x‚ğ20%‚Éw’è */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½20%ï¿½Éwï¿½ï¿½ */
     opacity: 0.8;
 }
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,500,800);

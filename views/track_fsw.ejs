@@ -2002,13 +2002,16 @@
 </svg>
 
 
-    <div id="liveTrack" class="track">
-        <svg id="svgA" width="100%" height="100%"></svg>
+    <div id="trackContainer" style="position: relative; overflow: hidden; width: 100%; height: 100vh;">
+        <div id="liveTrack" class="track" style="transform-origin: 0 0; transition: transform 0.1s ease-out;">
+            <svg id="svgA" width="100%" height="100%"></svg>
+        </div>
     </div>
 
 <div id="weather">
 </div>
     <div id="classfilter" class="classselect"></div>
+    <button id="openNewWindow" onclick="window.open(window.location.href, '_blank')" style="position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 8px 16px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">Open New Window</button>
     <div id="Container" class="container">
         <div id="liveButton" class="btn">
         </div>
@@ -2018,6 +2021,12 @@
 <script type="text/javascript">
 
     var scale = 0.5;
+    var zoomScale = 1.0;
+    var minZoom = 0.5;
+    var maxZoom = 3.0;
+    var isPanning = false;
+    var startX = 0, startY = 0;
+    var translateX = 0, translateY = 0;
 
     $(window).on("resize", function() {
         if( window.innerWidth <= 1200 ) {
@@ -2033,7 +2042,124 @@
             $(".track").attr("height", 675);
             scale = 1200 / 1440;
         }
+        updateTransform();
     }).trigger("resize");
+
+    // Update transform with current zoom and pan
+    function updateTransform() {
+        $("#liveTrack").css("transform", "translate(" + translateX + "px, " + translateY + "px) scale(" + zoomScale + ")");
+    }
+
+    // Mouse wheel zoom for PC/Tablet
+    $("#trackContainer").on("wheel", function(e) {
+        e.preventDefault();
+        var delta = e.originalEvent.deltaY;
+        var zoomFactor = delta > 0 ? 0.9 : 1.1;
+        
+        var newZoom = zoomScale * zoomFactor;
+        newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+        
+        if (newZoom !== zoomScale) {
+            var rect = this.getBoundingClientRect();
+            var mouseX = e.clientX - rect.left;
+            var mouseY = e.clientY - rect.top;
+            
+            translateX = mouseX - (mouseX - translateX) * (newZoom / zoomScale);
+            translateY = mouseY - (mouseY - translateY) * (newZoom / zoomScale);
+            
+            zoomScale = newZoom;
+            updateTransform();
+        }
+    });
+
+    // Touch pinch zoom for tablets
+    var lastTouchDistance = 0;
+    $("#trackContainer").on("touchstart", function(e) {
+        if (e.originalEvent.touches.length === 2) {
+            var touch1 = e.originalEvent.touches[0];
+            var touch2 = e.originalEvent.touches[1];
+            lastTouchDistance = Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+            );
+        } else if (e.originalEvent.touches.length === 1) {
+            isPanning = true;
+            startX = e.originalEvent.touches[0].clientX - translateX;
+            startY = e.originalEvent.touches[0].clientY - translateY;
+        }
+    });
+
+    $("#trackContainer").on("touchmove", function(e) {
+        e.preventDefault();
+        if (e.originalEvent.touches.length === 2) {
+            var touch1 = e.originalEvent.touches[0];
+            var touch2 = e.originalEvent.touches[1];
+            var currentDistance = Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+            );
+            
+            if (lastTouchDistance > 0) {
+                var zoomFactor = currentDistance / lastTouchDistance;
+                var newZoom = zoomScale * zoomFactor;
+                newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+                
+                if (newZoom !== zoomScale) {
+                    var centerX = (touch1.clientX + touch2.clientX) / 2;
+                    var centerY = (touch1.clientY + touch2.clientY) / 2;
+                    var rect = this.getBoundingClientRect();
+                    centerX -= rect.left;
+                    centerY -= rect.top;
+                    
+                    translateX = centerX - (centerX - translateX) * (newZoom / zoomScale);
+                    translateY = centerY - (centerY - translateY) * (newZoom / zoomScale);
+                    
+                    zoomScale = newZoom;
+                    updateTransform();
+                }
+            }
+            lastTouchDistance = currentDistance;
+        } else if (isPanning && e.originalEvent.touches.length === 1) {
+            translateX = e.originalEvent.touches[0].clientX - startX;
+            translateY = e.originalEvent.touches[0].clientY - startY;
+            updateTransform();
+        }
+    });
+
+    $("#trackContainer").on("touchend", function(e) {
+        if (e.originalEvent.touches.length < 2) {
+            lastTouchDistance = 0;
+        }
+        if (e.originalEvent.touches.length === 0) {
+            isPanning = false;
+        }
+    });
+
+    // Mouse pan (click and drag) for PC
+    $("#trackContainer").on("mousedown", function(e) {
+        isPanning = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        $(this).css("cursor", "grabbing");
+    });
+
+    $(document).on("mousemove", function(e) {
+        if (isPanning) {
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        }
+    });
+
+    $(document).on("mouseup", function() {
+        if (isPanning) {
+            isPanning = false;
+            $("#trackContainer").css("cursor", "grab");
+        }
+    });
+
+    // Set initial cursor
+    $("#trackContainer").css("cursor", "grab");
 
 
     //var uri = "ws://superformula.racelive.jp:9001/" + "get"; //TEST
