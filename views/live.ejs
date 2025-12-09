@@ -520,13 +520,23 @@
             #ListArea {
                 max-height: 100%;
                 overflow-y: auto;
+                overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
             }
 
             .panel .listtable {
                 width: 100%;
-                min-width: 900px;
-                /* 列を詰めすぎないように、足りなければ横スクロール */
+                table-layout: fixed;
+                /* 列幅を固定して均等配分 */
+            }
+
+            /* ドライバー名の列幅を制限 */
+            .listtable th.col-driver,
+            .listtable td[id$="_driver"] {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
 
@@ -706,11 +716,19 @@
                 /* 横スクロール前提 */
                 font-size: 11px;
                 background: transparent;
+                table-layout: auto;
             }
 
             .panel .listtable th,
             .panel .listtable td {
                 padding: 1px 3px;
+                white-space: nowrap;
+            }
+
+            /* ドライバー名は折り返しを許可 */
+            .listtable td.driver,
+            .listtable td[id$="_driver"] {
+                white-space: normal;
             }
         }
 
@@ -740,7 +758,7 @@
             #listtitle .listtable th.col-lapno,
             #listtitle .listtable th.col-pit,
             #listtitle .listtable th:nth-child(6),
-            #listtitle .listtable th:nth-child(8),
+            #listtitle .listtitle th:nth-child(8),
             #listtitle .listtable th:nth-child(9),
             #listtitle .listtable th:nth-child(10),
             .listtable td.col-diff,
@@ -756,6 +774,39 @@
             .listtable tr td:nth-child(9),
             .listtable tr td:nth-child(10) {
                 display: none;
+            }
+
+            /* ドライバー名の列幅を制限 */
+            .listtable th.col-driver,
+            .listtable td[id$="_driver"],
+            .listtable td.driver {
+                max-width: 140px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .listtable td.driver div {
+                max-width: 140px !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 数値列のサイズ調整 */
+            .listtable th.col-pos,
+            .listtable th.col-no,
+            .listtable td.pos,
+            .listtable td.no {
+                width: 35px;
+                text-align: center;
+            }
+
+            .listtable th.col-gap,
+            .listtable th.col-lastlap,
+            .listtable th.col-laps,
+            .listtable td.time,
+            .listtable td.lap {
+                width: 55px;
+                text-align: right;
             }
         }
 
@@ -773,10 +824,12 @@
 
             .panel .container {
                 background: #000;
+                overflow-x: auto;
             }
 
             #ListArea {
                 background: #000;
+                overflow-x: auto;
             }
 
             #listtitle .listtable th,
@@ -796,9 +849,52 @@
             }
 
             .panel .listtable {
-                min-width: 900px;
-                font-size: 12px;
+                width: max-content;
+                min-width: 100%;
+                font-size: 11px;
                 background: transparent;
+                table-layout: auto;
+            }
+
+            /* 各列のサイズ調整 */
+            .listtable th,
+            .listtable td {
+                padding: 2px 4px;
+                white-space: nowrap;
+            }
+
+            /* ドライバー名の列幅を制限 */
+            .listtable th.col-driver,
+            .listtable td[id$="_driver"] {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 数値列は狭めに */
+            .listtable th.col-pos,
+            .listtable th.col-no,
+            .listtable th.col-lapno,
+            .listtable th.col-laps,
+            .listtable td[id$="_pos"],
+            .listtable td[id$="_carno"],
+            .listtable td[id$="_bestlap"],
+            .listtable td[id$="_lap"] {
+                width: 40px;
+                text-align: center;
+            }
+
+            /* タイム系列は中程度 */
+            .listtable th.col-best,
+            .listtable th.col-gap,
+            .listtable th.col-diff,
+            .listtable th.col-lastlap,
+            .listtable td[id$="_best"],
+            .listtable td[id$="_gap"],
+            .listtable td[id$="_diff"],
+            .listtable td[id$="_lastlap"] {
+                width: 60px;
+                text-align: right;
             }
         }
 
