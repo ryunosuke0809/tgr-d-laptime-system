@@ -347,12 +347,15 @@
             padding: 8px 8px 16px 72px !important;
             background: #000;
             min-height: 100vh;
-            /* 上をかなり詰める */
+            /* コンテンツを中央に配置 */
+            display: flex;
+            justify-content: center;
         }
 
         /* PC / タブレット共通：パネル（黒いウィンドウ） */
         .panel {
-            max-width: 1200px;
+            width: 100%;
+            max-width: 1300px;
             margin: 4px auto 16px !important;
             /* 上下の白余白を最小限に */
             background: #000;
@@ -735,17 +738,28 @@
         /* ===== スマホ縦（POS / No / Driver / Laps / Gap / LastLap だけ） ===== */
         @media (max-width: 767.98px) and (orientation: portrait) {
 
+            /* スマホ縦画面専用レイアウト：iPhone標準サイズに最適化 */
             main.content {
                 background: #000;
+                padding: 4px 0px 8px 0px !important;
+                justify-content: center;
             }
 
             .panel {
                 background: #000;
+                width: 100%;
+                max-width: 393px;
+                /* iPhone 14 Pro標準サイズ */
+                margin: 0 auto !important;
                 height: calc(100vh - 48px);
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
             }
 
             .panel .container {
                 background: #000;
+                padding: 0 4px 8px;
             }
 
             #ListArea {
@@ -880,17 +894,28 @@
         /* ===== スマホ横：セクター & Speed 以外は全部表示 ===== */
         @media (max-width: 767.98px) and (orientation: landscape) {
 
+            /* スマホ横画面専用レイアウト：iPhone横向きに最適化 */
             main.content {
                 background: #000;
+                padding: 4px 0px 8px 0px !important;
+                justify-content: center;
             }
 
             .panel {
                 background: #000;
+                width: 100%;
+                max-width: 852px;
+                /* iPhone 14 Pro Max横向きサイズ */
+                margin: 0 auto !important;
                 height: calc(100vh - 48px);
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
             }
 
             .panel .container {
                 background: #000;
+                padding: 0 8px 8px;
                 overflow-x: auto;
             }
 
@@ -1293,14 +1318,22 @@
         /* PC / タブレット：ヘッダ直下から画面下までをパネルに割り当てて、
    中身だけ縦スクロールさせる */
         @media (min-width: 768px) {
+            main.content {
+                padding: 0px 0 0px 0 !important;
+                display: flex;
+                justify-content: center;
+            }
+
             .panel {
                 /* 上の赤いヘッダぶんを差し引いた高さに調整（少し余裕を見て 70px） */
+                width: 100%;
+                max-width: 1300px;
+                /* PC用最大幅 */
                 height: calc(100vh - 70px);
-                margin: 4px 0 8px 0;
-                border-radius: 0;
-                /* 外側の白い余白を消すイメージで角丸もオフ */
-                box-shadow: none;
-                border-width: 0;
+                margin: 4px auto 8px !important;
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, .5);
+                border: 1px solid rgba(255, 255, 255, .05);
             }
 
             /* signalbar と ヘッダ行 は上側に固定高さ */
@@ -1317,20 +1350,16 @@
                 /* 横に足りないときは横スクロール */
                 -webkit-overflow-scrolling: touch;
             }
-
-            /* コンテンツの余白を詰めて、左の余白をほぼゼロに */
-            main.content {
-                padding: 0px 0 0px 0 !important;
-            }
         }
 
-        /* タブレット以下（〜1023px）：パネルを画面いっぱいにして、
+        /* タブレット（768px〜1023px）：パネルを画面いっぱいにして、
    watch 背景の上にピッタリ乗る感じにする */
-        @media (max-width: 1023.98px) {
+        @media (min-width: 768px) and (max-width: 1023.98px) {
             .panel {
                 width: 100%;
-                max-width: 100%;
-                margin: 0;
+                max-width: 1024px;
+                /* タブレット用最大幅 */
+                margin: 0 auto !important;
                 border-radius: 0;
                 box-shadow: none;
                 border-width: 0;
