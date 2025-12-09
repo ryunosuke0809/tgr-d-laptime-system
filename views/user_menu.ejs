@@ -325,18 +325,7 @@
       </div>
       <div class="top-menu">
         <ul class="nav pull-right top-menu"> 
-          <a id="userid" class="user_link">
-            @ <%= id %>
-            <% if (typeof role !== 'undefined') { %>
-              <% if (role === 'admin') { %>
-                <span style="color: #FFD700; font-size: 0.9em;"> (管理者)</span>
-              <% } else if (role === 'user') { %>
-                <span style="color: #90EE90; font-size: 0.9em;"> (一般)</span>
-              <% } else if (role === 'viewer') { %>
-                <span style="color: #87CEEB; font-size: 0.9em;"> (閲覧)</span>
-              <% } %>
-            <% } %>
-          </a>
+          <a id="userid" class="user_link">@ <%= id %></a>
         </ul>
       </div>
     </header>
@@ -354,7 +343,6 @@
       </div>
     </div>
 
-    <% if (typeof role !== 'undefined' && (role === 'admin' || role === 'user')) { %>
     <div id="download" class="flex_test-item">
       <div class="l-card">
         <div class="l-thumbnail">
@@ -363,9 +351,7 @@
         </div>
       </div>
     </div>
-    <% } %>
 
-    <% if (typeof role !== 'undefined' && role === 'admin') { %>
     <div id="user" class="flex_test-item">
       <div class="l-card">
         <div class="l-thumbnail">
@@ -374,7 +360,6 @@
         </div>
       </div>
     </div>
-    <% } %>
     
     <div class="flex_test-item">
       <div id="logout" class="l-card">
@@ -457,13 +442,7 @@
     });
 
     $("#user").click(function () {
-      // 管理者の場合はユーザー管理画面へ
-      var role = "<%= typeof role !== 'undefined' ? role : 'user' %>";
-      if (role === 'admin') {
-        window.location.href = '/user/admin';
-      } else {
-        alert('管理者権限が必要です');
-      }
+      window.location.href = '/user/admin';
     });
 
   </script>
