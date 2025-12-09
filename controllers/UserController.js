@@ -12,6 +12,28 @@ const loginModel = require('../models/LoginModel');
 const userModel = require('../models/UserModel');
 
 console.log('START USER CONTROLLER');
+
+// 管理者権限チェックミドルウェア
+function checkAdmin(req, res, next) {
+    if (!req.session || !req.session.username) {
+        return res.redirect('/login/init');
+    }
+    
+    // ユーザー情報を取得してロールチェック
+    loginModel.getUserData(req.session.username, '').then((userData) => {
+        if (userData === "NG" || userData.role !== 'admin') {
+            return res.status(403).render(Views + 'session_error.ejs', { 
+                msg: '管理者権限が必要です' 
+            });
+        }
+        next();
+    }).catch(() => {
+        return res.status(403).render(Views + 'session_error.ejs', { 
+            msg: 'アクセス権限がありません' 
+        });
+    });
+}
+
 module.exports = {
     doMenu: function (req, res, next) {
         var name = req.body.username;
@@ -24,12 +46,13 @@ module.exports = {
                 res.render(Views + 'login.ejs', { "msg": msg.login_check });
             } else {
                 req.session.username = name;
-                const sid = req.sessionID;          // ← 追加
+                req.session.userRole = result.role || 'user';  // ← ロールをセッションに保存
+                const sid = req.sessionID;
                 res.render(Views + 'user_menu.ejs', {
                     id: name,
-                    sid: sid                          // ← 追加
+                    sid: sid,
+                    role: result.role || 'user'  // ← ロールを渡す
                 });
-                //res.render(Views + 'user_menu.ejs', { "id": name });
             }
             console.log("doCheck Result -> [ " + name + " : " + JSON.stringify(result) + " ]");
 
@@ -41,18 +64,50 @@ module.exports = {
         const sid = req.query.s || '';   // sid（署名トークン等にするのが理想）
 
         if (name) {
-            // u/s で来た → セッション補完
-            req.session.username = name;
-            req.session.sid = sid;
-            return res.render(Views + 'user_menu.ejs', { id: name, sid });
+            // u/s で来た → ユーザー情報を取得してセッション補完
+            loginModel.getUserData(name, '').then((result) => {
+                if (result == "NG") {
+                    return res.redirect('/login/init');
+                }
+                req.session.username = name;
+                req.session.sid = sid;
+                req.session.userRole = result.role || 'user';
+                return res.render(Views + 'user_menu.ejs', { 
+                    id: name, 
+                    sid: sid,
+                    role: result.role || 'user'
+                });
+            }).catch(() => {
+                return res.redirect('/login/init');
+            });
+            return;
         }
 
         // u/s なし → 既存セッションが生きていればそのまま
         if (req.session && req.session.username) {
-            return res.render(Views + 'user_menu.ejs', {
-                id: req.session.username,
-                sid: req.session.sid || ''
-            });
+            // セッションにロールがない場合は取得
+            if (!req.session.userRole) {
+                loginModel.getUserData(req.session.username, '').then((result) => {
+                    if (result == "NG") {
+                        return res.redirect('/login/init');
+                    }
+                    req.session.userRole = result.role || 'user';
+                    return res.render(Views + 'user_menu.ejs', {
+                        id: req.session.username,
+                        sid: req.session.sid || '',
+                        role: result.role || 'user'
+                    });
+                }).catch(() => {
+                    return res.redirect('/login/init');
+                });
+            } else {
+                return res.render(Views + 'user_menu.ejs', {
+                    id: req.session.username,
+                    sid: req.session.sid || '',
+                    role: req.session.userRole
+                });
+            }
+            return;
         }
 
         // どれも無ければログインへ
@@ -397,6 +452,141 @@ module.exports = {
             res.setHeader('Content-Disposition', 'attachment; filename=result.pdf');
             res.send(result[0].CONTENTS);
         });
+    },
+
+    // ============ ユーザー管理機能 ============
+    
+    // ユーザー管理画面を表示
+    showAdminPage: function (req, res, next) {
+        if (!req.session || !req.session.username) {
+            return res.redirect('/login/init');
+        }
+
+        loginModel.getUserData(req.session.username, '').then((userData) => {
+            if (userData === "NG" || userData.role !== 'admin') {
+                return res.status(403).render(Views + 'session_error.ejs', { 
+                    msg: '管理者権限が必要です' 
+                });
+            }
+
+            const sid = req.sessionID;
+            res.render(Views + 'user_admin.ejs', {
+                id: req.session.username,
+                sid: sid,
+                currentUser: userData
+            });
+        }).catch((err) => {
+            console.error('Error:', err);
+            res.status(500).send('Internal Server Error');
+        });
+    },
+
+    // 全ユーザー一覧を取得（API）
+    getAllUsersAPI: async function (req, res, next) {
+        try {
+            if (!req.session || !req.session.username) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+
+            const currentUserData = await new Promise((resolve, reject) => {
+                loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
+            });
+
+            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
+            const users = await userModel.getAllUsers();
+            res.json({ success: true, users: users });
+        } catch (err) {
+            console.error('Error getting users:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    },
+
+    // ユーザーを作成（API）
+    createUserAPI: async function (req, res, next) {
+        try {
+            if (!req.session || !req.session.username) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+
+            const currentUserData = await new Promise((resolve, reject) => {
+                loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
+            });
+
+            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
+            const { id, password, name, email, role } = req.body;
+
+            if (!id || !password || !name || !email || !role) {
+                return res.status(400).json({ success: false, message: 'All fields are required' });
+            }
+
+            const result = await userModel.createUser({ id, password, name, email, role });
+            res.json(result);
+        } catch (err) {
+            console.error('Error creating user:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    },
+
+    // ユーザーを更新（API）
+    updateUserAPI: async function (req, res, next) {
+        try {
+            if (!req.session || !req.session.username) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+
+            const currentUserData = await new Promise((resolve, reject) => {
+                loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
+            });
+
+            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
+            const userId = req.params.id;
+            const { password, name, email, role } = req.body;
+
+            const result = await userModel.updateUser(userId, { password, name, email, role });
+            res.json(result);
+        } catch (err) {
+            console.error('Error updating user:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
+    },
+
+    // ユーザーを削除（API）
+    deleteUserAPI: async function (req, res, next) {
+        try {
+            if (!req.session || !req.session.username) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+
+            const currentUserData = await new Promise((resolve, reject) => {
+                loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
+            });
+
+            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
+            const userId = req.params.id;
+
+            // 自分自身を削除しようとしていないかチェック
+            if (userId === req.session.username) {
+                return res.status(400).json({ success: false, message: 'Cannot delete your own account' });
+            }
+
+            const result = await userModel.deleteUser(userId);
+            res.json(result);
+        } catch (err) {
+            console.error('Error deleting user:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
     }
 }
 

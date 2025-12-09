@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/images/trd/favicon.ico" type="image/x-icon" />
+  <title>ユーザー管理 - TRD Timing Monitor</title>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:600,400,300'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #fafafa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 1002;
+      min-height: 60px;
+      padding: 0 15px;
+      background: #ff0000;
+      border-bottom: 9px solid #000000;
+    }
+
+    a.logo {
+      font-size: 20px;
+      color: #f2f2f2;
+      float: left;
+      margin-top: 15px;
+      text-transform: uppercase;
+      font-family: 'Saira', sans-serif;
+      text-decoration: none;
+    }
+
+    a.logo b {
+      font-weight: 900;
+    }
+
+    .user_link {
+      margin: 0px 0px 0px 20px;
+      padding-left: 1.5em;
+      font-size: 1.2em;
+      font-weight: bold;
+      display: inline;
+      vertical-align: middle;
+      color: #FFF;
+      font-family: 'Saira', sans-serif;
+      float: right;
+      line-height: 60px;
+    }
+
+    .main-content {
+      margin-top: 90px;
+      padding: 20px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .actions {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s;
+    }
+
+    .btn-primary {
+      background: #ff0000;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #cc0000;
+    }
+
+    .btn-secondary {
+      background: #666;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #555;
+    }
+
+    .btn-edit {
+      background: #4CAF50;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-edit:hover {
+      background: #45a049;
+    }
+
+    .btn-delete {
+      background: #f44336;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-delete:hover {
+      background: #da190b;
+    }
+
+    table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #333;
+      color: white;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      font-weight: 600;
+    }
+
+    tbody tr:hover {
+      background: #f5f5f5;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .role-admin {
+      background: #ff0000;
+      color: white;
+    }
+
+    .role-user {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .role-viewer {
+      background: #2196F3;
+      color: white;
+    }
+
+    /* モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 30px;
+      border: 1px solid #888;
+      border-radius: 8px;
+      width: 500px;
+      max-width: 90%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 20px;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #ff0000;
+    }
+
+    .modal-actions {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .modal-actions .btn {
+      margin-left: 10px;
+    }
+
+    .message {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #ff0000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a class="logo"><b>TGR-D LAPTIME SYSTEM</b></a>
+    <div class="top-menu">
+      <span class="user_link">@ <%= id %> (管理者)</span>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <a href="/user/menu" class="back-link">← メニューに戻る</a>
+    
+    <h1>ユーザー管理</h1>
+
+    <div id="message" class="message"></div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="openCreateModal()">
+        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">add</i>
+        新規ユーザー作成
+      </button>
+    </div>
+
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>ユーザーID</th>
+          <th>名前</th>
+          <th>メールアドレス</th>
+          <th>ロール</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- ユーザーリストがここに表示されます -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 作成/編集モーダル -->
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="modalTitle">新規ユーザー作成</h2>
+      <form id="userForm">
+        <div class="form-group">
+          <label for="userId">ユーザーID *</label>
+          <input type="text" id="userId" name="id" required>
+        </div>
+        <div class="form-group">
+          <label for="userName">名前 *</label>
+          <input type="text" id="userName" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="userEmail">メールアドレス *</label>
+          <input type="email" id="userEmail" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="userPassword">パスワード <span id="passwordHint">*</span></label>
+          <input type="password" id="userPassword" name="password">
+        </div>
+        <div class="form-group">
+          <label for="userRole">ロール *</label>
+          <select id="userRole" name="role" required>
+            <option value="admin">管理者 (admin)</option>
+            <option value="user" selected>一般ユーザー (user)</option>
+            <option value="viewer">閲覧者 (viewer)</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let isEditMode = false;
+    let editingUserId = null;
+
+    // ページロード時にユーザー一覧を取得
+    $(document).ready(function() {
+      loadUsers();
+    });
+
+    // ユーザー一覧を読み込む
+    function loadUsers() {
+      $.ajax({
+        url: '/user/api/users',
+        method: 'GET',
+        success: function(response) {
+          if (response.success) {
+            displayUsers(response.users);
+          } else {
+            showMessage('ユーザーの読み込みに失敗しました', 'error');
+          }
+        },
+        error: function() {
+          showMessage('サーバーエラーが発生しました', 'error');
+        }
+      });
+    }
+
+    // ユーザー一覧を表示
+    function displayUsers(users) {
+      const tbody = $('#userTableBody');
+      tbody.empty();
+
+      users.forEach(function(user) {
+        const roleClass = 'role-' + user.role;
+        const roleLabel = user.role === 'admin' ? '管理者' : 
+                         user.role === 'user' ? '一般ユーザー' : '閲覧者';
+        
+        const row = `
+          <tr>
+            <td>${escapeHtml(user.id)}</td>
+            <td>${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
+            <td>
+              <button class="btn btn-edit" onclick="openEditModal('${user.id}')">編集</button>
+              <button class="btn btn-delete" onclick="deleteUser('${user.id}')">削除</button>
+            </td>
+          </tr>
+        `;
+        tbody.append(row);
+      });
+    }
+
+    // 新規作成モーダルを開く
+    function openCreateModal() {
+      isEditMode = false;
+      editingUserId = null;
+      $('#modalTitle').text('新規ユーザー作成');
+      $('#userId').prop('disabled', false);
+      $('#userPassword').prop('required', true);
+      $('#passwordHint').text('*');
+      $('#userForm')[0].reset();
+      $('#userModal').show();
+    }
+
+    // 編集モーダルを開く
+    function openEditModal(userId) {
+      isEditMode = true;
+      editingUserId = userId;
+      $('#modalTitle').text('ユーザー編集');
+      $('#userId').prop('disabled', true);
+      $('#userPassword').prop('required', false);
+      $('#passwordHint').text('(変更する場合のみ入力)');
+
+      // ユーザー情報を取得して表示
+      $.ajax({
+        url: '/user/api/users',
+        method: 'GET',
+        success: function(response) {
+          if (response.success) {
+            const user = response.users.find(u => u.id === userId);
+            if (user) {
+              $('#userId').val(user.id);
+              $('#userName').val(user.name);
+              $('#userEmail').val(user.email);
+              $('#userRole').val(user.role);
+              $('#userPassword').val('');
+              $('#userModal').show();
+            }
+          }
+        }
+      });
+    }
+
+    // モーダルを閉じる
+    function closeModal() {
+      $('#userModal').hide();
+      $('#userForm')[0].reset();
+    }
+
+    // フォーム送信
+    $('#userForm').submit(function(e) {
+      e.preventDefault();
+
+      const formData = {
+        id: $('#userId').val(),
+        name: $('#userName').val(),
+        email: $('#userEmail').val(),
+        password: $('#userPassword').val(),
+        role: $('#userRole').val()
+      };
+
+      if (isEditMode) {
+        // 更新
+        $.ajax({
+          url: '/user/api/users/' + editingUserId,
+          method: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify(formData),
+          success: function(response) {
+            if (response.success) {
+              showMessage('ユーザーを更新しました', 'success');
+              closeModal();
+              loadUsers();
+            } else {
+              showMessage(response.message || 'ユーザーの更新に失敗しました', 'error');
+            }
+          },
+          error: function(xhr) {
+            const response = xhr.responseJSON;
+            showMessage(response?.message || 'サーバーエラーが発生しました', 'error');
+          }
+        });
+      } else {
+        // 新規作成
+        $.ajax({
+          url: '/user/api/users',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(formData),
+          success: function(response) {
+            if (response.success) {
+              showMessage('ユーザーを作成しました', 'success');
+              closeModal();
+              loadUsers();
+            } else {
+              showMessage(response.message || 'ユーザーの作成に失敗しました', 'error');
+            }
+          },
+          error: function(xhr) {
+            const response = xhr.responseJSON;
+            showMessage(response?.message || 'サーバーエラーが発生しました', 'error');
+          }
+        });
+      }
+    });
+
+    // ユーザー削除
+    function deleteUser(userId) {
+      if (!confirm('ユーザー "' + userId + '" を削除してもよろしいですか？')) {
+        return;
+      }
+
+      $.ajax({
+        url: '/user/api/users/' + userId,
+        method: 'DELETE',
+        success: function(response) {
+          if (response.success) {
+            showMessage('ユーザーを削除しました', 'success');
+            loadUsers();
+          } else {
+            showMessage(response.message || 'ユーザーの削除に失敗しました', 'error');
+          }
+        },
+        error: function(xhr) {
+          const response = xhr.responseJSON;
+          showMessage(response?.message || 'サーバーエラーが発生しました', 'error');
+        }
+      });
+    }
+
+    // メッセージ表示
+    function showMessage(text, type) {
+      const $message = $('#message');
+      $message.removeClass('success error').addClass(type);
+      $message.text(text);
+      $message.show();
+      
+      setTimeout(function() {
+        $message.fadeOut();
+      }, 5000);
+    }
+
+    // HTMLエスケープ
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // モーダル外クリックで閉じる
+    window.onclick = function(event) {
+      if (event.target.id === 'userModal') {
+        closeModal();
+      }
+    }
+  </script>
+
+</body>
+</html>

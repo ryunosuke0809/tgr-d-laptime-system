@@ -7,8 +7,19 @@ module.exports = {
     getUserData: function (name, pwd) {
         return new Promise ((resolve, reject) => {
             fs.readFile('data/user.json', 'utf8', function (err, text) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
                 userList = JSON.parse(text);
-                var userData = userList.find((v) => v.id == name && v.password == pwd);
+                // パスワードが空の場合は、IDのみでチェック（ロール確認用）
+                var userData;
+                if (pwd === '') {
+                    userData = userList.find((v) => v.id == name);
+                } else {
+                    userData = userList.find((v) => v.id == name && v.password == pwd);
+                }
+                
                 if (userData == undefined) {
                     resolve("NG");
                 } else {
