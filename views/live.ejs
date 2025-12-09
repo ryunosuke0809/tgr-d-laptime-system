@@ -778,35 +778,39 @@
                 /* 横スクロールを完全に無効化 */
             }
 
-            /* スマホ縦で非表示にする列: Diff, (L), PIT, POSUP（順位変動アイコン） */
+            /* スマホ縦：必須列を強制表示 */
             /* 表示する列: POS, No, STATUS, Driver, BestTime, Gap, LastLap, Laps */
+            #listtitle .listtable th,
+            .listtable td {
+                display: table-cell !important;
+            }
+
+            /* スマホ縦で非表示にする列: Diff, (L), PIT, POSUP, セクター, スピード */
             #listtitle .listtable th.col-diff,
             #listtitle .listtable th.col-lapno,
             #listtitle .listtable th.col-pit,
+            #listtitle .listtable th.col-sec,
+            #listtitle .listtable th.col-speed,
             .listtable td.col-diff,
             .listtable td.col-lapno,
             .listtable td.col-pit,
+            .listtable td.col-sec,
+            .listtable td.col-speed,
             .listtable td[id$="_diff"],
             .listtable td[id$="_bestlap"],
             .listtable td[id$="_pit"],
-            .listtable td.posup {
-                display: none;
-            }
-
-            /* racemode="R"の場合の空のth（POSUP用）も非表示 */
-            #listtitle .listtable th.pos:empty {
-                display: none;
-            }
-
-            /* セクターとスピードは非表示 */
-            #listtitle .listtable th.col-sec,
-            #listtitle .listtable th.col-speed,
             .listtable td[id$="_sec1"],
             .listtable td[id$="_sec2"],
             .listtable td[id$="_sec3"],
             .listtable td[id$="_sec4"],
-            .listtable td[id$="_speed"] {
-                display: none;
+            .listtable td[id$="_speed"],
+            .listtable td.posup {
+                display: none !important;
+            }
+
+            /* racemode="R"の場合の空のth（POSUP用）も非表示 */
+            #listtitle .listtable th.pos:empty {
+                display: none !important;
             }
 
             /* テーブル全体のレイアウト調整 - スマホ縦画面専用 */
@@ -945,6 +949,13 @@
             #listtitle .listtable th,
             .listtable td {
                 display: table-cell !important;
+            }
+
+            /* スマホ横ではPITを非表示 */
+            #listtitle .listtable th.col-pit,
+            .listtable td.col-pit,
+            .listtable td[id$="_pit"] {
+                display: none !important;
             }
 
             .panel .listtable {
