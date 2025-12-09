@@ -121,7 +121,7 @@ background-position: center top;
 }
 .pos {
   text-align:right;
-  width: 30px;
+  width: 40px;
   font-weight: bold;
 }
 .raceclass {
@@ -130,12 +130,12 @@ background-position: center top;
 }
 .no_title {
   text-align:right;
-  width: 25px;
+  width: 40px;
   font-weight: bold;
  }
 .no {
   text-align:right;
-  width: 25px;
+  width: 40px;
   font-weight: bold;
   background: linear-gradient(72deg, transparent 30%, transparent 10%, #ff0000 16%, #001d0f 109%);
 
@@ -172,17 +172,17 @@ background-position: center top;
 }
 .lap {
   text-align:right;
-  width: 30px;
+  width: 35px;
   font-weight: bold;
 }
 .pit {
   text-align:right;
-  width: 30px;
+  width: 35px;
   font-weight: bold;
 }
 .time {
   text-align:right;
-  width: 60px;
+  width: 65px;
   font-weight: bold;
 }
 

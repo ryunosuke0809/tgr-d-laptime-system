@@ -904,11 +904,59 @@
         .listtable {
             background: transparent;
             border-collapse: collapse;
+            width: 100%;
         }
 
         .listtable th,
         .listtable td {
             background: transparent;
+            padding: 4px 6px;
+            white-space: nowrap;
+        }
+
+        /* 列幅の統一設定 */
+        .listtable .pos,
+        .listtable th.pos {
+            width: 40px;
+            text-align: right;
+        }
+
+        .listtable .no,
+        .listtable .no_title,
+        .listtable th.no_title {
+            width: 40px;
+            text-align: right;
+        }
+
+        .listtable .info {
+            width: 20px;
+            text-align: center;
+        }
+
+        .listtable .driver,
+        .listtable th.driver {
+            width: 90px;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .listtable .time,
+        .listtable th.time {
+            width: 65px;
+            text-align: right;
+        }
+
+        .listtable .lap,
+        .listtable th.lap {
+            width: 35px;
+            text-align: right;
+        }
+
+        .listtable .pit,
+        .listtable th.pit {
+            width: 35px;
+            text-align: right;
         }
 
         /* 行の背景色 */
