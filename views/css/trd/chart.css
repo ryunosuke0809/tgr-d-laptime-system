@@ -1,0 +1,63 @@
+body {
+	background: #000;
+	font-family:Hiragino Kaku Gothic ProN,Meiryo,sans-serif;
+	font-size:11px;
+	font-weight:bold;
+	position:relative;
+	border:0 solid #fff;
+	overflow:hidden;
+	color:#fff
+}
+
+.btn {
+    position: relative;
+    z-index: 999;
+}
+
+button.car {
+    display:block;
+    margin: 0 auto;
+    cursor: hand;
+    width: 48px;
+    height: 48px;
+    margin : 1px ;
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #fff;
+    border-style: solid;
+    border-color: #ffa500;
+    background-color: #000;
+    text-align: center;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+button.car:hover {
+    opacity: 0.8;
+}
+
+#slider-custom .ui-slider-handle {
+    width:28px;
+    height:28px;
+    margin-top:0px;
+    background:#0088ff;
+    border:3px solid #4444aa;
+    border-radius: 30px;
+    moz-border-radius: 30px;
+    -webkit-border-radius: 30px;
+}
+ 
+/* css 移動範囲の色 */
+#slider-custom .ui-slider-range {
+    background:#c7e7f7;
+}
+
+.ui-slider-vertical {
+    width: 0.3em;
+}
+
+.ui-slider-vertical .ui-slider-handle {
+    margin-left: -.6em;
+}
+

@@ -1,0 +1,273 @@
+body {
+  background-color: #000;
+}
+
+.container{
+width: 1100px;
+padding: 1px 1px 0;
+text-align: justify;
+font-size: 0.1px;
+background:#444;
+-webkit-backface-visibility: hidden;
+}
+
+.container:after{
+content:'';
+display:inline-block;
+/* width:100%; */
+}
+
+.container .mix,
+.container .gap{
+  display: inline-block;
+  width: 900px;
+  height:40px;
+
+}
+
+.container .mix{
+  text-align: left;
+  background: #111;
+  margin-bottom: 1px;
+  width: 100%;
+  display: none;
+}
+
+.container .mix:after{
+  content: attr(text);
+  color: white;
+  font-size: 12px;
+/*  display: inline-block; */
+  vertical-align: middle;
+  padding: 0px 0px;
+  font-weight: 700;
+  width: 900px;
+  height:40px;
+}
+
+.container .mix:before{
+  content: '';
+  display: inline-block;
+}
+
+.listtable table {
+	border-collapse: collapse;
+    border: 0px;
+	margin: 0px  0px  0px;
+	font-size: 1.1em;
+	table-layout: fixed;
+}
+
+.listtable th {
+	padding: 0px 4px;
+	color: #ff0000;
+	font-weight: bold;
+	text-align: center;
+        font-family: 'Saira', sans-serif;
+}
+.listtable tr {
+    height:36px;
+    cursor: hand;
+    cursor:pointer;
+
+}
+
+.listtable tr:hover{
+    background-color:#444;
+}
+
+.listtable td {
+	padding: 0px 4px;
+	border-bottom: 0px solid #ccc;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+
+.listtable {
+  table-layout: fixed;
+  font-size: 14px;
+  color: white;
+  vertical-align: middle;
+}
+
+.title_pos {
+  text-align:center;
+  text-decoration: underline;
+  width: 25px;
+  font-weigth: bold;
+}
+.title_raceclass {
+  text-align:center;
+  text-decoration: underline;
+  width: 30px;
+  font-weigth: bold;
+}
+.title_no {
+  text-align:center;
+  text-decoration: underline;
+  width: 30px;
+  font-weigth: bold;
+}
+
+.posup {
+  text-align:center;
+  width: 30px;
+  font-size: 11px;
+  font-weigth: bold;
+background-image: url("../images/dummy.gif");
+background-repeat: no-repeat;
+background-position: center top;
+}
+.pos {
+  text-align:right;
+  width: 30px;
+  font-weight: bold;
+}
+.raceclass {
+  text-align:center;
+  width: 30px;
+}
+.no_title {
+  text-align:right;
+  width: 25px;
+  font-weight: bold;
+ }
+.no {
+  text-align:right;
+  width: 25px;
+  font-weight: bold;
+  background: linear-gradient(72deg, transparent 30%, transparent 10%, #ff0000 16%, #001d0f 109%);
+
+}
+.info {
+  text-align:center;
+  width: 20px;
+}
+.driver {
+  text-align:left;
+  width: 170px;
+  font-weight: bold;
+}
+.team {
+  text-align:left;
+  width: 120px;
+  overflow: hidden;
+  font-weight: bold;
+}
+.frame {
+  text-align:left;
+  width: 40px;
+}
+.tire {
+  text-align:center;
+  width: 16px;
+}
+.maker {
+  text-align:center;
+  width: 16px;
+}
+.lap {
+  text-align:right;
+  width: 30px;
+  font-weight: bold;
+}
+.pit {
+  text-align:right;
+  width: 30px;
+  font-weight: bold;
+}
+.time {
+  text-align:right;
+  width: 60px;
+  font-weight: bold;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,500,800);
+
+.classmenu {
+  font-family: 'Raleway', Arial, sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.5em;;
+  font-weight: 1000;
+}
+
+.classmenu * {
+  box-sizing: border-box;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.classmenu li {
+  display: inline-block;
+  list-style: outside none none;
+  margin: 0 1.5em;
+  overflow: hidden;
+}
+.classmenu a {
+  padding: 0.2em 0;
+  color: rgba(1, 1, 1, 0.7);
+  position: relative;
+  display: inline-block;
+  letter-spacing: 1px;
+  margin: 0;
+  text-decoration: none;
+  font-family: 'Saira', sans-serif;
+}
+.classmenu a:before,
+.classmenu a:after {
+  position: absolute;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.classmenu a:before {
+  bottom: 100%;
+  display: block;
+  height: 3px;
+  width: 100%;
+  content: "";
+  background-color: #e67e22;
+}
+.classmenu a:after {
+  padding: 0.3em 0;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  content: attr(data-hover);
+  color: rgba(1, 1, 1, 1.0);
+  white-space: nowrap;
+  font-family: 'Saira', sans-serif;
+}
+.classmenu li:hover a,
+.classmenu .current a {
+  transform: translateY(100%);
+}
+
+
+
+
+
+
+
+
+@keyframes s1 {
+  0% { background: #f00; }
+  100% { background: #111; }
+}
+@keyframes s2 {
+  0% { background: #00f; }
+  100% { background: #111; }
+}
+@keyframes s3 {
+  0% { background: #ff0; }
+  100% { background: #111; }
+}
+@keyframes s4 {
+  0% { background: #0f0; }
+  100% { background: #111; }
+}
+@keyframes s0 {
+  0% { background: #111; }
+  100% { background: #111; }
+}
+

@@ -1,0 +1,186 @@
+body {
+	background: #000;
+	font-family:Hiragino Kaku Gothic ProN,Meiryo,sans-serif;
+	font-size:11px;
+	font-weight:normal;
+	position:relative;
+	border:0 solid #fff;
+	overflow:hidden;
+	color:#fff
+}
+#liveTrack {
+}
+.track {
+	top: 0px;
+	left: 0px;
+    width: 1440px;
+    height: 810px;
+    position: absolute;
+    z-index: 1;
+}
+.course {
+  width: 414px;
+  height: 233px;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  background-color: #0f0;
+}
+.classselect {
+    position: relative;
+    width: 800px;
+    top: -40px;
+    left: -280px;
+    z-index: 998;
+}
+
+#liveButton {
+}
+.btn {
+    position: relative;
+    top: 20px;
+    z-index: 999;
+}
+
+button.car {
+
+    cursor: hand;
+    cursor:pointer;
+
+    width: 64px;
+    height: 64px;
+    margin : 5px ;
+
+    /* 文字サイズを1.4emに指定 */
+    font-size: 1.4em;
+
+    /* 文字の太さをboldに指定 */
+    font-weight: bold;
+
+    padding: 10px 10px;
+
+    /* 文字色を白色に指定 */
+    color: #fff;
+
+    border-style: solid;
+    border-color: #66cdaa;
+    background-color: #000;
+
+    text-shadow: 1px 1px 2px #000;
+
+    /* 角丸の指定 */
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    font-family: 'Saira', sans-serif;
+}
+
+button.car:hover {
+    /* 透明度を20%に指定 */
+    opacity: 0.8;
+}
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,500,800);
+
+.classmenu {
+  font-family: 'Raleway', Arial, sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.5em;;
+  font-weight: 900;
+}
+
+.classmenu * {
+  box-sizing: border-box;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.classmenu li {
+  display: inline-block;
+  list-style: outside none none;
+  margin: 0 1.5em;
+  overflow: hidden;
+}
+.classmenu a {
+  padding: 0.3em 0;
+  color: rgba(200, 200, 200, 0.7);
+  position: relative;
+  display: inline-block;
+  letter-spacing: 1px;
+  margin: 0;
+  text-decoration: none;
+}
+.classmenu a:before,
+.classmenu a:after {
+  position: absolute;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.classmenu a:before {
+  bottom: 100%;
+  display: block;
+  height: 3px;
+  width: 100%;
+  content: "";
+  background-color: #e67e22;
+}
+.classmenu a:after {
+  padding: 0.3em 0;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  content: attr(data-hover);
+  color: rgba(255, 255, 255, 1.0);
+  white-space: nowrap;
+}
+.classmenu li:hover a,
+.classmenu .current a {
+  transform: translateY(100%);
+}
+
+
+.container{
+padding: 1px 1px 0;
+text-align: justify;
+background:#000;
+-webkit-backface-visibility: hidden;
+}
+
+.container:after{
+content:'';
+display:inline-block;
+/* width:100%; */
+}
+
+.container .mix,
+.container .gap{
+  display: block;
+  width: 68px;
+  height:68px;
+
+}
+
+.container .mix{
+  text-align: left;
+  background: #000;
+  margin-bottom: 1px;
+  width: 68px;
+  display: none;
+}
+
+.container .mix:after{
+  content: attr(text);
+  color: white;
+  font-size: 12px;
+/*  display: inline-block; */
+  vertical-align: middle;
+  padding: 0px 0px;
+  font-weight: 700;
+  width: 68px;
+  height:68px;
+}
+
+.container .mix:before{
+  content: '';
+  display: block;
+}
+

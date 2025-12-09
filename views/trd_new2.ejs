@@ -1,0 +1,391 @@
+<html>
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T6L30C6LF1"></script>
+<link href="http://superformula.racelive.jp/app/pages/css/main.css" rel="stylesheet" type="text/css" media="all" />
+<link href="http://superformula.racelive.jp/app/pages/css/event.css" type="text/css" rel="stylesheet" />
+<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-darkness/jquery-ui.css" rel="stylesheet" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<link href="http://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/trd/main.css" type="text/css" />
+<link rel="icon" href="/images/trd/favicon.ico" type="image/x-icon"/>
+<title>TRD Timing Monitor</title>
+
+
+<style>
+main {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	padding: 15px 30px;
+	color: #fff;
+	text-align: center;
+	width: 1200px;
+	height: 460px;
+}
+
+.l-card {
+display: inline-block;  
+  transition: 0.5s;
+  overflow: hidden;
+  width: 320px;
+  padding: 0;
+  margin: 24px auto;
+  /*border: 1px solid #ddd;*/
+  border-radius: 4px;
+  /*background: #fff;*/
+  /*box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.1);*/
+}
+.l-card:hover .thumbnail-wrapper:after {
+  opacity: 1;
+}
+.l-card:hover .more-text {
+  opacity: 1;
+}
+
+.l-thumbnail {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+}
+.l-thumbnail .more-text {
+  transition: 0.5s;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  padding: 6px 12px 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: lighter;
+  line-height: 1;
+  letter-spacing: 1px;
+  border: 1px solid #fff;
+  opacity: 0;
+}
+
+.thumbnail-wrapper {
+  display: block;
+  margin: 35px;
+  padding: 0;
+}
+.thumbnail-wrapper:after {
+  transition: 0.5s;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+}
+.thumbnail-wrapper img {
+  display: block;
+  max-width: 100%;
+}
+
+.thumbnail-over {
+  transition: 0.5s;
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.text-content {
+  padding: 16px;
+}
+.text-content .title {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: #4cc48e;
+  font-weight: bold;
+}
+.text-content .caption {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #555;
+  font-weight: lighter;
+}
+
+.text-content .admin {
+  margin: 0 0 12px 0;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+
+
+.text-content .data {
+  margin: 0 0 12px 0;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+
+.text-content .restriction {
+  margin: 0 0 12px 0;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+
+.content-meta {
+  overflow: hidden;
+  width: 100%;
+  font-size: 12px;
+}
+.content-meta .date {
+  float: left;
+  color: #aaa;
+}
+.content-meta .like {
+  display: inline-block;
+  float: right;
+  color: #4cc48e;
+}
+.content-meta .like .material-icons {
+  vertical-align: middle;
+  font-size: 16px;
+}
+
+
+
+.flex_test-box {
+    padding: 100px 75px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    flex-direction: row;
+    align-content: stretch;
+}
+ 
+.flex_test-item {
+    padding: 10px;
+    color:  #fff;               /* 文字色 */
+    margin:  10px;              /* 外側の余白 */
+    border-radius:  5px;        /* 角丸指定 */
+    font-size:  30px;           /* 文字サイズ */
+    width: 360px;               /* 幅指定 */
+    text-align:  center;        /* 文字中央揃え */
+}
+
+
+/* MAIN CONTENT CONFIGURATION */
+#main-content {
+    margin-left: 210px;
+}
+
+.header, .footer {
+    min-height: 100px;
+    padding: 0 15px;
+}
+
+.header {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1002;
+    top: 0;
+}
+
+.black-bg {
+    background: #ff0000;
+    border-bottom: 9px solid #000000;
+}
+/*--sidebar toggle---*/
+
+.sidebar-toggle-box {
+    float: left;
+    padding-right: 15px;
+    margin-top: 20px;
+}
+
+.sidebar-toggle-box .fa-bars {
+    cursor: pointer;
+    display: inline-block;
+    font-size: 20px;
+}
+
+
+.sidebar-closed > #sidebar > ul {
+    display: none;
+}
+
+.sidebar-closed #main-content {
+    margin-left: 0px;
+}
+
+.sidebar-closed #sidebar {
+    margin-left: -180px;
+}
+
+a.logo {
+    font-size: 20px;
+    color: #f2f2f2;
+    float: left;
+    margin-top: 15px;
+    text-transform: uppercase;
+    font-family: 'Saira', sans-serif;
+}
+
+a.logo b {
+    font-weight: 900;
+}
+
+a.logo:hover, a.logo:focus {
+    text-decoration: none;
+    outline: none;
+}
+
+a.logo span {
+    color: #4ECDC4;
+}
+#container {<a id="userid" class="user_link">ZZZAAA</a>
+    width: 100%;
+    height: 100%;
+}
+.user_link {
+  margin: 0px 0px 0px 20px;
+  padding-left: 1.5em
+  font-size: 1.2em;
+  font-weight: bold;
+  display: inline;
+  vertical-align: middle;
+  color: #FFF;
+  font-family: 'Saira', sans-serif;
+}
+
+
+</style>
+
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<img class="bg" src="http://superformula.racelive.jp/app/pages/images/superformula/back.png" alt="" />-->
+
+
+
+
+
+
+
+<section id="container_header">
+    <header class="header black-bg">
+      <div class="sidebar-toggle-box">
+        <div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
+        <td valign="bottom" align="right" width="70" style="padding-right: 10px">
+            <a><img id="back" src="/images/trd/trd_back.png" border="0" width="70"></a>
+        </td>
+        <td valign="bottom" align="right" width="70" style="padding-right: 10px">
+            <a><img src="/images/trd/trd.png" border="0" width="70"></a>
+        </td>
+      </div>
+      <!--logo start-->
+      <a class="logo"><b>TRD LAPTIME SYSTEM</b></a>
+      <!--logo end-->
+      <div class="nav notify-row" id="top_menu">
+      <ul class="nav pull-right top-menu"> <a id="userid" class="user_link"></a>
+      </div>
+      <div class="top-menu">
+      
+        </ul>
+      </div>
+    </header>
+</section>
+
+
+
+
+
+
+
+
+<div id="container">
+<center>
+<body>
+
+
+<div id="content">
+    <table border="0">
+        <tr><td>
+            <iframe name="header" width="1600" height="50" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="/monitor/header"></iframe>
+        </tr></td>
+        <tr><td>
+            <iframe name="detail" width="1600" height="1400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="/monitor/live"></iframe>
+        </tr></td>
+    </table>
+<div>
+<div id="footer">
+</div>
+
+
+<script type="text/javascript">    
+
+ var uid = getParam('u');
+ $("#userid").text(uid);
+ 
+ function getParam(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+$(function(){
+        $(window).focus();
+        $(window).bind("focus",function(){
+            //location.reload();
+        }).bind("blur",function(){
+        }); 
+    });
+
+$("#back").click(function(){
+//console.log("backkkkk");
+window.location.href = '/user/menu2',{"id":id};
+});
+ 
+ 
+</script>
+</body>
+
+
+
+
+
+
+
+</center>
+</div>
+</body>
+</html>
+
+

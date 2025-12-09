@@ -1,0 +1,63 @@
+body {
+    background-color: #212121;
+    font-family:Hiragino Kaku Gothic ProN,Meiryo,sans-serif;
+}
+.driver {
+    cursor: hand;
+    cursor:pointer;
+	font-size:18px;
+    font-weight:bold;
+    color: #1edc1e;
+    width: 450px;
+}
+
+.personalarea {
+	position:relative;
+	top: 0px;
+	font-size:12px;
+    font-weight:bold;
+	color: #FFF;
+    overflow:auto;
+}
+.personalarea table {
+	border-collapse: collapse;
+	margin: 0px  0px  0px;
+	font-size: 1.1em;
+	table-layout: fixed;
+}
+
+.personalarea th {
+	padding: 0px 0px;
+    background:#000;
+	font-weight: bold;
+	text-align: center;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+	line-height: 1.2;
+}
+
+.personalarea td {
+	padding: 0px 4px;
+	border-bottom: 0px solid #ccc;
+	vertical-align: middle;
+	white-space: nowrap;
+    height: 25px;
+}
+
+.personalarea td * {
+}
+
+.personalarea tr.alt td {
+	background: #ecf6fc;
+}
+
+.personalarea tr:nth-child(even) {
+    background:#000;
+}
+.personalarea tr:nth-child(odd) {
+    background:#222;
+}
+.personalarea tr:hover{
+    background-color:#444;
+}
+

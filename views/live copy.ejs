@@ -1,0 +1,83 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-EN" lang="en-EN">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TRD Timing Monitor</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/jquery/jquery.mixitup.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="/css/trd/live.css" type="text/css" />
+    <link rel="stylesheet" href="/css/trd/live2.css" type="text/css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+
+
+
+</head>
+<body>
+	<div id="liveTrack">
+		<div class='img' style="position:relative;">
+		<div class="course"><!--<img src="/images/trd/circuit/fsw_course.png">--> </div>
+		</div>
+		
+		<div class='img' style="position:absolute;top:0px;left:250px;">
+			<img id="weather" src='/images/trd/dummy.gif' width="64">
+		</div>
+		<div class='tempdescr' style="position:absolute;top:0px;left:330px;">
+			<p id="condition"></p>
+		</div>
+        <div class='telopdescr' style="position:absolute;bottom:-37px;left:100px;">
+            <p id="telop"></p>
+        </div>
+		<div class='sector' style="position:absolute;bottom:-190px;left:74px;">
+				<table style="table-layout: fixed;font-size: 14px;" border="0">
+				<tr><td align="right">Fastest&nbsp;</td><td id="fastno" align="right" width="30"></td><td id="fastname" align="left" width="130"></td><td id="fasttime" align="right"></td></tr>	
+<!--			
+				<tr><td align="right">Sec1Best&nbsp;</td><td id="sec1no" align="right" width="30"></td><td id="sec1name" align="left" width="130"></td><td id="sec1time" align="right"></td></tr>
+				<tr><td align="right">Sec2Best&nbsp;</td><td id="sec2no" align="right" width="30"></td><td id="sec2name" align="left" width="130"></td><td id="sec2time" align="right"></td></tr>
+				<tr><td align="right">Sec3Best&nbsp;</td><td id="sec3no" align="right" width="30"></td><td id="sec3name" align="left" width="130"></td><td id="sec3time" align="right"></td></tr>
+				<tr><td align="right">SpeedBest&nbsp;</td><td id="spdno" align="right" width="30"></td><td id="spdname" align="left" width="130"></td><td id="spdkm" align="right"></td></tr>
+-->				
+			</table>
+		</div>
+	</div>
+
+    <div>
+	    <ul id="livetitle"><li class="title"  style="position:absolute;top:0px;left:10px;"></li></ul>
+	    <div id="classfilter" style="width: 800px; position:absolute;top:-15px;left:330px;">
+            </div>
+	    <ul id="livelaps"><li class="laps"></li></ul>
+
+	    <img id="liveflag" src="/images/trd/green_off.png">
+
+
+
+
+    </div>
+    <div id="listtitle"></div>
+    <div id="Container" class="container">
+        <div id="ListArea" class="listarea">
+<!-- DUMMY -->
+<div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
+<!-- DUMMY -->
+        </div>
+    </div>
+
+<script type="text/javascript">
+    //var uri = "ws://superformula.racelive.jp:6001/" + "get"; //SF
+    //var uri = "ws://superformula.racelive.jp:9001/" + "get"; //AIDCA汎用
+    //var uri = "ws://www.racelive.jp:2001/" + "get"; //SFL
+    //var uri = "ws://52.36.59.170:9101/" + "get"; //SUZUKA SOURTH
+    var uri = "ws://www.racelive.jp:8061/" + "get"; //TRD
+    var sector = "0";
+    var speed = "OFF";
+    var circuit = "fsw";
+</script>
+<script src="/js/trd/live.js"></script>
+</body>
+</html>

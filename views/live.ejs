@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+        <%= (typeof title !=='undefined' ? title : 'TGR-D Timing Monitor' ) %>
+    </title>
+
+    <!-- Fonts / Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- 既存CSS -->
+    <link rel="stylesheet" href="/css/trd/live.css" />
+    <link rel="stylesheet" href="/css/trd/live2.css" />
+    <link rel="stylesheet" href="/css/trd/live_shell.css" />
+    <link rel="icon" href="/images/trd/favicon.ico" type="image/x-icon" />
+
+    <!-- jQuery(既存) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/jquery/jquery.mixitup.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+
+
+    <style>
+        /* ========== 共通（ヘッダー / レール / サイドパネル / ツリー） ========== */
+
+        /* ヘッダー */
+        .topbar {
+            height: 50px;
+        }
+
+        /* タイトル */
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .brand .live {
+            font-weight: 900;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .brand .session {
+            font-weight: 800;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        /* シグナルバー */
+        .signalbar {
+            background: linear-gradient(#f3f3f3, #e7e7e7);
+            border: 1px solid #d8d8d8;
+            border-radius: 8px;
+            padding: 6px 10px;
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            position: relative;
+            margin: 8px 6px 10px;
+        }
+
+        .signalbar .leds {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .signalbar .led {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #666;
+            box-shadow: inset 0 0 0 2px #2b2b2b, 0 0 4px rgba(0, 0, 0, .35);
+        }
+
+        .signalbar.green .led {
+            background: #18a83a;
+            box-shadow: inset 0 0 0 2px #0a5a1f, 0 0 8px #18a83a;
+        }
+
+        .signalbar.yellow .led {
+            background: #e0c118;
+            box-shadow: inset 0 0 0 2px #6b5b00, 0 0 8px #e0c118;
+        }
+
+        .signalbar.red .led {
+            background: #de2b2b;
+            box-shadow: inset 0 0 0 2px #6d0d0d, 0 0 8px #de2b2b;
+        }
+
+        .signalbar.finish .led {
+            background: repeating-linear-gradient(45deg, #ddd 0 6px, #111 6px 12px);
+            box-shadow: inset 0 0 0 2px #2a2a2a;
+        }
+
+        .signalbar .flag {
+            display: none;
+        }
+
+        .signalbar .timeleft {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 900;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .listtitle {
+            margin-top: 6px;
+        }
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* 旧サイドパネルは消す */
+        .sidenav:not(.trd-sidenav) {
+            display: none !important;
+        }
+
+        /* 左の黒レール */
+        .trd-rail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 56px;
+            background: #1f2a2e;
+            z-index: 950;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 0 10px;
+            gap: 14px;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, .2);
+        }
+
+        .trd-rail-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 0;
+            background: transparent;
+            color: #cfd8dc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .trd-rail-btn:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .trd-rail .spacer {
+            height: 4px;
+        }
+
+        /* 展開サイドパネル（History） */
+        .trd-sidenav {
+            position: fixed;
+            top: 50px;
+            left: 56px;
+            bottom: 0;
+            width: 230px;
+            background: #1f2a2e;
+            color: #cfd8dc;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform .25s ease;
+            z-index: 900;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, .25);
+        }
+
+        .trd-sidenav.open {
+            transform: translateX(0);
+        }
+
+        /* コンテンツはレールぶん右に寄せる */
+        .content {
+            margin-left: 56px;
+            transition: margin-left .25s ease;
+        }
+
+        @media (min-width:1024px) {
+            .trd-sidenav.open~.content {
+                margin-left: 285px;
+                /* 56 + 230 - 調整 */
+            }
+        }
+
+        /* ツリービュー */
+        .trd-tree {
+            padding: 8px 0 24px;
+        }
+
+        .trd-tree ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .trd-tree-root>li {
+            margin: 4px 0;
+        }
+
+        .trd-tree-link,
+        .trd-tree-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 14px;
+            color: #cfd8dc;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .trd-tree-link:hover,
+        .trd-tree-toggle:hover {
+            background: rgba(255, 255, 255, .06);
+            color: #fff;
+        }
+
+        .trd-tree-leaf .fa,
+        .trd-tree-toggle .fa {
+            width: 18px;
+            text-align: center;
+        }
+
+        .trd-tree-node .chevron {
+            margin-left: auto;
+            transition: transform .2s ease;
+            opacity: .8;
+        }
+
+        .trd-tree-node.expanded>.trd-tree-toggle .chevron {
+            transform: rotate(90deg);
+        }
+
+        .trd-tree-children {
+            display: none;
+            padding-left: 18px;
+            border-left: 1px dashed rgba(255, 255, 255, .15);
+        }
+
+        .trd-tree-node.expanded>.trd-tree-children {
+            display: block;
+        }
+
+        .trd-tree .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35);
+        }
+
+        .trd-tree-link.active {
+            background: rgba(240, 140, 58, .22);
+            color: #fff;
+        }
+
+        /* クイックリンク・区切り線 */
+        .trd-tree-quick .trd-tree-link {
+            font-weight: 700;
+        }
+
+        .trd-tree-divider {
+            height: 1px;
+            margin: 4px 14px 8px;
+            background: rgba(255, 255, 255, .18);
+            list-style: none;
+        }
+
+        /* ヘッダー用ハンバーガー */
+        .topbar-menu-btn {
+            display: none;
+            /* スマホのみで表示 */
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .topbar-menu-btn:hover {
+            background: rgba(255, 255, 255, .08);
+        }
+
+
+        /* ===== ベースレイアウト ===== */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #000;
+        }
+
+        body.app {
+            background: #000;
+            color: #fff;
+            font-family: 'Saira', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* content の余白調整：白い帯をなくす */
+        main.content {
+            box-sizing: border-box;
+            padding: 8px 8px 16px 72px !important;
+            /* 上をかなり詰める */
+        }
+
+        /* PC / タブレット共通：パネル（黒いウィンドウ） */
+        .panel {
+            max-width: 1200px;
+            margin: 4px auto 16px !important;
+            /* 上下の白余白を最小限に */
+            background: #000;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .7);
+            border: 1px solid rgba(255, 255, 255, .06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* シグナルバーとタイトル */
+        .panel .signalbar {
+            border-radius: 12px 12px 0 0;
+            margin: 0 !important;
+        }
+
+        .panel #listtitle {
+            padding: 4px 12px 0;
+        }
+
+        /* テーブルコンテナ：縦方向に伸び縮みできるようにする */
+        .panel .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 8px 12px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* リストエリア（一覧） */
+        .panel .listarea {
+            width: 100%;
+            /* ここでは縦スクロールを付けない。後で .table-scroll 内で指定する */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .panel .listtable {
+            width: 100%;
+            min-width: 720px;
+        }
+
+
+        /* ========= ヘッダと一覧を一体でスクロールさせるラッパー ========= */
+        .table-scroll {
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            /* 横スクロール：PC/スマホ横で有効 */
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+        }
+
+        /* 中身は縦に signalbar → ヘッダ → 一覧 */
+        .table-scroll #listtitle,
+        .table-scroll #ListArea {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ヘッダ行と本文のテーブル幅を揃える */
+        .table-scroll .listtable table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /* --- PC / タブレット：パネル内で高さ固定、一覧だけ縦スクロール --- */
+        @media (min-width: 768px) {
+            .panel {
+                height: calc(100vh - 70px);
+                /* 上の赤ヘッダ分を差し引いた高さ */
+                margin: 4px 0 8px 0;
+                border-radius: 0;
+                box-shadow: none;
+                border-width: 0;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .panel .container {
+                flex: 1 1 auto;
+                min-height: 0;
+                padding: 0;
+                /* 左右の余白をなくして列をピッタリ合わせる */
+            }
+
+            .table-scroll {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            /* ヘッダは固定、高さは自動 */
+            .table-scroll #listtitle {
+                flex: 0 0 auto;
+            }
+
+            /* ListArea だけ縦スクロール（ヘッダと同じ幅なので列がズレない） */
+            .table-scroll #ListArea {
+                flex: 1 1 auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                min-height: 0;
+            }
+        }
+
+        /* --- PC（1024px～）：左の余白調整（レールのすぐ右からスタート） --- */
+        @media (min-width: 1024px) {
+            main.content {
+                padding: 0 !important;
+            }
+
+            .panel {
+                margin: 4px 0 16px 0;
+            }
+        }
+
+        /* --- タブレット以下（～1023px）：画面いっぱいに表示 --- */
+        @media (max-width: 1023.98px) {
+            .panel {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                border-width: 0;
+            }
+
+            .panel .container {
+                padding: 0;
+            }
+
+            .table-scroll #ListArea {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* --- スマホ縦：今まで通り、画面高を超えたら中だけ縦スクロール --- */
+        @media (max-width: 767.98px) and (orientation: portrait) {
+            #ListArea {
+                max-height: calc(100vh - 140px);
+                /* 上のヘッダ＋signalbar 分を差し引き */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            main.content {
+                padding: 0 !important;
+            }
+        }
+
+        /* --- スマホ横：PC と同じイメージ、横に足りなければ横スクロール --- */
+        @media (max-width: 767.98px) and (orientation: landscape) {
+            .panel {
+                height: calc(100vh - 60px);
+            }
+
+            #ListArea {
+                max-height: 100%;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .panel .listtable {
+                width: 100%;
+                min-width: 900px;
+                /* 列を詰めすぎないように、足りなければ横スクロール */
+            }
+        }
+
+
+
+        /* ===== PC / タブレット：パネルは画面内に固定、一覧だけ縦スクロール ===== */
+        @media (min-width: 768px) {
+            .panel {
+                height: calc(100vh - 70px);
+                /* ヘッダーぶんを引いた高さ */
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            /* コンテナがパネルの残り高さを受け持つ */
+            .panel .container {
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+
+            /* リストエリアだけ縦スクロールさせる */
+            .panel .listarea {
+                flex: 1 1 auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                min-height: 0;
+            }
+        }
+
+        /* PC（1024px 以上）：左側の余白を詰める */
+        @media (min-width: 1024px) {
+
+            /* レールのすぐ横からコンテンツ開始 */
+            main.content {
+                padding: 0px 16px 16px 8px !important;
+            }
+
+            /* 中央寄せをやめて、左寄せに近づける */
+            .panel {
+                max-width: none;
+                /* 1200px 制限を解除 */
+                margin: 4px 16px 16px 0;
+                /* 左 0（コンテンツの padding 8px だけ） */
+            }
+        }
+
+
+        /* ===== タブレット以下（～1023px） ===== */
+        @media (max-width: 1023.98px) {
+
+            /* メインの余白を小さくして上に寄せる（左を 4px まで削る） */
+            main.content {
+                padding: 8px 4px 8px 4px !important;
+            }
+
+            .panel {
+                max-width: 100%;
+                width: 100%;
+                margin: 0 !important;
+                border-radius: 0;
+                box-shadow: none;
+                border: 0;
+            }
+
+            .panel .signalbar {
+                border-radius: 0;
+            }
+
+            .panel .container {
+                padding: 0 2px 8px;
+            }
+
+            /* セクター & Speed 列は非表示 */
+            #listtitle .listtable th.col-sec,
+            #listtitle .listtable th.col-speed,
+            .listtable td[id$="_sec1"],
+            .listtable td[id$="_sec2"],
+            .listtable td[id$="_sec3"],
+            .listtable td[id$="_sec4"],
+            .listtable td[id$="_speed"] {
+                display: none;
+            }
+
+            .panel .listtable {
+                font-size: 12px;
+                line-height: 1.2;
+            }
+
+            .panel .listtable th,
+            .panel .listtable td {
+                padding: 2px 4px;
+                white-space: nowrap;
+            }
+        }
+
+        /* ===== スマホ共通（～767px） ===== */
+        @media (max-width: 767.98px) {
+
+            /* 黒レールを消して、メイン余白をさらに詰める */
+            .trd-rail {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .topbar {
+                padding-left: 8px;
+                height: 48px;
+            }
+
+            main.content {
+                padding: 0px 0px 8px 0px !important;
+            }
+
+            .trd-sidenav {
+                top: 48px;
+                left: 0;
+                width: 260px;
+            }
+
+            .topbar-menu-btn {
+                display: flex;
+            }
+
+            .panel {
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .panel .listtable {
+                min-width: 560px;
+                /* 横スクロール前提 */
+                font-size: 11px;
+            }
+
+            .panel .listtable th,
+            .panel .listtable td {
+                padding: 1px 3px;
+            }
+        }
+
+        /* ===== スマホ縦（POS / No / Driver / Laps / Gap / LastLap だけ） ===== */
+        @media (max-width: 767.98px) and (orientation: portrait) {
+
+            /* Diff / Best / (L) / PIT を消す */
+            #listtitle .listtable th.col-diff,
+            #listtitle .listtable th.col-best,
+            #listtitle .listtable th.col-lapno,
+            #listtitle .listtable th.col-pit,
+            #listtitle .listtable th:nth-child(6),
+            #listtitle .listtable th:nth-child(8),
+            #listtitle .listtable th:nth-child(9),
+            #listtitle .listtable th:nth-child(10),
+            .listtable td.col-diff,
+            .listtable td.col-best,
+            .listtable td.col-lapno,
+            .listtable td.col-pit,
+            .listtable td[id$="_diff"],
+            .listtable td[id$="_best"],
+            .listtable td[id$="_lapno"],
+            .listtable td[id$="_pit"],
+            .listtable tr td:nth-child(6),
+            .listtable tr td:nth-child(8),
+            .listtable tr td:nth-child(9),
+            .listtable tr td:nth-child(10) {
+                display: none;
+            }
+        }
+
+        /* ===== スマホ横：セクター & Speed 以外は全部表示 ===== */
+        @media (max-width: 767.98px) and (orientation: landscape) {
+
+            #listtitle .listtable th,
+            .listtable td {
+                display: table-cell !important;
+            }
+
+            /* ただしセクター & Speed は非表示のまま */
+            #listtitle .listtable th.col-sec,
+            #listtitle .listtable th.col-speed,
+            .listtable td[id$="_sec1"],
+            .listtable td[id$="_sec2"],
+            .listtable td[id$="_sec3"],
+            .listtable td[id$="_sec4"],
+            .listtable td[id$="_speed"] {
+                display: none !important;
+            }
+
+            .panel .listtable {
+                min-width: 900px;
+                font-size: 12px;
+            }
+        }
+
+
+
+        /* ===== スマホ（〜767px）用：ヘッダーを左端に寄せる & レールを消す ===== */
+        @media (max-width: 767.98px) {
+
+            /* 黒レールは完全に非表示 */
+            .trd-rail {
+                display: none !important;
+            }
+
+            /* ヘッダーを画面のいちばん左から表示 */
+            .topbar {
+                margin: 0 !important;
+                padding-left: 8px;
+                /* 必要なら 0 にしてもOK */
+                padding-right: 8px;
+                left: 0 !important;
+                right: 0 !important;
+            }
+
+            /* 中のボタンを左に寄せる */
+            .topbar-left {
+                margin-left: 0 !important;
+            }
+
+            /* コンテンツもレール分の余白をなくす */
+            .content,
+            main.content {
+                margin-left: 0 !important;
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+        }
+
+
+        /* ===========================
+   追加のレイアウト調整（上書き）
+   =========================== */
+
+        /* パネル内を縦フレックスにして、
+   signalbar → ヘッダ行 → リストエリア を一体化 */
+        .panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ヘッダ行(#listtitle) とリスト(#Container/#ListArea) の
+   左右の位置と幅を完全にそろえる */
+        .panel #listtitle,
+        .panel #Container {
+            box-sizing: border-box;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .panel #listtitle .listtable,
+        .panel #ListArea .listtable {
+            width: 100%;
+        }
+
+        /* PC / タブレット：ヘッダ直下から画面下までをパネルに割り当てて、
+   中身だけ縦スクロールさせる */
+        @media (min-width: 768px) {
+            .panel {
+                /* 上の赤いヘッダぶんを差し引いた高さに調整（少し余裕を見て 70px） */
+                height: calc(100vh - 70px);
+                margin: 4px 0 8px 0;
+                border-radius: 0;
+                /* 外側の白い余白を消すイメージで角丸もオフ */
+                box-shadow: none;
+                border-width: 0;
+            }
+
+            /* signalbar と ヘッダ行 は上側に固定高さ */
+            .panel .signalbar,
+            .panel #listtitle {
+                flex: 0 0 auto;
+            }
+
+            /* 一覧部分だけ縦スクロール */
+            .panel .listarea {
+                flex: 1 1 auto;
+                overflow-y: auto;
+                overflow-x: auto;
+                /* 横に足りないときは横スクロール */
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* コンテンツの余白を詰めて、左の余白をほぼゼロに */
+            main.content {
+                padding: 0px 0 0px 0 !important;
+            }
+        }
+
+        /* タブレット以下（〜1023px）：パネルを画面いっぱいにして、
+   watch 背景の上にピッタリ乗る感じにする */
+        @media (max-width: 1023.98px) {
+            .panel {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                border-width: 0;
+            }
+
+            .panel .listarea {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* スマホ縦：高さを超えたら中だけスクロール（既存設定を少し強める） */
+        @media (max-width: 767.98px) and (orientation: portrait) {
+            .panel {
+                height: auto;
+                /* パネル自身はコンテンツに合わせる */
+            }
+
+            /* 信号バー + POSヘッダ + リストを合わせて
+       画面高−ヘッダぶんで収まるようにする */
+            #ListArea {
+                max-height: calc(100vh - 140px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* 左右の余白をさらに削る */
+            main.content {
+                padding: 0px 0 0px 0 !important;
+            }
+        }
+
+        /* スマホ横：ほぼ PC と同じイメージで、
+   watch 背景の幅いっぱいにテーブルを表示 */
+        @media (max-width: 767.98px) and (orientation: landscape) {
+            .panel {
+                height: calc(100vh - 60px);
+            }
+
+            #ListArea {
+                max-height: 100%;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .panel .listtable {
+                width: 100%;
+            }
+        }
+    </style>
+
+
+
+
+</head>
+
+<body class="app">
+    <!-- ===== ヘッダー ===== -->
+    <header class="topbar">
+        <div class="topbar-left" style="display:flex; align-items:center; gap:8px;">
+            <button id="btnBack" class="back-btn" aria-label="戻る">⬅︎</button>
+
+            <!-- ★追加：スマホ用ハンバーガー -->
+            <button id="headerMenu" class="topbar-menu-btn" aria-label="メニューを開く">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <div class="brand">
+                <span class="session" id="brandSession"></span>
+                <span class="live"> - LIVE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== 左端：黒レール（常時表示） ===== -->
+    <aside class="trd-rail" aria-label="クイックメニュー">
+        <!-- いちばん上にハンバーガー -->
+        <button id="railMenu" class="trd-rail-btn" title="メニューを開く">
+            <i class="fa fa-bars"></i>
+        </button>
+        <div class="spacer"></div>
+        <!-- TimingMonitor / History アイコン（デフォルト表示） -->
+
+        <!-- レール側 -->
+        <button class="trd-rail-btn js-monitor-link" title="TimingMonitor">
+            <i class="fa fa-television" aria-hidden="true"></i>
+        </button>
+        <!-- レール側 -->
+        <button class="trd-rail-btn js-monitor-link" title="Trac Temp">
+            <i class="fa fa-thermometer-half fa-lg"></i>
+        </button>
+        <!-- Trac Position -->
+        <button class="trd-rail-btn js-monitor-link" title="Trac Map">
+            <i class="fa fa-location-arrow" aria-hidden="true"></i>
+        </button>
+
+
+        <button id="railHistory" class="trd-rail-btn" title="History">
+            <i class="fa fa-history"></i>
+        </button>
+    </aside>
+
+    <!-- ===== 展開サイドパネル（ツリービュー） ===== -->
+    <aside class="trd-sidenav" id="trd-sidenav" aria-label="サイドパネル">
+        <nav class="trd-tree">
+            <ul class="trd-tree-root">
+
+                <!-- ★クイックリンク（TimingMonitor / Whether） -->
+                <li class="trd-tree-leaf trd-tree-quick">
+                    <button type="button" class="trd-tree-link js-monitor-link">
+                        <i class="fa fa-television" aria-hidden="true"></i>
+                        <span>TimingMonitor</span>
+                    </button>
+                </li>
+                <li class="trd-tree-leaf trd-tree-quick">
+                    <!-- ※現状は TimingMonitor と同じ挙動 -->
+                    <button type="button" class="trd-tree-link js-monitor-link">
+                        <i class="fa fa-thermometer-half fa-lg" aria-hidden="true"></i>
+                        <span>Track Temp</span>
+                    </button>
+                </li>
+                <li class="trd-tree-leaf trd-tree-quick">
+                    <!-- ※現状は TimingMonitor と同じ挙動 -->
+                    <button type="button" class="trd-tree-link js-monitor-link">
+                        <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                        <span>Track Map</span>
+                    </button>
+                </li>
+
+                <li class="trd-tree-divider"></li>
+
+                <!-- ★History ルート -->
+                <li class="trd-tree-node" data-node-id="history">
+                    <button class="trd-tree-toggle">
+                        <i class="fa fa-history"></i><span>History</span>
+                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                    </button>
+
+                    <ul class="trd-tree-children">
+                        <!-- ===== 2025 ===== -->
+                        <li class="trd-tree-node" data-node-id="year-2025">
+                            <button class="trd-tree-toggle">
+                                <span class="dot"></span><span>2025</span>
+                                <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                            </button>
+
+                            <ul class="trd-tree-children">
+                                <!-- 2025.10 フル Day2 -->
+                                <li class="trd-tree-node" data-node-id="2025-10-full-day2">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.10 フル Day2</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day2/practice4">Practice4</a>
+                                        </li>
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day2/practice5">Practice5</a>
+                                        </li>
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day2/practice6">Practice6</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2025.10 フル Day1 -->
+                                <li class="trd-tree-node" data-node-id="2025-10-full-day1">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.10 フル Day1</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day1/practice3">Practice3</a>
+                                        </li>
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day1/practice2">Practice2</a>
+                                        </li>
+                                        <li class="trd-tree-leaf">
+                                            <a class="trd-tree-link"
+                                                href="/history/2025/10/full/day1/practice1">Practice1</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2025.08 ショート Day4 -->
+                                <li class="trd-tree-node" data-node-id="2025-08-short-day4">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.08 ショート Day4</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day4/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2025.08 ショート Day3 -->
+                                <li class="trd-tree-node" data-node-id="2025-08-short-day3">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.08 ショート Day3</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day3/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2025.08 ショート Day2 -->
+                                <li class="trd-tree-node" data-node-id="2025-08-short-day2">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.08 ショート Day2</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day2/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2025.08 ショート Day1 -->
+                                <li class="trd-tree-node" data-node-id="2025-08-short-day1">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2025.08 ショート Day1</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2025/08/short/day1/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- ===== 2024 ===== -->
+                        <li class="trd-tree-node" data-node-id="year-2024">
+                            <button class="trd-tree-toggle">
+                                <span class="dot"></span><span>2024</span>
+                                <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                            </button>
+
+                            <ul class="trd-tree-children">
+                                <!-- 2024.10 フル Day2 -->
+                                <li class="trd-tree-node" data-node-id="2024-10-full-day2">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.10 フル Day2</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day2/practice4">Practice4</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day2/practice5">Practice5</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day2/practice6">Practice6</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2024.10 フル Day1 -->
+                                <li class="trd-tree-node" data-node-id="2024-10-full-day1">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.10 フル Day1</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day1/practice3">Practice3</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day1/practice2">Practice2</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/10/full/day1/practice1">Practice1</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2024.08 ショート Day4 -->
+                                <li class="trd-tree-node" data-node-id="2024-08-short-day4">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.08 ショート Day4</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day4/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2024.08 ショート Day3 -->
+                                <li class="trd-tree-node" data-node-id="2024-08-short-day3">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.08 ショート Day3</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day3/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2024.08 ショート Day2 -->
+                                <li class="trd-tree-node" data-node-id="2024-08-short-day2">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.08 ショート Day2</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day2/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- 2024.08 ショート Day1 -->
+                                <li class="trd-tree-node" data-node-id="2024-08-short-day1">
+                                    <button class="trd-tree-toggle">
+                                        <span class="dot"></span><span>2024.08 ショート Day1</span>
+                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="trd-tree-children">
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free8">フリー走行⑧</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free7">フリー走行⑦</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free6">フリー走行⑥</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free5">フリー走行⑤</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free4">フリー走行④</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free3">フリー走行③</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free2">フリー走行②</a></li>
+                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
+                                                href="/history/2024/08/short/day1/free1">フリー走行①</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+
+
+
+    <!-- live.js フック -->
+    <ul id="livetitle" class="visually-hidden">
+        <li class="title"></li>
+    </ul>
+
+    <main class="content">
+        <section class="panel">
+            <div class="signalbar">
+                <div class="leds"><span class="led"></span><span class="led"></span><span class="led"></span></div>
+                <span id="timeleft" class="timeleft laps"></span>
+                <img id="liveflag" class="flag" src="/images/trd/green_off.png" alt="flag" aria-hidden="true">
+            </div>
+
+            <!-- ★ここを書き換え -->
+            <div id="Container" class="container">
+                <div class="table-scroll">
+                    <!-- ヘッダ行 -->
+                    <div id="listtitle" class="listtitle"></div>
+
+                    <!-- 一覧（縦スクロール） -->
+                    <div id="ListArea" class="listarea">
+                        <div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- ★ここまで -->
+        </section>
+    </main>
+
+    <!-- 接続設定 -->
+    <script>
+
+
+        //var uri = "<%= (typeof wsUri   !== 'undefined' ? wsUri   : 'ws://www.racelive.jp:8061/get') %>";
+        var uri = "<%= (typeof wsUri   !== 'undefined' ? wsUri   : 'ws://52.36.59.170:9101/get') %>";
+        var sector = "<%= (typeof sector  !== 'undefined' ? sector  : '0') %>";
+        var speed = "<%= (typeof speed   !== 'undefined' ? speed   : 'OFF') %>";
+        var circuit = "<%= (typeof circuit !== 'undefined' ? circuit : 'fsw') %>";
+    </script>
+
+    <!-- 既存ライブロジック -->
+    <script src="/js/trd/live.js"></script>
+
+    <!-- UI 制御 -->
+    <script>
+        // サーバ側で埋め込み
+        var uid = "<%= (typeof id  !== 'undefined' ? id  : (typeof username !== 'undefined' ? username : '')) %>";
+        var sid = "<%= (typeof sid !== 'undefined' ? sid : '') %>";
+
+        // 戻るボタン
+        $('#btnBack, #back').off('click').on('click', function () {
+            var url = '/user/menu?u=' + encodeURIComponent(uid) + '&s=' + encodeURIComponent(sid);
+            window.location.href = url;
+        });
+
+        // TimingMonitor → LiveTiming 自身への遷移（将来別ページに飛ばす場合用）
+        function jumpToMonitor() {
+            const token = Math.random().toString(32).slice(2);
+            const params = new URLSearchParams({
+                ws: (typeof uri !== 'undefined' ? uri : 'ws://52.36.59.170:9101/get'),
+                sector: (typeof sector !== 'undefined' ? sector : '0'),
+                speed: (typeof speed !== 'undefined' ? speed : 'OFF'),
+                circuit: (typeof circuit !== 'undefined' ? circuit : 'fsw'),
+                token: token
+            }).toString();
+            location.href = '/monitor/live?' + params;
+        }
+
+        // クラスでまとめてイベント付与
+        document.querySelectorAll('.js-monitor-link').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                jumpToMonitor();
+            });
+        });
+
+        // ===== サイドパネル開閉（History / ハンバーガー） =====
+        (function () {
+            const sidenav = document.getElementById('trd-sidenav');
+            const railMenu = document.getElementById('railMenu');
+            const railHistory = document.getElementById('railHistory');
+            const headerMenu = document.getElementById('headerMenu');   // ★追加
+
+            if (!sidenav) return;
+
+            function toggleSideNav() {
+                sidenav.classList.toggle('open');
+                document.body.classList.toggle('sidenav-open');
+            }
+
+            if (railMenu) {
+                railMenu.addEventListener('click', function () {
+                    toggleSideNav();
+                });
+            }
+
+            // ★追加：ヘッダーのハンバーガーからも開閉
+            if (headerMenu) {
+                headerMenu.addEventListener('click', function () {
+                    toggleSideNav();
+                });
+            }
+
+            // ★履歴ボタンでも開閉
+            if (railHistory) {
+                railHistory.addEventListener('click', function () {
+                    toggleSideNav();
+                });
+            }
+
+            // ツリーの開閉
+            $('.trd-tree-toggle').on('click', function () {
+                var $node = $(this).closest('.trd-tree-node');
+                $node.toggleClass('expanded');
+            });
+        })();
+
+        // ===== live.js からのタイトル同期 =====
+        $(function () {
+            const $title = $('#livetitle .title');
+            const $brandSession = $('#brandSession');
+            if ($title.length && $brandSession.length) {
+                const observer = new MutationObserver(function () {
+                    $brandSession.text($title.text());
+                });
+                observer.observe($title[0], { childList: true, characterData: true, subtree: true });
+            }
+        });
+    </script>
+</body>
+
+</html>

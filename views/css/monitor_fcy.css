@@ -1,0 +1,45 @@
+body {
+	background-color: #000000;
+	background: rgba(0,0,0,0.1);
+	font-family:Hiragino Kaku Gothic ProN,Meiryo,sans-serif;
+	color:#fff
+}
+#content {
+ 	position: relative;
+	width:1600;
+	height:1100;
+	top: 0px;
+	left:0px;
+	padding: 20px 20px 20px 20px;
+	background: rgba(0, 0, 0, 0.6);
+}
+img.bg {
+	min-height: 100%;
+	min-width: 1200px;
+	width: 100%;
+	height: auto;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+@media screen and (max-width: 1450px){
+	img.bg {
+	left: 50%;
+	margin-left: -604px; }
+}
+div#container {
+	position: relative;
+}
+.font-large {
+	font-size:30px;
+	font-weight:bold;
+}
+.font-middle {
+	font-size:24px;
+	font-weight:bold;
+}
+.font-small {
+	font-size:20px;
+	font-weight:bold;
+}
+

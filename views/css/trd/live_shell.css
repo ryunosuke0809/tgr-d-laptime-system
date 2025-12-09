@@ -1,0 +1,145 @@
+/* =========================================================
+   TRD live shell (layout skin) — TABLEは既存CSSに委譲
+   ========================================================= */
+:root{
+  --bar-h: 50px;
+  --side-w: 52px;
+  --bg: #0b0b0b;
+  --panel: #151515;
+  --panel-border: #2a2a2a;
+  --topbar: #ff1700;
+  --txt: #eaeaea;
+  --muted: #b8b8b8;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body.app{
+  margin:0; background:var(--bg); color:var(--txt);
+  font-family:"Saira",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",Arial,sans-serif;
+}
+
+/* ---------- left rail ---------- */
+.sidenav{
+  position:fixed; left:0; top:0; bottom:0; width:var(--side-w);
+  background:#000; border-right:1px solid #1e1e1e;
+  display:flex; flex-direction:column; gap:8px; align-items:center; padding:8px 4px;
+  z-index:60;
+}
+.nav-btn{
+  width:36px; height:36px; border-radius:10px;
+  border:1px solid #2b2b2b; background:#1a1a1a; color:#ddd;
+  display:grid; place-items:center; cursor:pointer; user-select:none;
+}
+.nav-btn:hover{ background:#222; }
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  margin-left:var(--side-w); height:var(--bar-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 18px; background:var(--topbar); color:#fff;
+}
+.topbar-left{ display:flex; align-items:center; gap:10px; }
+.back-btn{
+  width:36px; height:36px; border-radius:10px; border:none;
+  background:rgba(0,0,0,.2); color:#fff; cursor:pointer; font-size:18px;
+}
+.back-btn:hover{ background:rgba(0,0,0,.28); }
+.brand{ font-weight:800; font-size:23px; letter-spacing:.3px; line-height:1; }
+
+.content{
+  padding:6px; min-height:calc(100vh - var(--bar-h));
+  margin-left:var(--side-w);
+  background-color: #fff;
+}
+
+/* ---------- panel ---------- */
+.panel{
+  background:var(--panel); border:1px solid var(--panel-border);
+  border-radius:12px; padding:14px; box-shadow:0 10px 24px rgba(0,0,0,.25);
+      height: 660px;
+}
+
+/* ---------- small header (course/weather/telop/best) ---------- */
+.liveTrack{ position:relative; min-height:70px; margin-bottom:8px; }
+.course{
+  height:40px; background:linear-gradient(90deg,#0f0f0f,#121212);
+  border:1px dashed #2d2d2d; border-radius:8px;
+}
+.weather{ position:absolute; left:14px; top:6px; display:flex; align-items:center; gap:8px; }
+.weather p{ margin:0; color:var(--muted); font-size:12px; }
+.telop{ position:absolute; right:14px; bottom:6px; color:#ffd; opacity:.9; }
+.bestbox{ margin-top:8px; }
+.besttbl{ font-size:13px; color:#ddd; }
+
+/* ---------- signal bar (white) ---------- */
+.signalbar{
+  background:linear-gradient(#f6f6f6,#e9e9e9);
+  color:#111; border-radius:10px; padding:6px 12px; margin:10px 6px 8px;
+  display:flex; align-items:center; justify-content:center; gap:16px;
+  border:1px solid #d9d9d9; position:relative;
+}
+.signalbar .flag{ display:none; } /* 画像は非表示（LEDで表現） */
+.signalbar .leds{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  display:flex; gap:8px;
+}
+.signalbar .led{
+  width:16px; height:16px; border-radius:50%;
+  background:#555; box-shadow:inset 0 0 0 2px #2a2a2a, 0 0 4px rgba(0,0,0,.4);
+}
+/* 状態クラス（JSが .signalbar に付与） */
+.signalbar.green .led{ background:#1fae41; box-shadow:inset 0 0 0 2px #0a5a1f, 0 0 10px #1fae41; }
+.signalbar.yellow .led{ background:#e4c21b; box-shadow:inset 0 0 0 2px #6b5b00, 0 0 10px #e4c21b; }
+.signalbar.red .led{ background:#e22d2d; box-shadow:inset 0 0 0 2px #6d0d0d, 0 0 10px #e22d2d; }
+.signalbar.finish .led{ background:repeating-linear-gradient(45deg,#ddd 0 6px,#111 6px 12px); box-shadow:inset 0 0 0 2px #2a2a2a; }
+
+.signalbar .link-all{
+  font-weight:800; font-size:22px; color:#777; text-decoration:none;
+  border-bottom:3px solid #f08c3a; padding-bottom:2px;
+}
+.signalbar .link-all:hover{ color:#333; }
+
+/* 残時間を右に */
+.signalbar .timer{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  font-weight:800; font-size:18px; color:#222;
+  background:#efefef; border:1px solid #d0d0d0; border-radius:8px; padding:2px 10px;
+}
+
+
+/* =========================================================
+   重要：タイミングテーブルの見た目は live.css / live2.css に委譲
+   → ここでは“色のにじみ防止の薄いボーダー色だけ”を指定
+   （行高・文字サイズ・配置は一切上書きしない）
+   ========================================================= */
+
+/* 既存のテーブル設定を壊さないため、以下は明示的に上書きしない
+   - height / line-height / padding
+   - text-align（pos/time/driver等）
+   - border-collapse / background
+*/
+
+/* ---------- responsive ---------- */
+@media (max-width:1200px){ .content{ padding:6px; } }
+@media (max-width:1024px){ .signalbar .link-all{ font-size:20px; } .signalbar .timer{ font-size:16px; } }
+@media (max-width:768px){
+  :root{ --side-w:44px; --bar-h:48px; }
+  .nav-btn{ width:32px; height:32px; }
+  .brand{ font-size:18px; }
+}
+
+
+/* ===== 行高の完全統一 ===== */
+
+/* ヘッダー */
+#listtitle th {
+  height: 44px !important;
+  line-height: 44px !important;
+  padding: 0 10px !important;
+  vertical-align: middle !important;
+}
+
+
+

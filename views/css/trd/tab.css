@@ -1,0 +1,68 @@
+#content {
+ 	position: relative;
+	top: 0px;
+	left:0px;
+	width:1600px;
+	font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+ul#tab {
+	zoom: 1;
+	background: #000; /* 非アクティブタブ */
+	border-bottom: 15px solid #ff0000; /*タブの下 */
+	list-style: none;
+	margin: 0 auto;
+	padding: 0;
+}
+ul#tab:after { content:"."; display: block; height:0px; clear:both; line-height:0; visibility:hidden; }
+ul#tab li {
+	float: left;
+	text-align: center;
+	overflow: hidden;
+	border-right: 1px #706745 double;
+}
+ul#tab li:last-child {
+	background: none;
+}
+ul#tab li a {
+	display: block;
+	width: 130px;
+	padding: 8px 5px;
+	text-decoration: none;
+	color: #fff;
+	font-size:1.0em;
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+        font-family: 'Saira', sans-serif;
+}
+
+ul#tab li a:hover {
+	background: #ff0000;
+	color: #FFF;
+}
+
+ul#tab li.active,
+ul#tab li.active a,
+ul#tab li.active a:hover {
+	/*background: #706745;  アクティブタブ */
+        background: #ff0000;
+	color: #FFF;
+}
+#detail {
+	clear: both;
+	overflow: hidden;
+	width: 1450px;
+	height: 600px;
+	padding: 20px;
+	background:#000;
+	filter:alpha(opacity=0);
+	-moz-opacity:0;
+	-khtml-opacity:0;
+	opacity:0;
+
+
+}
+.tabbox {
+	display: none;
+}

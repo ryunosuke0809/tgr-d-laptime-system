@@ -1,0 +1,36 @@
+{
+  "name": "babel-preset-php",
+  "version": "2.0.0",
+  "description": "Convert PHP7 to JavaScript via Babel preset",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "homepage": "https://gitlab.com/kornelski/babel-preset-php",
+  "bugs": "https://gitlab.com/kornelski/babel-preset-php/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/kornelski/babel-preset-php.git"
+  },
+  "keywords": [
+    "php",
+    "php2js",
+    "babel-plugin",
+    "phpel"
+  ],
+  "author": "Kornel Lesiński <kornel@geekhood.net> (https://kornel.ski/)",
+  "contributors": [
+    "Raphaël Droz <raphael.droz+floss@gmail.com>"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "mocha": "^7.0.0"
+  },
+  "dependencies": {
+    "@babel/helper-plugin-utils": "^7.8.3",
+    "@babel/parser": "^7.8.4",
+    "php-parser": "^2.2.0"
+  }
+}

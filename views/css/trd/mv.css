@@ -1,0 +1,17 @@
+#streamframe {
+    background: #000;
+    width: 380px;
+    height: 220px;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#streamframe:hover {
+    position: absolute;
+    left: -280px;
+    width: 640px;
+    height: 360px;
+}

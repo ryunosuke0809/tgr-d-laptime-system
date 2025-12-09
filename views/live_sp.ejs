@@ -1,0 +1,64 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-EN" lang="en-EN">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TRD Timing Monitor</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/jquery/jquery.mixitup.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="/css/trd/live_sp.css" type="text/css" />
+    <link rel="stylesheet" href="/css/trd/live2_sp.css" type="text/css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+
+
+
+</head>
+<body>
+
+    <div>
+    <div id="title_area" style="height:40px; background-color:#ccc;padding: 0px; margin: 0px;">
+
+<table>
+<tr>
+<td>
+<img id="liveflag" style="margin:-4px 0px 0px 50px; height:20px;" src="/images/trd/green_off.png">
+</td>
+<td>
+<ul id="livelaps"><li class="laps"></li></ul>
+</td>
+<td>
+<ul id="livetitle"><li class="title" style="position:absolute;top:-5px;left:270px;"></li></ul>
+</td>
+</tr>
+</table>
+
+    </div>
+    <div id="container-area" style="overflow-y: scroll;">
+        <div id="Container" class="container">
+            <div id="ListArea" class="listarea">
+              <div id="c-1" class="mix category-0" data-sort="99999999999" style="background-color: rgb(15 14 14); opacity: 0.9;" ></div>
+	    </div>
+        </div>
+    </div>
+    <div id="footer-area"></div>
+
+<script type="text/javascript">
+    //var uri = "ws://superformula.racelive.jp:6001/" + "get"; //SF
+    //var uri = "ws://superformula.racelive.jp:9001/" + "get"; //AIDCA汎用
+    //var uri = "ws://www.racelive.jp:2001/" + "get"; //SFL
+    //var uri = "ws://52.36.59.170:9101/" + "get"; //SUZUKA SOURTH
+    var uri = "ws://www.racelive.jp:8061/" + "get"; //TRD
+    var sector = "3";
+    var speed = "ON";
+    var circuit = "fsw";
+        
+</script>
+<script src="/js/trd/live_sp.js"></script>
+</body>
+</html>

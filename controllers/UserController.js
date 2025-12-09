@@ -1,0 +1,552 @@
+require('date-utils');
+const iconv = require("iconv-lite");
+const fs = require('fs');
+
+
+const express = require('express');
+//const userModel = require('../models/UserModel');
+const msg = require('../config/msg')
+const Views = '../views/'
+
+const loginModel = require('../models/LoginModel');
+const userModel = require('../models/UserModel');
+
+console.log('START USER CONTROLLER');
+module.exports = {
+    doMenu: function (req, res, next) {
+        var name = req.body.username;
+        var pwd = req.body.password;
+
+        console.log('POST doCheck -> ' + name + ":" + pwd);
+
+        loginModel.getUserData(name, pwd).then((result) => {
+            if (result == "NG") {
+                res.render(Views + 'login.ejs', { "msg": msg.login_check });
+            } else {
+                req.session.username = name;
+                const sid = req.sessionID;          // ← 追加
+                res.render(Views + 'user_menu.ejs', {
+                    id: name,
+                    sid: sid                          // ← 追加
+                });
+                //res.render(Views + 'user_menu.ejs', { "id": name });
+            }
+            console.log("doCheck Result -> [ " + name + " : " + JSON.stringify(result) + " ]");
+
+        });
+    },
+    // ====== GET /user/menu : 戻る導線（u/s 付き or 既存セッション） ======
+    menuByGet: function (req, res, next) {
+        const name = req.query.u;         // uid
+        const sid = req.query.s || '';   // sid（署名トークン等にするのが理想）
+
+        if (name) {
+            // u/s で来た → セッション補完
+            req.session.username = name;
+            req.session.sid = sid;
+            return res.render(Views + 'user_menu.ejs', { id: name, sid });
+        }
+
+        // u/s なし → 既存セッションが生きていればそのまま
+        if (req.session && req.session.username) {
+            return res.render(Views + 'user_menu.ejs', {
+                id: req.session.username,
+                sid: req.session.sid || ''
+            });
+        }
+
+        // どれも無ければログインへ
+        return res.redirect('/login/init');
+    },
+
+    //---- 6/1 shidara add PASSWORD change -----
+    doPassChange: function (req, res, next) {
+        var name = req.body.username;
+        var old_pwd = req.body.old_password;
+        var new_pwd = req.body.new_password;
+        var check_pwd = req.body.check_password;
+        //console.log('POST doPassChange -> ' + name + ":" + old_pwd + ":" + new_pwd + ":" + check_pwd);
+        loginModel.getUserPwdUp(name, old_pwd, new_pwd).then((result) => {
+            //console.log('pass_chenge -> ' + result);
+            if (result.changedRows == 0) {
+                res.render(Views + 'password_change.ejs', { "msg": msg.pwd_update_ng });
+            } else {
+                res.render(Views + 'login.ejs', { "msg": msg.pwd_update_ok });
+            }
+        });
+
+    },
+
+    doGetTimeChart: function (req, res, next) {
+        var param = req.body;
+        var delimiter = ",";
+        var speedLen = 0;
+        var courceLen = 0;
+
+        var beforLapTime = 0;
+        var brkKey = "";
+
+        userModel.getlapHeadData(param).then((result) => {
+
+            if (result.length < 1) {
+                console.log("no data! -- timeChart header");
+                res.send("NG");
+                return;
+            }
+            speedLen = result[0].SPEED_LEN / 100;
+            courceLen = result[0].COURCE_LEN / 100;
+
+            // 不要プロパティを削除
+            delete result[0].SPEED_LEN;
+            delete result[0].COURCE_LEN;
+
+            // json -> csvに変換する
+            var csvHeadData = jsonToCsv(result, delimiter);
+
+            userModel.getlapPassingData(param).then((result2) => {
+
+                //console.log("param = " + JSON.stringify(param));
+                //console.log("param = " + JSON.stringify(result2));
+
+                if (result2.length < 1) {
+                    console.log("no data! -- timeChart detail");
+                    res.send("NG");
+                    return;
+                }
+                var passingList = []; // for download
+                var topicList = [];  // Best Datas
+
+                var topicObj = "";
+                for (var row of result2) {
+                    //console.log(JSON.stringify(row));
+                    var id = row.TEAM_ID + "-" + row.DRIVER_NO
+                    topicObj = topicList.find((v) => v.ID === id);
+                    if (topicObj == undefined) {
+                        topicObj = new TopicData();
+                        topicObj.ID = id;
+                        topicList.push(topicObj);
+                        topicObj = topicList.find((v) => v.ID === id);
+                    }
+                    // get Passing Type
+                    var passingType = getLoopToSector(row.LOOP_ID);
+
+                    lapData = new LapData();
+                    //lapData.NO = row.TEAM_ID;
+                    lapData.NO = row.NO;
+                    lapData.Team = row.TEAM_NAME_J;
+                    lapData.Driver = row.DRIVER_NAME_J;
+                    lapData.Lap = topicObj.Lap;
+
+                    if (passingType == "Speed1") {
+                        topicObj.Speed1Total = timeFormat(row.PASSING_TIME);
+                        continue;
+                    } else if (passingType == "Speed2") {
+                        var speedTime = timeFormat(row.PASSING_TIME) - topicObj.Speed1Total;
+                        var speed = numberFloor(speedLen / 1000 / speedTime * 3600, 100);
+
+                        if (speed > topicObj.BestMaxSpeed) {
+                            topicObj.BestMaxSpeed = speed;
+                            topicObj.BestMax_FLAG = true;
+                        }
+                        topicObj.MaxSpeed = speed;
+                        continue;
+                    } else if (passingType == "OUT") {
+                        topicObj.OutLap_FLAG == true;
+                        continue;
+                    } else if (passingType == "Sec1Time") {
+                        lapData.Sector = "S1";
+                        topicObj.Sec1Total = timeFormat(row.PASSING_TIME);
+                        var sec1Time = timeFormat(row.PASSING_TIME) - timeFormat(row.LAST_PASSING_TIME);
+                        sec1Time = Number(sec1Time.toFixed(3));
+                        if (topicObj.OutLap_FLAG == true) {
+                            lapData.Topic = "OUTLAP";
+                            topicObj.OutLap_FLAG = false;
+                        } else if (sec1Time < topicObj.BestSec1Time) {
+                            topicObj.BestSec1Time = sec1Time;
+                            lapData.Topic = "BEST";
+                        }
+                        lapData.SectorTime = numberFloor(sec1Time, 1000).toFixed(3);
+                        lapData.Time = doubleToTime2(sec1Time).toString(10);
+                        passingList.push(lapData);
+                    } else if (passingType == "Sec2Time") {
+                        lapData.Sector = "S2";
+                        topicObj.Sec2Total = timeFormat(row.PASSING_TIME);
+                        var sec2Time = timeFormat(row.PASSING_TIME) - topicObj.Sec1Total;
+                        sec2Time = Number(sec2Time.toFixed(3));
+                        if (sec2Time < topicObj.BestSec2Time) {
+                            topicObj.BestSec2Time = sec2Time;
+                            lapData.Topic = "BEST";
+                        }
+                        lapData.SectorTime = numberFloor(sec2Time, 1000).toFixed(3);
+                        lapData.Time = doubleToTime2(sec2Time);
+                        passingList.push(lapData);
+
+                    } else if (passingType == "Sec3Time") {
+                        lapData.Sector = "S3";
+                        topicObj.Sec3Total = timeFormat(row.PASSING_TIME);
+                        var sec3Time = timeFormat(row.PASSING_TIME) - topicObj.Sec2Total;
+                        sec3Time = Number(sec3Time.toFixed(3));
+
+                        if (sec3Time < topicObj.BestSec3Time) {
+                            topicObj.BestSec3Time = sec3Time;
+                            lapData.Topic = "BEST";
+                        }
+                        lapData.SectorTime = numberFloor(sec3Time, 1000).toFixed(3);
+                        lapData.Time = doubleToTime2(sec3Time);
+                        passingList.push(lapData);
+
+                    } else if (passingType == "LastLap" || passingType == "PITLAP") {
+                        // S4処理 
+                        lapData.Sector = "S4";
+                        if (passingType == "PITLAP") {
+                            lapData.Topic = "PIT-IN";
+                        }
+                        var sec4Time = timeFormat(row.PASSING_TIME) - topicObj.Sec3Total;
+                        sec4Time = Number(sec4Time.toFixed(3));
+                        if (sec4Time < topicObj.BestSec4Time) {
+                            topicObj.BestSec4Time = sec4Time;
+                            lapData.Topic = "BEST";
+                        }
+                        lapData.SectorTime = numberFloor(sec4Time, 1000).toFixed(3);
+                        lapData.Time = doubleToTime2(sec4Time);
+                        passingList.push(lapData);
+
+                        //var lapTime = timeFormat(row.PASSING_TIME - row.LAST_PASSING_TIME);
+
+                        // Lap処理
+                        lapData = new LapData();
+                        lapData.NO = row.NO;
+                        lapData.Team = row.TEAM_NAME_J;
+                        lapData.Driver = row.DRIVER_NAME_J;
+                        lapData.Lap = topicObj.Lap;
+
+                        lapData.Sector = "LAP";
+
+                        if (brkKey != row.TEAM_ID) {
+                            brkKey = row.TEAM_ID;
+                            beforLapTime = 0;
+                        }
+
+                        var lapTime = timeFormat(row.PASSING_TIME) - beforLapTime;
+                        lapTime = Number(lapTime.toFixed(3));
+
+                        lapData.SectorTime = numberFloor(lapTime, 1000).toFixed(3);
+                        //console.log("lapData == " + JSON.stringify(lapData));
+
+                        lapData.Topic = "";
+                        if (lapTime < topicObj.BestLapTime) {
+                            lapData.Topic = "BEST";
+                            topicObj.BestLapTime = lapTime;
+                        }
+                        lapData.Time = doubleToTime2(lapTime);
+                        passingList.push(lapData);
+
+                        // Ave処理
+                        lapData = new LapData();
+                        lapData.NO = row.NO;
+                        lapData.Team = row.TEAM_NAME_J;
+                        lapData.Driver = row.DRIVER_NAME_J;
+                        lapData.Lap = topicObj.Lap;
+
+                        lapData.Sector = "AVE(km/h)";
+                        //var speed = numberFloor(courceLen / 1000 / timeFormat(row.PASSING_TIME - row.LAST_PASSING_TIME) * 3600, 1000);
+                        var speed = numberFloor(courceLen / 1000 / (timeFormat(row.PASSING_TIME) - beforLapTime) * 3600, 1000).toFixed(2);
+
+                        lapData.SectorTime = speed;
+                        lapData.Topic = "";
+
+                        if (Number(speed) > Number(topicObj.BestAveSpeed)) {
+                            lapData.Topic = "BEST";
+                            topicObj.BestAveSpeed = speed;
+                        }
+                        lapData.Time = "";
+                        passingList.push(lapData);
+
+                        // Max処理
+                        lapData = new LapData();
+                        lapData.NO = row.NO;
+                        lapData.Team = row.TEAM_NAME_J;
+                        lapData.Driver = row.DRIVER_NAME_J;
+                        lapData.Lap = topicObj.Lap;
+
+                        lapData.Sector = "Max(km/h)";
+                        lapData.SectorTime = topicObj.MaxSpeed;
+                        lapData.Topic = "";
+                        if (topicObj.BestMax_FLAG) {
+                            lapData.Topic = "BEST";
+                            topicObj.BestMax_FLAG = false;
+                        }
+                        lapData.Time = "";
+                        passingList.push(lapData);
+                        topicObj.Lap += 1;
+                        beforLapTime = timeFormat(row.PASSING_TIME);
+
+                    }
+                }
+                // json -> csvに変換する
+                var csvListData = jsonToCsv(passingList, delimiter);
+                var csvData = csvHeadData + "\n" + csvListData
+                const data = iconv.encode(csvData, "Shift_JIS");
+                res.setHeader('Content-disposition', 'attachment; filename=data.csv');
+                res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+                res.send(data);
+            });
+        });
+    },
+
+
+    doGetStandingChart: function (req, res, next) {
+        var param = req.body;
+        var delimiter = ",";
+        var raceType = "";
+        //console.log(param);
+        userModel.getlapHeadData(param).then((result) => {
+            if (result.length < 1) {
+                console.log("no data! -- StandingChart header");
+                res.send("NG");
+                return;
+            }
+            speedLen = result[0].SPEED_LEN / 100;
+            courceLen = result[0].COURCE_LEN / 100;
+            raceType = result[0].RACE_TYPE;
+
+            // 不要プロパティを削除
+            delete result[0].SPEED_LEN;
+            delete result[0].COURCE_LEN;
+            delete result[0].RACE_TYPE;
+
+            // json -> csvに変換する
+            var csvHeadData = jsonToCsv(result, delimiter);
+
+            userModel.getChartData(param).then((result2) => {
+                if (result2.length < 1) {
+                    console.log("no data! -- StandingChart detail");
+                    res.send("NG");
+                    return;
+                }
+                //2022.5.12 add --------------------------------------- 
+                //ポジション順に
+                result2.sort(function (a, b) {
+                    if (a.Lap !== b.Lap) {
+                        return (a.Lap - b.Lap)
+                    }
+                    if (raceType != 'L') {
+                        if (a.LapTime !== b.LapTime) {
+                            return (a.LapTime - b.LapTime)
+                        }
+                    }
+                    if (raceType != 'L') {
+                        if (a.LastTime !== b.LastTime) {
+                            return (a.LastTime - b.LastTime)
+                        }
+                    }
+                    return 0
+                })
+                //順位セット
+                var lap = 0;
+                var pos = 0;
+                for (row of result2) {
+                    if (raceType != 'L') {
+                        if (lap != row.Lap) {
+                            lap = row.Lap;
+                            pos = 1;
+                        }
+                        row.Pos = pos;
+                        pos += 1;
+                    }
+                    // 不要プロパティを削除
+                    delete row.LapTime;
+                    delete row.LastTime;
+                }
+                //車両ナンバー順にソート
+                result2.sort(function (a, b) {
+                    if (a.Lap !== b.Lap) {
+                        return (a.Lap - b.Lap)
+                    }
+                    if (a.No !== b.No) {
+                        return (a.No - b.No)
+                    }
+                    return 0
+                })
+                //2022.5.12 add end --------------------------------------- 
+
+
+                var csvListData = jsonToCsv(result2, delimiter);
+                var csvData = csvHeadData + "\n" + csvListData
+                var data = iconv.encode(csvData, "Shift_JIS");
+                res.setHeader('Content-disposition', 'attachment; filename=data.csv');
+                res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+                res.send(data);
+            });
+        });
+
+    },
+
+    doGetResultPdf: function (req, res, next) {
+        var param = req.body;
+        userModel.getResultPdf(param).then((result) => {
+            if (result.length < 1) {
+                console.log("no data! -- StandingChart header");
+                res.send("NG");
+                return;
+            }
+
+            //res.setHeader('Content-Type', 'application/pdf');
+            //res.setHeader('Content-Type', 'application/force-download');
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', 'attachment; filename=result.pdf');
+            res.send(result[0].CONTENTS);
+        });
+    }
+}
+
+
+// 小数点４桁を小数点３桁でカット(元は小数点なし10000倍したデータ)
+function timeFormat(num) {
+    var res = Math.floor(num / 10) / 1000;
+    //console.log("-----timeFormat---  num = " + num + "   ; res = " + res);
+    return res;
+}
+
+
+// 小数点３桁でカット
+function numberFloor(num, digit) {
+    //console.log("-- numberFloor --");
+    //var res = Math.floor(num * digit) / digit;
+    var digitLen = String(digit).length;
+    var strVal = String(num);
+    var dotPos = 0;
+    //　小数点が存在するか確認
+    if (strVal.lastIndexOf('.') !== -1) {
+        dotPos = strVal.lastIndexOf('.');
+    }
+    if (dotPos == 0) {
+        return num;
+    }
+    var value = strVal.slice(0, dotPos + digitLen);
+    var res = Number(value);
+    return res;
+}
+
+function doubleToTime(dTime) {
+    if (dTime <= 0) {
+        return "";
+    }
+    // HH
+    var hh = 0;
+    var mi = 0;
+    var ss = 0;
+    if (dTime > 3600) {
+        hh = Math.floor(dTime / 3600);
+    }
+    // MI
+    var m1 = dTime - (hh * 3600);
+    if (m1 > 60) {
+        mi = Math.floor(m1 / 60);
+    }
+    // SS
+    ss = m1 - (mi * 60);
+    if (hh > 0) {
+        return hh + ":" + ("00" + mi).substr(-2) + ":" + ss.toFixed(3);
+    } else if (mi > 0) {
+        return mi + ":" + ("00" + ss.toFixed(3)).substr(-6);
+    } else {
+        return numberFloor(ss.toFixed(3), 1000).toFixed(3);
+    }
+}
+function doubleToTime2(dTime) {
+    if (dTime <= 0) {
+        return "";
+    }
+    // HH
+    var hh = 0;
+    var mi = 0;
+    var ss = 0;
+    if (dTime > 3600) {
+        hh = Math.floor(dTime / 3600);
+    } else {
+        hh = "00"
+    }
+    // MI
+    var m1 = dTime - (hh * 3600);
+    if (m1 > 60) {
+        mi = Math.floor(m1 / 60);
+    } else {
+        mi = "00"
+    }
+    // SS
+    ss = m1 - (mi * 60);
+    return ("00" + hh).substr(-2) + ":" + ("00" + mi).substr(-2) + ":" + ("00" + ss.toFixed(3)).substr(-6);
+}
+
+// Loop名称変換
+function getLoopToSector(loopid) {
+    var sec = "";
+    if (loopid == "0") {
+        sec = "LastLap";
+    } else if (loopid == "1") {
+        sec = "Sec1Time";
+    } else if (loopid == "2") {
+        sec = "Sec2Time";
+    } else if (loopid == "3") {
+        sec = "Sec3Time";
+    } else if (loopid == "8") {
+        sec = "Speed1";
+    } else if (loopid == "9") {
+        sec = "Speed2";
+    } else if (loopid == "10") {
+        sec = "OUT";
+    } else if (loopid == "11") {
+        sec = "IN";
+    } else if (loopid == "20") {
+        sec = "PITLAP";
+    }
+    return sec;
+}
+
+function TopicData() {
+    this.ID = "";
+    this.TeamID = "";
+    this.DriverNo = "";
+    this.Lap = 1;
+    this.Sec1Total = 0;
+    this.Sec2Total = 0;
+    this.Sec3Total = 0;
+    this.Speed1Total = 0;
+    //this.Sec4Total = 0;
+    this.BestLapTime = 99999;
+    this.BestSec1Time = 99999;
+    this.BestSec2Time = 99999;
+    this.BestSec3Time = 99999;
+    this.BestSec4Time = 99999;
+    this.BestMaxSpeed = 0;
+    this.BestAveSpeed = 0;
+    this.OutLap_FLAG = true;
+    this.Start_FLAG = false;
+    this.BestMax_FLAG = false;
+    this.MaxSpeed = 0;
+    this.PitIN_FLAG = false;
+
+}
+function LapData() {
+    this.NO = "";
+    this.Team = "";
+    this.Driver = "";
+    this.Lap = "";
+    this.Sector = "";
+    this.SectorTime = 0;
+    this.Topic = "";
+    this.Time = "";
+}
+
+
+//jsonをcsv文字列に編集する
+function jsonToCsv(json, delimiter) {
+    var header = Object.keys(json[0]).join(delimiter) + "\n";
+    var body = json.map(function (d) {
+        return Object.keys(d).map(function (key) {
+            return d[key];
+        }).join(delimiter);
+    }).join("\n");
+    return header + body;
+}

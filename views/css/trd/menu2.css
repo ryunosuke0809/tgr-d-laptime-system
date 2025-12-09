@@ -1,0 +1,58 @@
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,500,800);
+.livemenu {
+  font-family: 'Raleway', Arial, sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.livemenu * {
+  box-sizing: border-box;
+}
+.livemenu li {
+  display: inline-block;
+  list-style: outside none none;
+  margin: 0 1.5em;
+  padding: 0;
+}
+.livemenu a {
+  padding: 0.5em 0;
+  color: rgba(255, 255, 255, 0.5);
+  position: relative;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+.livemenu a:before,
+.livemenu a:after {
+  position: absolute;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.livemenu a:before {
+  bottom: 0;
+  display: block;
+  height: 3px;
+  width: 0%;
+  content: "";
+  background-color: #2980b9;
+}
+.livemenu a:after {
+  left: 0;
+  top: 0;
+  padding: 0.5em 0;
+  position: absolute;
+  content: attr(data-hover);
+  color: #ffffff;
+  white-space: nowrap;
+  max-width: 0%;
+  overflow: hidden;
+}
+.livemenu a:hover:before,
+.livemenu .current a:before {
+  opacity: 1;
+  width: 100%;
+}
+.livemenu a:hover:after,
+.livemenu .current a:after {
+  max-width: 100%;
+}
+

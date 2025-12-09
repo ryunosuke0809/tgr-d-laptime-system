@@ -1,0 +1,80 @@
+body {
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+@font-face {
+  font-family: 'Typicons';
+  src: url('../fonts/typicons-regular-webfont.eot');
+  src: url('../fonts/typicons-regular-webfont.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/typicons-regular-webfont.woff') format('woff'),
+    url('../fonts/typicons-regular-webfont.ttf') format('truetype'),
+    url('../fonts/typicons-regular-webfont.svg#TypiconsRegular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.listarea {
+	font-size:11px;
+	color: #FFF;
+	position:absolute;
+	left: 2px;
+}
+.listarea a{
+    color:#fff;
+    font-style:normal;
+    text-decoration:none;
+}
+.listarea a:link {
+    color:#fff;
+    font-style:normal;
+    text-decoration:none;
+}
+.listarea a:visited {
+    color:#fff;
+    text-decoration:none;
+}
+.listarea a:hover {
+    color:#fff;
+    font-style:normal;
+    text-decoration:none;
+}
+.listarea a:active {
+    text-decoration:none;
+}
+
+.listarea table {
+	border-collapse: collapse;
+	margin: 0px  0px  0px;
+	font-size: 1.1em;
+	table-layout: fixed;
+}
+
+.listarea th {
+	padding: 2px 4px;
+	color: #fff;
+	font-weight: bold;
+	text-align: center;
+	border-bottom: 1px solid #fff;
+	line-height: 1.2;
+}
+
+.listarea td {
+	color: #fff;
+	padding: 2px 4px;
+	border-bottom: 0px solid #ccc;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+.listarea td * {
+}
+
+.listarea tr.alt td {
+	background: #ecf6fc;
+}
+
+.listarea tr:nth-child(even) {
+    background:#000;
+}
+.listarea tr:nth-child(odd) {
+    background:#222;
+}

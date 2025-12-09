@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="/js/trd/login.js"></script>
+    <link rel="stylesheet" href="/css/trd/login.css" type="text/css" />
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="icon" href="/images/trd/favicon.ico" type="image/x-icon"/>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-right">
+                    <img src="/images/trd/TGR-D_logo_noncolorbase.png" class="logo">
+					<h1 style="font-size: 30px";>Racing School</h1>
+					<p>Timing Monitor</p>
+                </div>
+            </div>
+        </div>
+        		<div class="form-container log-in-container">
+			    <form action="/user/menu" method="post">
+				<ul class="noBullet">
+        		<li>
+        		 <label for="username" style="font-family: sans-serif;font-weight: bold; margin-right: 155px;color: #FFF;">User ID</label>
+            		<input type="text" class="inputFields" id="username" name="username" placeholder="User ID" value=""  required/>
+        	    </li>
+        	    <li>
+                <label for="password" style="font-family: sans-serif;font-weight: bold; margin-right: 130px;color: #FFF;margin-top: 15px;">Password</label>
+                <input type="password" class="inputFields" id="password" name="password" placeholder="Password" value="" required/>
+        	    </li>
+        	    <li id="center-btn">
+           		 <input type="submit" id="join-btn" name="join" alt="Join" value="LOGIN">
+       		    </li>
+     		   </ul>
+     		
+     		<% if( typeof msg !== 'undefined' && msg.length > 0) { %>
+            <div class="error-msg">
+                <p>
+               	 <i class="fas fa-exclamation-triangle"></i>
+                    <%= msg %>
+            	</p>
+        	</div>
+    		<% } %>
+     
+			</form>
+		</div>
+		
+	</div>
+
+
+	
+	    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+console.log("12222");
+
+	history.pushState(null, null, null);
+	console.log(' ');
+$(window).on("popstate", function (event) {
+    if (!event.originalEvent.state) {
+        history.pushState(null, null, null);
+        return;
+    }
+});	
+
+	
+</script>
+    <script src="http://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/lib/jquery.backstretch.min.js"></script>
+    <script>
+      jQuery.backstretch("/images/trd/login-bg.jpg", {
+        speed: 500
+      });
+    </script>
+	
+	
+</body>
+</html>

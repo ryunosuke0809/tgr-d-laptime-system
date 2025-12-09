@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-EN" lang="en-EN">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RaceLive PersonalLap</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.0.2/Chart.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="/css/trd/live.css" type="text/css" />
+    <link rel="stylesheet" href="/css/trd/personal.css" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+    <div id="graph_button">
+        <button id="g_lap" class="graph" type="button">LAP TIME</button>
+        <button id="g_s1" class="graph" type="button">SECTOR 1</button>
+        <button id="g_s2" class="graph" type="button">SECTOR 2</button>
+        <button id="g_s3" class="graph" type="button">SECTOR 3</button>
+        <!--<button id="g_s4" class="graph" type="button">SECTOR 4</button>-->
+        <button id="g_spd" class="graph" type="button">SPEED</button>
+        <button id="g_pos" class="graph" type="button">POSITION</button>
+    </div>
+
+    <div style="width: 800px; height:250px;">
+        <canvas id="canvas" height="250px" width="800px"></canvas>
+    </div>
+    <div id="slider-range" style="position:fixed; top: 50px; left:820px; height:200px;"></div>
+    <div id="classfilter" style="width: 800px; position:absolute;top:260px; left:-280px;"></div>
+
+
+    <div id="PersonalListArea" class="personalarea">
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2">Laps</th>
+                <th colspan="8" class="driver" id="driver">
+<ul id="fade-in" class="dropmenu">
+  <li><div id="current_driver"></div>
+    <ul>
+    </ul>
+  </li>
+</ul>
+                </th>
+            </tr>
+            <tr>
+                <th width="150px">Team</th>
+                <th width="100px">Sec1</th>
+                <th width="100px">Sec2</th>
+                <th width="100px">Speed</th>
+                <th width="100px">Sec3</th>
+                <!--<th width="100px">Sec4</th>-->
+                <th width="100px">LapTime</th>
+                <th width="30px">P</th>
+            </tr>
+
+            </thead>
+            <tbody>
+                <tr>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+
+        var ctx = document.getElementById("canvas").getContext("2d");
+        var gapChart;
+        var graphType = "L";
+        var liveList = new Object();
+        var personalList = new Object();
+        var driver = "";
+        var laps = 0;
+        var minData = 99999;
+        var maxData = 0;
+        var raceclass = "";
+
+        $("#g_lap").css('background-color', '#FF0');
+        $("#g_lap").css('color', '#000');
+
+        $(window).on("resize", function() {
+            $("#PersonalListArea").css("height", window.innerHeight-320);
+        }).trigger("resize");
+
+        var param = GetQueryString();
+        raceclass = param["raceclass"];
+        $("#current_driver").text(param["carno"] + " " + param["team_j"]);
+        driver = param["carno"];
+
+        $('#fade-in > li').click(function(ev){
+            var sub = $(this).children('ul');
+            if ($(sub).is(':hidden')) $(sub).slideDown();
+            else $(sub).slideUp();
+        });
+
+        function GetQueryString() {
+          if (1 < document.location.search.length) {
+             var query = decodeURIComponent(document.location.search.substring(1));
+             var parameters = query.split('&');
+            var result = new Object();
+            for (var i = 0; i < parameters.length; i++) {
+              var element = parameters[i].split('=');
+              var paramName = element[0];
+              var paramValue = element[1];
+               result[paramName] = paramValue;
+            }
+            return result;
+          }
+          return null;
+        }
+
+        var config = {
+           type: 'line',
+           data: {
+               labels: [],
+               datasets: [{
+                   fill: false,
+                   backgroundColor: "#3A7AC9",
+                   borderWidth: 3,
+                   borderColor: "rgba(30,220,30,0.8)",
+                   pointBorderColor: "#fff",
+                   pointBackgroundColor: "rgba(30,220,30,0.8)",
+                   pointBorderWidth: 2,
+                   pointHoverRadius: 5,
+                   pointHoverBackgroundColor: "#1D5191",
+                   pointHoverBorderColor: "#fff",
+                   pointHoverBorderWidth: 2,
+                   tension: 0,
+                   data: []
+               }]
+           },
+           options: {
+                responsive: true,
+                legend: {
+                    display: false
+                 },
+                scales: {
+                 xAxes: [{
+                    display: true,
+                    stacked: false,
+                    gridLines: {
+                       display: true
+                    }
+                 }],
+                 yAxes: [{
+                    ticks: {
+                        reverse: false,
+                        beginAtZero: true,
+                        userCallback: function(value, index, values) {
+                            var ylabel = "";
+                            if( graphType == "L" || graphType == "S1" || graphType == "S2" || graphType == "S3" || graphType == "S4" ) {
+                                ylabel = doubleToTime(value);
+                                ylabel = ylabel.slice(0,-2);
+                            } else if( graphType == "SPD" ) {
+                                ylabel = value + " Km";
+                            } else {
+                                ylabel = Number(value.toFixed());
+                            }
+                            return ylabel;
+                       }
+                    }
+                 }]
+                },
+                tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        var datasetLabel = "";
+                        if( graphType == "L" || graphType == "1" || graphType == "2" || graphType == "3" || graphType == "4" ) {
+                            datasetLabel = doubleToTime(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]);
+                        } else if( graphType == "SPD" ) {
+                            datasetLabel = doubleToSpeed(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]) + " Km";
+                        } else {
+                            datasetLabel = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        }
+                        return datasetLabel;
+                      }
+                    }
+                }
+            }
+        };
+        
+
+        $('#graph_button > button').click(function(ev){
+            var list = $("#graph_button").children('button');
+            for(var i=0; i < list.length; i++) {
+                var id = list.eq(i).attr('id');
+                if( ev.target.id == id ) {
+                    $("#" + id).css('background-color', '#FF0');
+                    $("#" + id).css('color', '#000');
+                } else {
+                    $("#" + id).css('background-color', '#000');
+                    $("#" + id).css('color', '#FFF');
+                }
+            }
+
+            if( ev.target.id == "g_lap" ) {
+                changeGraph('L');
+            } else if( ev.target.id == "g_s1" ) {
+                changeGraph('S1');
+            } else if( ev.target.id == "g_s2" ) {
+                changeGraph('S2');
+            } else if( ev.target.id == "g_s3" ) {
+                changeGraph('S3');
+            } else if( ev.target.id == "g_s4" ) {
+                changeGraph('S4');
+            } else if( ev.target.id == "g_spd" ) {
+                changeGraph('SPD');
+            } else if( ev.target.id == "g_pos" ) {
+                changeGraph('P');
+            }
+        });
+
+        var gapChart = new Chart(ctx, config);
+        //var liveURL = "<c:out value="${requestScope.streamlive}"/>" + "get";
+        //var personalURL = "<c:out value="${requestScope.streampersonal}"/>";
+        //var liveURL = "ws://52.196.45.4:9001/" + "get";
+        //var personalURL = "ws://www.racelive.jp:8062/";
+        
+        var liveURL = "ws://www.racelive.jp:8061/" + "get"; //TRD
+        //var liveURL = "ws://www.racelive.jp:2001/" + "get";
+        var personalURL = "ws://www.racelive.jp:8062/"; //TRD
+        //var personalURL = "ws://www.racelive.jp:2002/";
+
+        
+        var personalURL1 = "ws://www.racelive.jp:8062/"; //TRD
+        var personalURL2 = "ws://www.racelive.jp:8062/"; //TRD
+        
+        //var personalURL1 = "ws://www.racelive.jp:2002/";
+        //var personalURL2 = "ws://www.racelive.jp:2002/"; 
+        
+        var personalTitle = "";
+        var personalWebSocket = null;
+        var liveWebSocket = null;
+
+        function init() {
+
+            if (personalWebSocket == null) {
+                personalOpen();
+            }
+
+            if (liveWebSocket == null) {
+                try{
+                    liveWebSocket = new WebSocket(liveURL);
+                    liveWebSocket.onopen = live_onOpen;
+                    liveWebSocket.onmessage = live_onMessage;
+                    liveWebSocket.onclose = live_onClose;
+                    liveWebSocket.onerror = live_onError;
+                }catch( e ){
+                    console.log(e);
+                }
+            }
+
+        }
+        function personalOpen() {
+            if( driver.length > 0 ) {
+                try{
+                    personalWebSocket = new WebSocket(personalURL+driver);
+                    personalWebSocket.onopen = personal_onOpen;
+                    personalWebSocket.onmessage = personal_onMessage;
+                    personalWebSocket.onclose = personal_onClose;
+                    personalWebSocket.onerror = personal_onError;
+                }catch( e ){
+                    console.log(e);
+                }
+            }
+        }
+        function live_onOpen(event) {
+        }
+        function personal_onOpen(event) {
+        }
+        function live_onMessage(event) {
+            if (event && event.data) {
+                var json = $.parseJSON( event.data );
+                if( json.type == '0' ) {
+                    if( json.rows.length == 0 ) {
+                        liveList = new Object();
+                    } else {
+                        liveList = json.rows;
+                    }
+                    liveWebSocket.close();
+                    liveWebSocket = null;
+                    setFilter("");
+                } else if( json.type == 'S' ) { // SCHEDULE
+                    var classList = json.CLASS_LIST.replace(/[\n\r]/g,"").split(",");
+                    var liClass = '<ul class="classmenu" style="position:absolute;top:0px;left:230px;">';
+                    if( classList.length > 1 ) {
+                        if( raceclass.length == 0 ) {
+                            liClass += '<li id="class_all" class="current"><a href="javaScript:setFilter(\'all\');" data-hover="ALL">ALL</a></li>';
+                        } else {
+                            liClass += '<li id="class_all"><a href="javaScript:setFilter(\'all\');" data-hover="ALL">ALL</a></li>';
+                        }
+                        for( i=0; i<classList.length; i++ ) {
+                              if( classList[i].length == 0 ) {
+                                  continue;
+                              }
+                              if( classList[i] == raceclass ) {
+                                  liClass += '<li id="class_' + classList[i] + '" class="current"><a href="javaScript:setFilter(\'' + classList[i] + '\');" data-hover="' + classList[i] + '">' + classList[i] + '</a></li>';
+                              } else {
+                                  liClass += '<li id="class_' + classList[i] + '"><a href="javaScript:setFilter(\'' + classList[i] + '\');" data-hover="' + classList[i] + '">' + classList[i] + '</a></li>';
+                              }
+                        }
+                    } else {
+                        liClass += '<li id="class_all" class="current"><a href="javaScript:setFilter(\'all\');" data-hover="ALL">ALL</a></li>';
+                    }
+                    liClass += '</ul>';
+                    $("#classfilter").html(liClass);
+                }
+            }
+        }
+        function personal_onMessage(event) {
+            if (event && event.data) {
+                var json = $.parseJSON( event.data );
+                if( json.CARNO == driver ) {
+                    if( json.type == '0' ) {
+                        setAllPersonal(json);
+                    } else if( json.type == 'L' || json.type == '1' || json.type == '2' || json.type == '3' || json.type == '4' || json.type == 'I' || json.type == 'O' || json.type == 'K' ) {
+                        setPassPersonal(json);
+                    }
+                }
+            }
+        }
+        function live_onError(event) {
+        }
+        function personal_onError(event) {
+        }
+
+        function live_onClose(event) {
+            liveWebSocket = null;
+        }
+        function personal_onClose(event) {
+            personalWebSocket = null;
+        }
+        function setFilter(category) {
+
+            if( category.length > 0 ) {
+                if( personalWebSocket != null ) {
+                    personalWebSocket.close();
+                }
+                $('.personalarea table tbody tr').remove();
+                personalList = new Object();
+                $("#current_driver").text("Click to Select Driver");
+            }
+
+    	    var list = $(".classmenu").children('li');
+            if( category.length == 0 ) {
+                for(var i=0; i < list.length; i++) {
+                    var liId = list.eq(i).attr('id').substr(6);
+                    if( $('#class_' + liId).attr("class") == "current" ) {
+                        category = liId;
+                        break;
+                    }
+                }
+            }
+            $('.dropmenu li ul li').remove();
+            for(var index in liveList) {
+                if( category == "all" || category == liveList[index].RACE_CLASS ) {
+                    $('.dropmenu li ul').append('<li><a href="javaScript:changeDriver(' + liveList[index].CARNO + ');">' + liveList[index].CARNO + ' ' + liveList[index].TEAM_J + '</a></li>');
+                }
+            }
+            for(var i=0; i < list.length; i++) {
+                var liId = list.eq(i).attr('id').substr(6);
+                if( liId == category ) {
+                    $('#class_' + liId).attr("class","current");
+                } else {
+                    $('#class_' + liId).removeAttr("class");
+                }
+            }
+        }
+
+        function changeDriver(carno) {
+            var liveRow = getLiveRow(carno);
+            if( liveRow == null ) {
+                return;
+            }
+
+            $("#current_driver").text(liveRow.CARNO + " " + liveRow.TEAM_J);
+
+            driver = liveRow.CARNO;
+            personalList = new Object();
+            if( personalWebSocket != null ) {
+                personalWebSocket.close();
+            }
+            for(var i=1; i<=laps; i++) {
+                $('#p_driver_'+i).text("");
+                $('#p_sec1_'+i).text("");
+                $('#p_sec2_'+i).text("");
+                $('#p_speed_'+i).text("");
+                $('#p_sec3_'+i).text("");
+                //$('#p_sec4_'+i).text("");
+                $('#p_laptime_'+i).text("");
+                $('#p_lapdec_'+i).text("");
+                $('#p_totaltime_'+i).text("");
+                $('#p_pit_'+i).text("");
+            }
+            personalOpen(1);
+        }
+        function getLiveRow(carno) {
+            for(var index in liveList) {
+                if( liveList[index].CARNO == carno ) {
+                    return liveList[index];
+                }
+            }
+            return null;
+        }
+
+        function setAllPersonal(json) {
+            
+            if( json.rows.length == 0 ) {
+                $('.personalarea table tbody tr').remove();
+                personalList = new Object();
+            }
+
+            personalList = json.rows;
+            if( laps < json.rows.length ) {
+                laps = json.rows.length;
+            }
+            for(var index in json.rows) {
+                var rid = '#p_row_' + json.rows[index].LAPS;
+                if( $(rid).length ) {
+                    $('#p_driver_'+json.rows[index].LAPS).text(json.rows[index].DRIVER_J);
+                    $('#p_sec1_'+json.rows[index].LAPS).text(doubleToTime(json.rows[index].SEC1_TIME));
+                    $('#p_sec1_'+json.rows[index].LAPS).css("color", "#" + getColor( json.SEC1_BEST_LAPS,json.rows[index].LAPS) );
+                    $('#p_sec2_'+json.rows[index].LAPS).text(doubleToTime(json.rows[index].SEC2_TIME));
+                    $('#p_sec2_'+json.rows[index].LAPS).css("color", "#" + getColor( json.SEC2_BEST_LAPS,json.rows[index].LAPS) );
+                    $('#p_speed_'+json.rows[index].LAPS).text(doubleToSpeed(json.rows[index].SPEED));
+                    $('#p_speed_'+json.rows[index].LAPS).css("color", "#" + getColor( json.SPEED_BEST_LAPS,json.rows[index].LAPS) );
+                    $('#p_sec3_'+json.rows[index].LAPS).text(doubleToTime(json.rows[index].SEC3_TIME));
+                    $('#p_sec3_'+json.rows[index].LAPS).css("color", "#" + getColor( json.SEC3_BEST_LAPS,json.rows[index].LAPS) );
+                    //$('#p_sec4_'+json.rows[index].LAPS).text(doubleToTime(json.rows[index].SEC4_TIME));
+                    //$('#p_sec4_'+json.rows[index].LAPS).css("color", "#" + getColor( json.SEC4_BEST_LAPS,json.rows[index].LAPS) );
+                    $('#p_laptime_'+json.rows[index].LAPS).text(doubleToTime(json.rows[index].LAP_TIME));
+                    $('#p_pit_'+json.rows[index].LAPS).text(json.rows[index].PIT);
+                    $('#p_lapdec_'+json.rows[index].LAPS).text(json.rows[index].LAP_TIME);
+                    $('#p_totaltime_'+json.rows[index].LAPS).text(json.rows[index].TOTAL_TIME);
+                    $('#p_laptime_'+json.rows[index].LAPS).css("color", "#" + getColor( json.BEST_LAPS,json.rows[index].LAPS) );
+                } else {
+                    var p = '<tr id="p_row_' + json.rows[index].LAPS + '">' +
+                        '<td align="right" width="30"><div id="p_laps_' + json.rows[index].LAPS + '">' + json.rows[index].LAPS + '</div></td>' +
+                        '<td align="left" width="80"><div id="p_driver_' + json.rows[index].LAPS + '">' + json.rows[index].DRIVER_J + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_sec1_' + json.rows[index].LAPS + '" style="color: #' + getColor( json.SEC1_BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToTime(json.rows[index].SEC1_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_sec2_' + json.rows[index].LAPS + '" style="color: #' + getColor( json.SEC2_BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToTime(json.rows[index].SEC2_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_speed_' + json.rows[index].LAPS+ '" style="visible:collapse; color: #' + getColor( json.SPEED_BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToSpeed(json.rows[index].SPEED) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_sec3_' + json.rows[index].LAPS + '" style="color: #' + getColor( json.SEC3_BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToTime(json.rows[index].SEC3_TIME) + '</div></td>' +
+                        //'<td align="right" width="60"><div id="p_sec4_' + json.rows[index].LAPS + '" style="color: #' + getColor( json.SEC4_BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToTime(json.rows[index].SEC4_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_laptime_' + json.rows[index].LAPS + '" style="color: #' + getColor( json.BEST_LAPS,json.rows[index].LAPS) + '">' + doubleToTime(json.rows[index].LAP_TIME) + '</div><div id="p_lapdec_' + json.rows[index].LAPS + '" style="display:none">' + json.rows[index].LAP_TIME + '</div><div id="p_totaltime_' + json.rows[index].LAPS + '" style="display:none">' + json.rows[index].TOTAL_TIME + '</div></td>' +
+                        '<td align="center" width="20"><div id="p_pit_' + json.rows[index].LAPS + '">' + json.rows[index].PIT + '</div></td>' +
+                        '</tr>';
+                    $('.personalarea table').prepend(p);
+                }
+                if( $('#p_totaltime_'+json.rows[index].LAPS).text().length > 0 && $('#p2_totaltime_'+json.rows[index].LAPS).text().length > 0 ) {
+                    var gap = $('#p_totaltime_'+json.rows[index].LAPS).text() - $('#p2_totaltime_'+json.rows[index].LAPS).text();
+                    $('#p_gap_'+json.rows[index].LAPS).text(doubleToTime(gap));
+                }
+            }
+            graphDisp();
+        }
+
+        function changeGraph(gtype) {
+
+            graphType = gtype;
+            graphDisp();
+        }
+
+        function graphDisp() {
+
+            var labels = [];
+            var datas = [];
+            var l = personalList.length;
+            minData = 99999;
+            maxData = 0;
+            if( graphType == "P" ) {
+                labels[0] = "S";
+                var liveRow = getLiveRow(driver);
+                if( liveRow == null ) {
+                    datas[0] = 0;
+                } else {
+                    datas[0] = liveRow.START_POS;
+                }
+            }
+
+            for( var i=0; i<l; i++ ) {
+                if( graphType == "P" ) {
+                    labels[i+1] = i + 1;
+                } else {
+                    labels[i] = i + 1;
+                }
+                if( graphType == "L" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].LAP_TIME.length > 0 ) {
+                            datas[i] = personalList[i].LAP_TIME;
+                            if( minData > Number(personalList[i].LAP_TIME) ) {
+                                minData = Number(personalList[i].LAP_TIME);
+                            }
+                            if( maxData < Number(personalList[i].LAP_TIME) ) {
+                                maxData = Number(personalList[i].LAP_TIME);
+                            }
+                        }
+                    }
+                } else if( graphType == "S1" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].SEC1_TIME.length > 0 && personalList[i].SEC1_TIME > 0 ) {
+                            datas[i] = personalList[i].SEC1_TIME;
+                            if( minData > Number(personalList[i].SEC1_TIME) ) {
+                                minData = Number(personalList[i].SEC1_TIME);
+                            }
+                            if( maxData < Number(personalList[i].SEC1_TIME) ) {
+                                maxData = Number(personalList[i].SEC1_TIME);
+                            }
+                        }
+                    }
+                } else if( graphType == "S2" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].SEC2_TIME.length > 0 && personalList[i].SEC2_TIME > 0 ) {
+                            datas[i] = personalList[i].SEC2_TIME;
+                            if( minData > Number(personalList[i].SEC2_TIME) ) {
+                                minData = Number(personalList[i].SEC2_TIME);
+                            }
+                            if( maxData < Number(personalList[i].SEC2_TIME) ) {
+                                maxData = Number(personalList[i].SEC2_TIME);
+                            }
+                        }
+                    }
+                } else if( graphType == "S3" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].SEC3_TIME.length > 0 && personalList[i].SEC3_TIME > 0 ) {
+                            datas[i] = personalList[i].SEC3_TIME;
+                            if( minData > Number(personalList[i].SEC3_TIME) ) {
+                                minData = Number(personalList[i].SEC3_TIME);
+                            }
+                            if( maxData < Number(personalList[i].SEC3_TIME) ) {
+                                maxData = Number(personalList[i].SEC3_TIME);
+                            }
+                        }
+                    }
+                } else if( graphType == "S4" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].SEC4_TIME.length > 0 && personalList[i].SEC4_TIME > 0 ) {
+                            datas[i] = personalList[i].SEC4_TIME;
+                            if( minData > Number(personalList[i].SEC4_TIME) ) {
+                                minData = Number(personalList[i].SEC4_TIME);
+                            }
+                            if( maxData < Number(personalList[i].SEC4_TIME) ) {
+                                maxData = Number(personalList[i].SEC4_TIME);
+                            }
+                        }
+                    }
+                } else if( graphType == "SPD" ) {
+                    if( personalList.length > i ) {
+                        if( personalList[i].SPEED.length > 0 ) {
+                            datas[i] = personalList[i].SPEED;
+                            if( minData > Number(personalList[i].SPEED) ) {
+                                minData = Number(personalList[i].SPEED);
+                            }
+                            if( maxData < Number(personalList[i].SPEED) ) {
+                                maxData = Number(personalList[i].SPEED);
+                            }
+                        }
+                    }
+                } else if( graphType == "P" ) {
+                    if( driver.length > 0 ) {
+                        if( personalList.length > i ) {
+                            if( personalList[i].POS.length > 0 ) {
+                                datas[i+1] = personalList[i].POS;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var reversFlag = false;
+            if( graphType == "G" ) {
+            } else if( graphType == "L" ) {
+                reversFlag = true;
+            } else if( graphType == "S1" || graphType == "S2" || graphType == "S3" || graphType == "S4" ) {
+                reversFlag = true;
+            } else if( graphType == "SPD" ) {
+                reversFlag = false;
+            } else if( graphType == "P" ) {
+                reversFlag = true;
+                minData = 1;
+                maxData = liveList.length;
+            }
+
+            gapChart.data.labels = labels;
+            gapChart.data.datasets[0].data = datas;
+            gapChart.options.scales.yAxes[0].ticks.reverse = reversFlag;
+
+            var minSlider = $( "#slider-range" ).slider( "values", 0 );
+            var maxSlider = $( "#slider-range" ).slider( "values", 1 );
+
+            gapChart.options.scales.yAxes[0].ticks.min = ((maxData - minData) * minSlider / 100 ) + minData;
+            gapChart.options.scales.yAxes[0].ticks.max = ((maxData - minData) * maxSlider / 100 ) + minData;
+
+            gapChart.update();
+        }
+
+        function setPassPersonal(j) {
+
+            var setFlag = false;
+            for(var index in personalList) {
+                if( personalList[index].LAPS == j.LAPS ) {
+                    personalList[index] = j;
+                    setFlag = true;
+                    break;
+                }
+            }
+            if( !setFlag ) {
+                personalList.push(j);
+            }
+            var rid = '#p_row_' + j.LAPS;
+            if( $(rid).length ) {
+                $('#p_laps_'+j.LAPS).text(j.LAPS);
+                $('#p_driver_'+j.LAPS).text(j.DRIVER_J);
+                $('#p_sec1_'+j.LAPS).text(doubleToTime(j.SEC1_TIME));
+                $('#p_sec1_'+j.LAPS).css("color", "#" + getColor( j.SEC1_BEST_LAPS,j.LAPS) );
+                $('#p_sec2_'+j.LAPS).text(doubleToTime(j.SEC2_TIME));
+                $('#p_sec2_'+j.LAPS).css("color", "#" + getColor( j.SEC2_BEST_LAPS,j.LAPS) );
+                $('#p_speed_'+j.LAPS).text(doubleToSpeed(j.SPEED));
+                $('#p_speed_'+j.LAPS).css("color", "#" + getColor( j.SPEED_BEST_LAPS,j.LAPS) );
+                $('#p_sec3_'+j.LAPS).text(doubleToTime(j.SEC3_TIME));
+                $('#p_sec3_'+j.LAPS).css("color", "#" + getColor( j.SEC3_BEST_LAPS,j.LAPS) );
+               // $('#p_sec4_'+j.LAPS).text(doubleToTime(j.SEC4_TIME));
+                //$('#p_sec4_'+j.LAPS).css("color", "#" + getColor( j.SEC4_BEST_LAPS,j.LAPS) );
+                $('#p_laptime_'+j.LAPS).text(doubleToTime(j.LAP_TIME));
+                $('#p_pit_'+j.LAPS).text(j.PIT);
+                $('#p_lapdec_'+j.LAPS).text(j.LAP_TIME);
+                $('#p_totaltime_'+j.LAPS).text(j.TOTAL_TIME);
+                $('#p_laptime_'+j.LAPS).css("color", "#" + getColor( j.BEST_LAPS,j.LAPS) );
+            } else {
+                laps = j.LAPS;
+                var p = '<tr id="p_row_' + j.LAPS + '">' +
+                        '<td align="right" width="30"><div id="p_laps_' + j.LAPS + '">' + j.LAPS + '</div></td>' +
+                        '<td align="left" width="80"><div id="p_driver_' + j.LAPS + '">' + j.DRIVER_J + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_sec1_' + j.LAPS + '" style="color: #' + getColor( j.SEC1_BEST_LAPS,j.LAPS) + '">' + doubleToTime(j.SEC1_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_sec2_' + j.LAPS + '" style="color: #' + getColor( j.SEC2_BEST_LAPS,j.LAPS) + '">' + doubleToTime(j.SEC2_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_speed_' + j.LAPS+ '" style="color: #' + getColor( j.SPEED_BEST_LAPS,j.LAPS) + '">' + doubleToSpeed(j.SPEED) + '</div></td>'+
+                        '<td align="right" width="60"><div id="p_sec3_' + j.LAPS + '" style="color: #' + getColor( j.SEC3_BEST_LAPS,j.LAPS) + '">' + doubleToTime(j.SEC3_TIME) + '</div></td>' +
+                        //'<td align="right" width="60"><div id="p_sec4_' + j.LAPS + '" style="color: #' + getColor( j.SEC4_BEST_LAPS,j.LAPS) + '">' + doubleToTime(j.SEC4_TIME) + '</div></td>' +
+                        '<td align="right" width="60"><div id="p_laptime_' + j.LAPS+ '" style="color: #' + getColor( j.BEST_LAPS,j.LAPS) + '">' + doubleToTime(j.LAP_TIME) + '</div><div id="p_lapdec_' + j.LAPS + '" style="display:none">' + j.LAP_TIME + '</div><div id="p_totaltime_' + j.LAPS + '" style="display:none">' + j.TOTAL_TIME + '</div></td>'+
+                        '<td align="center" width="20"><div id="p_pit_' + j.LAPS + '">' + j.PIT + '</div></td>' +
+                        '</tr>';
+                $('.personalarea table').prepend(p);
+            }
+            for( var i=1; i<j.LAPS; i++ ) {
+                if(  j.SEC1_BEST_LAPS == j.LAPS ) {
+                    $('#p_sec1_'+i).css("color", "#FFF");
+                }
+                if(  j.SEC2_BEST_LAPS == j.LAPS ) {
+                    $('#p_sec2_'+i).css("color", "#FFF");
+                }
+                if(  j.SEC3_BEST_LAPS == j.LAPS ) {
+                    $('#p_sec3_'+i).css("color", "#FFF");
+                }
+                if(  j.SEC4_BEST_LAPS == j.LAPS ) {
+                    $('#p_sec4_'+i).css("color", "#FFF");
+                }
+                if(  j.SPEED_BEST_LAPS == j.LAPS ) {
+                    $('#p_speed_'+i).css("color", "#FFF");
+                }
+                if(  j.BEST_LAPS == j.LAPS ) {
+                    $('#p_laptime_'+i).css("color", "#FFF");
+                }
+            }
+        }
+        function getColor(bestlap,lap) {
+            var color = "FFF";
+            if( bestlap == lap ) {
+                color = "F00";
+            }
+            return color;
+        }
+        function doubleToSpeed(sSpeed) {
+
+            if( sSpeed.length == 0 ) {
+                return "";
+            }
+
+            var dSpeed = +sSpeed;
+
+            if( dSpeed <= 0 ) {
+                return "";
+            }
+            return dSpeed.toFixed(2);
+        }
+
+        function doubleToTime(dTime) {
+            if( dTime == 0 ) {
+                return "";
+            }
+            var minus = false;
+            if( dTime < 0 ) {
+                dTime *= -1;
+                minus = true;
+            }
+            var hh = 0;
+            var mi = 0;
+            var ss = 0;
+            if( dTime > 3600 ) {
+                hh = Math.floor(dTime / 3600);
+            }
+            var m1 = dTime - (hh * 3600);
+            if( m1 > 60 ) {
+                mi = Math.floor(m1 / 60);
+            }
+            ss = m1 - (mi * 60);
+            var sDate = "";
+            if( hh > 0 ) {
+                sDate = hh + ":" + ("00"+mi).substr(-2) + ":" + ss.toFixed(3);
+            } else if( mi > 0 ) {
+                sDate = mi + ":" + ("00"+ss.toFixed(3)).substr(-6);
+            } else {
+                sDate = ss.toFixed(3);
+            }
+            if( minus ) {
+                return "-" + sDate;
+            } else {
+                return sDate;
+            }
+        }
+
+    $(init);
+
+$( function() {
+    $( "#slider-range" ).slider({
+      orientation: "vertical",
+      range: true,
+      values: [ 0, 100 ],
+      slide: function( event, ui ) {
+      },
+      change: function( event, ui ) {
+          gapChart.options.scales.yAxes[0].ticks.min = ((maxData - minData) * ui.values[ 0 ] / 100 ) + minData;
+          gapChart.options.scales.yAxes[0].ticks.max = ((maxData - minData) * ui.values[ 1 ] / 100 ) + minData;
+          gapChart.update();
+      }
+    });
+
+  } );
+
+    </script>
+
+</body>
+</html>
