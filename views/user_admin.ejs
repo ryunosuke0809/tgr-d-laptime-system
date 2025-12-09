@@ -167,17 +167,31 @@
       font-weight: 600;
     }
 
-    .role-admin {
-      background: #ff0000;
-      color: white;
-    }
-
     .role-user {
       background: #4CAF50;
       color: white;
     }
 
-    .role-viewer {
+    .expiry-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    .expiry-valid {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .expiry-expired {
+      background: #f44336;
+      color: white;
+    }
+
+    .expiry-unlimited {
       background: #2196F3;
       color: white;
     }
@@ -292,7 +306,7 @@
   <header class="header">
     <a class="logo"><b>TGR-D LAPTIME SYSTEM</b></a>
     <div class="top-menu">
-      <span class="user_link">@ <%= id %> (管理者)</span>
+      <span class="user_link">@ <%= id %></span>
     </div>
   </header>
 
@@ -316,7 +330,7 @@
           <th>ユーザーID</th>
           <th>名前</th>
           <th>メールアドレス</th>
-          <th>ロール</th>
+          <th>有効期限</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -349,12 +363,11 @@
           <input type="password" id="userPassword" name="password">
         </div>
         <div class="form-group">
-          <label for="userRole">ロール *</label>
-          <select id="userRole" name="role" required>
-            <option value="admin">管理者 (admin)</option>
-            <option value="user" selected>一般ユーザー (user)</option>
-            <option value="viewer">閲覧者 (viewer)</option>
-          </select>
+          <label for="userExpiryDate">有効期限</label>
+          <input type="date" id="userExpiryDate" name="expiryDate">
+          <small style="display: block; margin-top: 5px; color: #666;">
+            無期限の場合は空欄のままにしてください
+          </small>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
@@ -397,16 +410,26 @@
       tbody.empty();
 
       users.forEach(function(user) {
-        const roleClass = 'role-' + user.role;
-        const roleLabel = user.role === 'admin' ? '管理者' : 
-                         user.role === 'user' ? '一般ユーザー' : '閲覧者';
+        let expiryDisplay = '';
+        let expiryBadge = '';
+        
+        if (user.expiryStatus === 'unlimited') {
+          expiryDisplay = '無期限';
+          expiryBadge = '<span class="expiry-badge expiry-unlimited">無期限</span>';
+        } else if (user.expiryStatus === 'expired') {
+          expiryDisplay = user.expiryDate;
+          expiryBadge = '<span class="expiry-badge expiry-expired">期限切れ</span>';
+        } else {
+          expiryDisplay = user.expiryDate;
+          expiryBadge = '<span class="expiry-badge expiry-valid">有効</span>';
+        }
         
         const row = `
           <tr>
             <td>${escapeHtml(user.id)}</td>
             <td>${escapeHtml(user.name)}</td>
             <td>${escapeHtml(user.email)}</td>
-            <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
+            <td>${escapeHtml(expiryDisplay)} ${expiryBadge}</td>
             <td>
               <button class="btn btn-edit" onclick="openEditModal('${user.id}')">編集</button>
               <button class="btn btn-delete" onclick="deleteUser('${user.id}')">削除</button>
@@ -449,7 +472,7 @@
               $('#userId').val(user.id);
               $('#userName').val(user.name);
               $('#userEmail').val(user.email);
-              $('#userRole').val(user.role);
+              $('#userExpiryDate').val(user.expiryDate || '');
               $('#userPassword').val('');
               $('#userModal').show();
             }
@@ -468,12 +491,14 @@
     $('#userForm').submit(function(e) {
       e.preventDefault();
 
+      const expiryDateValue = $('#userExpiryDate').val();
       const formData = {
         id: $('#userId').val(),
         name: $('#userName').val(),
         email: $('#userEmail').val(),
         password: $('#userPassword').val(),
-        role: $('#userRole').val()
+        role: 'user',
+        expiryDate: expiryDateValue || null
       };
 
       if (isEditMode) {

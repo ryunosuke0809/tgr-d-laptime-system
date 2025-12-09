@@ -4,63 +4,72 @@
         "password": "tgrd250910rs",
         "role": "user",
         "name": "片岡太郎",
-        "email": "t_kataoka@example.com"
+        "email": "t_kataoka@example.com",
+        "expiryDate": "2026-12-31"
     },
     {
         "id": "t_fukugi",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "福木太郎",
-        "email": "t_fukugi@example.com"
+        "email": "t_fukugi@example.com",
+        "expiryDate": null
     },
     {
         "id": "k_terao",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "寺尾一郎",
-        "email": "k_terao@example.com"
+        "email": "k_terao@example.com",
+        "expiryDate": "2025-12-31"
     },
     {
         "id": "y_sakurai",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "桜井陽介",
-        "email": "y_sakurai@example.com"
+        "email": "y_sakurai@example.com",
+        "expiryDate": null
     },
     {
         "id": "r_yoshida",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "吉田龍",
-        "email": "r_yoshida@example.com"
+        "email": "r_yoshida@example.com",
+        "expiryDate": "2026-06-30"
     },
     {
         "id": "m_kitabayashi",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "北林誠",
-        "email": "m_kitabayashi@example.com"
+        "email": "m_kitabayashi@example.com",
+        "expiryDate": null
     },
     {
         "id": "k_yagiura",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "柳浦健一",
-        "email": "k_yagiura@example.com"
+        "email": "k_yagiura@example.com",
+        "expiryDate": "2026-03-31"
     },
     {
         "id": "y_tamura",
         "password": "tgrd250910rs",
         "role": "user",
         "name": "田村裕一",
-        "email": "y_tamura@example.com"
+        "email": "y_tamura@example.com",
+        "expiryDate": null
     },
     {
         "id": "shidara",
         "password": "shidara",
         "role": "admin",
         "name": "設楽管理者",
-        "email": "shidara@example.com"
+        "email": "shidara@example.com",
+        "expiryDate": null
     }
 ]
 

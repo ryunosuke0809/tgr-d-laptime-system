@@ -31,6 +31,30 @@ function writeUsers(users) {
     });
 }
 
+// 有効期限チェック
+function isAccountExpired(expiryDate) {
+    if (!expiryDate) {
+        // nullの場合は無期限
+        return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 時刻を00:00:00にリセット
+    const expiry = new Date(expiryDate);
+    expiry.setHours(0, 0, 0, 0);
+    return today > expiry;
+}
+
+// 有効期限の状態を取得
+function getExpiryStatus(expiryDate) {
+    if (!expiryDate) {
+        return 'unlimited'; // 無期限
+    }
+    if (isAccountExpired(expiryDate)) {
+        return 'expired'; // 期限切れ
+    }
+    return 'valid'; // 有効
+}
+
 module.exports = {
     // 全ユーザーを取得
     getAllUsers: async function() {
@@ -41,7 +65,9 @@ module.exports = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                expiryDate: user.expiryDate || null,
+                expiryStatus: getExpiryStatus(user.expiryDate)
             }));
         } catch (err) {
             throw err;
@@ -59,7 +85,9 @@ module.exports = {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    expiryDate: user.expiryDate || null,
+                    expiryStatus: getExpiryStatus(user.expiryDate)
                 };
             }
             return null;
@@ -84,7 +112,8 @@ module.exports = {
                 password: userData.password,
                 name: userData.name,
                 email: userData.email,
-                role: userData.role || 'user'
+                role: userData.role || 'user',
+                expiryDate: userData.expiryDate || null
             });
             
             await writeUsers(users);
@@ -105,12 +134,18 @@ module.exports = {
             }
             
             // ユーザー情報を更新（IDは変更不可）
+            // expiryDateは明示的にnullが渡された場合はnullに設定
+            const expiryDate = userData.hasOwnProperty('expiryDate') 
+                ? (userData.expiryDate || null) 
+                : users[index].expiryDate;
+            
             users[index] = {
                 id: userId,
                 password: userData.password || users[index].password,
                 name: userData.name || users[index].name,
                 email: userData.email || users[index].email,
-                role: userData.role || users[index].role
+                role: userData.role || users[index].role,
+                expiryDate: expiryDate
             };
             
             await writeUsers(users);

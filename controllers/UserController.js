@@ -13,27 +13,6 @@ const userModel = require('../models/UserModel');
 
 console.log('START USER CONTROLLER');
 
-// 管理者権限チェックミドルウェア
-function checkAdmin(req, res, next) {
-    if (!req.session || !req.session.username) {
-        return res.redirect('/login/init');
-    }
-    
-    // ユーザー情報を取得してロールチェック
-    loginModel.getUserData(req.session.username, '').then((userData) => {
-        if (userData === "NG" || userData.role !== 'admin') {
-            return res.status(403).render(Views + 'session_error.ejs', { 
-                msg: '管理者権限が必要です' 
-            });
-        }
-        next();
-    }).catch(() => {
-        return res.status(403).render(Views + 'session_error.ejs', { 
-            msg: 'アクセス権限がありません' 
-        });
-    });
-}
-
 module.exports = {
     doMenu: function (req, res, next) {
         var name = req.body.username;
@@ -44,6 +23,8 @@ module.exports = {
         loginModel.getUserData(name, pwd).then((result) => {
             if (result == "NG") {
                 res.render(Views + 'login.ejs', { "msg": msg.login_check });
+            } else if (result == "EXPIRED") {
+                res.render(Views + 'login.ejs', { "msg": "アカウントの有効期限が切れています。管理者にお問い合わせください。" });
             } else {
                 req.session.username = name;
                 req.session.userRole = result.role || 'user';  // ← ロールをセッションに保存
@@ -66,7 +47,7 @@ module.exports = {
         if (name) {
             // u/s で来た → ユーザー情報を取得してセッション補完
             loginModel.getUserData(name, '').then((result) => {
-                if (result == "NG") {
+                if (result == "NG" || result == "EXPIRED") {
                     return res.redirect('/login/init');
                 }
                 req.session.username = name;
@@ -88,7 +69,7 @@ module.exports = {
             // セッションにロールがない場合は取得
             if (!req.session.userRole) {
                 loginModel.getUserData(req.session.username, '').then((result) => {
-                    if (result == "NG") {
+                    if (result == "NG" || result == "EXPIRED") {
                         return res.redirect('/login/init');
                     }
                     req.session.userRole = result.role || 'user';
@@ -463,12 +444,11 @@ module.exports = {
         }
 
         loginModel.getUserData(req.session.username, '').then((userData) => {
-            if (userData === "NG" || userData.role !== 'admin') {
-                return res.status(403).render(Views + 'session_error.ejs', { 
-                    msg: '管理者権限が必要です' 
-                });
+            if (userData === "NG" || userData === "EXPIRED") {
+                return res.redirect('/login/init');
             }
-
+            
+            // 全ユーザーがアクセス可能（ロールはuserのみ）
             const sid = req.sessionID;
             res.render(Views + 'user_admin.ejs', {
                 id: req.session.username,
@@ -492,8 +472,8 @@ module.exports = {
                 loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
             });
 
-            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Admin access required' });
+            if (currentUserData === "NG" || currentUserData === "EXPIRED") {
+                return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
             const users = await userModel.getAllUsers();
@@ -515,17 +495,24 @@ module.exports = {
                 loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
             });
 
-            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Admin access required' });
+            if (currentUserData === "NG" || currentUserData === "EXPIRED") {
+                return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
-            const { id, password, name, email, role } = req.body;
+            const { id, password, name, email, role, expiryDate } = req.body;
 
-            if (!id || !password || !name || !email || !role) {
-                return res.status(400).json({ success: false, message: 'All fields are required' });
+            if (!id || !password || !name || !email) {
+                return res.status(400).json({ success: false, message: 'Required fields are missing' });
             }
 
-            const result = await userModel.createUser({ id, password, name, email, role });
+            const result = await userModel.createUser({ 
+                id, 
+                password, 
+                name, 
+                email, 
+                role: 'user',  // 常にuser
+                expiryDate: expiryDate || null 
+            });
             res.json(result);
         } catch (err) {
             console.error('Error creating user:', err);
@@ -544,14 +531,20 @@ module.exports = {
                 loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
             });
 
-            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Admin access required' });
+            if (currentUserData === "NG" || currentUserData === "EXPIRED") {
+                return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
             const userId = req.params.id;
-            const { password, name, email, role } = req.body;
+            const { password, name, email, expiryDate } = req.body;
 
-            const result = await userModel.updateUser(userId, { password, name, email, role });
+            const result = await userModel.updateUser(userId, { 
+                password, 
+                name, 
+                email, 
+                role: 'user',  // 常にuser
+                expiryDate: expiryDate 
+            });
             res.json(result);
         } catch (err) {
             console.error('Error updating user:', err);
@@ -570,8 +563,8 @@ module.exports = {
                 loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
             });
 
-            if (currentUserData === "NG" || currentUserData.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Admin access required' });
+            if (currentUserData === "NG" || currentUserData === "EXPIRED") {
+                return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
             const userId = req.params.id;

@@ -3,6 +3,19 @@ const fs = require('fs');
 
 console.log('START LOGIN MODEL');
 
+// 有効期限チェック
+function isAccountExpired(expiryDate) {
+    if (!expiryDate) {
+        // nullの場合は無期限
+        return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 時刻を00:00:00にリセット
+    const expiry = new Date(expiryDate);
+    expiry.setHours(0, 0, 0, 0);
+    return today > expiry;
+}
+
 module.exports = {
     getUserData: function (name, pwd) {
         return new Promise ((resolve, reject) => {
@@ -23,7 +36,12 @@ module.exports = {
                 if (userData == undefined) {
                     resolve("NG");
                 } else {
-                    resolve(userData);
+                    // 有効期限チェック
+                    if (isAccountExpired(userData.expiryDate)) {
+                        resolve("EXPIRED");
+                    } else {
+                        resolve(userData);
+                    }
                 }
             });            
         });
