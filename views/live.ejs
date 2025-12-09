@@ -329,7 +329,9 @@
         body {
             height: 100%;
             margin: 0;
+            padding: 0;
             background: #000;
+            overflow-x: hidden;
         }
 
         body.app {
@@ -343,6 +345,8 @@
         main.content {
             box-sizing: border-box;
             padding: 8px 8px 16px 72px !important;
+            background: #000;
+            min-height: 100vh;
             /* 上をかなり詰める */
         }
 
@@ -530,8 +534,13 @@
 
         /* ===== PC / タブレット：パネルは画面内に固定、一覧だけ縦スクロール ===== */
         @media (min-width: 768px) {
+            main.content {
+                background: #000;
+            }
+
             .panel {
                 height: calc(100vh - 70px);
+                background: #000;
                 /* ヘッダーぶんを引いた高さ */
                 display: flex;
                 flex-direction: column;
@@ -542,11 +551,13 @@
             .panel .container {
                 flex: 1 1 auto;
                 min-height: 0;
+                background: #000;
             }
 
             /* リストエリアだけ縦スクロールさせる */
             .panel .listarea {
                 flex: 1 1 auto;
+                background: #000;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 min-height: 0;
@@ -559,6 +570,7 @@
             /* レールのすぐ横からコンテンツ開始 */
             main.content {
                 padding: 0px 16px 16px 8px !important;
+                background: #000;
             }
 
             /* 中央寄せをやめて、左寄せに近づける */
@@ -566,7 +578,20 @@
                 max-width: none;
                 /* 1200px 制限を解除 */
                 margin: 4px 16px 16px 0;
+                background: #000;
                 /* 左 0（コンテンツの padding 8px だけ） */
+            }
+
+            .panel .container {
+                background: #000;
+            }
+
+            .panel .listarea {
+                background: #000;
+            }
+
+            #ListArea {
+                background: #000;
             }
         }
 
@@ -576,7 +601,9 @@
 
             /* メインの余白を小さくして上に寄せる（左を 4px まで削る） */
             main.content {
-                padding: 8px 4px 8px 4px !important;
+                padding: 0 !important;
+                background: #000;
+                margin-left: 56px;
             }
 
             .panel {
@@ -586,14 +613,17 @@
                 border-radius: 0;
                 box-shadow: none;
                 border: 0;
+                background: #000;
             }
 
             .panel .signalbar {
                 border-radius: 0;
+                background: linear-gradient(#f3f3f3, #e7e7e7);
             }
 
             .panel .container {
                 padding: 0 2px 8px;
+                background: #000;
             }
 
             /* セクター & Speed 列は非表示 */
@@ -634,16 +664,20 @@
             .topbar {
                 padding-left: 8px;
                 height: 48px;
+                background: #ff0000;
             }
 
             main.content {
-                padding: 0px 0px 8px 0px !important;
+                padding: 0 !important;
+                background: #000;
+                margin-left: 0;
             }
 
             .trd-sidenav {
                 top: 48px;
                 left: 0;
                 width: 260px;
+                background: #1a1a1a;
             }
 
             .topbar-menu-btn {
@@ -653,12 +687,25 @@
             .panel {
                 border-radius: 0;
                 box-shadow: none;
+                background: #000;
+                margin: 0;
+                width: 100%;
+            }
+
+            .panel .container {
+                background: #000;
+                padding: 0;
+            }
+
+            .panel .listarea {
+                background: #000;
             }
 
             .panel .listtable {
                 min-width: 560px;
                 /* 横スクロール前提 */
                 font-size: 11px;
+                background: transparent;
             }
 
             .panel .listtable th,
@@ -669,6 +716,23 @@
 
         /* ===== スマホ縦（POS / No / Driver / Laps / Gap / LastLap だけ） ===== */
         @media (max-width: 767.98px) and (orientation: portrait) {
+
+            main.content {
+                background: #000;
+            }
+
+            .panel {
+                background: #000;
+                height: calc(100vh - 48px);
+            }
+
+            .panel .container {
+                background: #000;
+            }
+
+            #ListArea {
+                background: #000;
+            }
 
             /* Diff / Best / (L) / PIT を消す */
             #listtitle .listtable th.col-diff,
@@ -685,7 +749,7 @@
             .listtable td.col-pit,
             .listtable td[id$="_diff"],
             .listtable td[id$="_best"],
-            .listtable td[id$="_lapno"],
+            .listtable td[id$="_bestlap"],
             .listtable td[id$="_pit"],
             .listtable tr td:nth-child(6),
             .listtable tr td:nth-child(8),
@@ -697,6 +761,23 @@
 
         /* ===== スマホ横：セクター & Speed 以外は全部表示 ===== */
         @media (max-width: 767.98px) and (orientation: landscape) {
+
+            main.content {
+                background: #000;
+            }
+
+            .panel {
+                background: #000;
+                height: calc(100vh - 48px);
+            }
+
+            .panel .container {
+                background: #000;
+            }
+
+            #ListArea {
+                background: #000;
+            }
 
             #listtitle .listtable th,
             .listtable td {
@@ -717,18 +798,30 @@
             .panel .listtable {
                 min-width: 900px;
                 font-size: 12px;
+                background: transparent;
             }
         }
 
 
 
-        /* ===== スマホ（〜767px）用：ヘッダーを左端に寄せる & レールを消す ===== */
-        @media (max-width: 767.98px) {
+        /* ===== 追加のテーブルスタイル ===== */
+        .listtable {
+            background: transparent;
+            border-collapse: collapse;
+        }
 
-            /* 黒レールは完全に非表示 */
-            .trd-rail {
-                display: none !important;
-            }
+        .listtable th,
+        .listtable td {
+            background: transparent;
+        }
+
+        /* 行の背景色 */
+        #ListArea .mix {
+            background: rgba(15, 14, 14, 0.9);
+        }
+
+        /* ===== 重複削除：スマホ用設定は上のセクションで設定済み ===== */
+        @media (max-width: 767.98px) {
 
             /* ヘッダーを画面のいちばん左から表示 */
             .topbar {
