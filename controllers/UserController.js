@@ -448,7 +448,13 @@ module.exports = {
                 return res.redirect('/login/init');
             }
             
-            // 全ユーザーがアクセス可能（ロールはuserのみ）
+            // 管理者権限チェック
+            if (userData.role !== 'admin') {
+                return res.status(403).render(Views + 'session_error.ejs', { 
+                    msg: '管理者権限が必要です' 
+                });
+            }
+            
             const sid = req.sessionID;
             res.render(Views + 'user_admin.ejs', {
                 id: req.session.username,
@@ -476,6 +482,11 @@ module.exports = {
                 return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
+            // 管理者権限チェック
+            if (currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
             const users = await userModel.getAllUsers();
             res.json({ success: true, users: users });
         } catch (err) {
@@ -499,9 +510,14 @@ module.exports = {
                 return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
-            const { id, password, name, email, role, expiryDate } = req.body;
+            // 管理者権限チェック
+            if (currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
 
-            if (!id || !password || !name || !email) {
+            const { id, password, name, role, expiryDate } = req.body;
+
+            if (!id || !password || !name || !role) {
                 return res.status(400).json({ success: false, message: 'Required fields are missing' });
             }
 
@@ -509,8 +525,7 @@ module.exports = {
                 id, 
                 password, 
                 name, 
-                email, 
-                role: 'user',  // 常にuser
+                role: role || 'user',
                 expiryDate: expiryDate || null 
             });
             res.json(result);
@@ -535,14 +550,18 @@ module.exports = {
                 return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
             }
 
+            // 管理者権限チェック
+            if (currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
             const userId = req.params.id;
-            const { password, name, email, expiryDate } = req.body;
+            const { password, name, role, expiryDate } = req.body;
 
             const result = await userModel.updateUser(userId, { 
                 password, 
                 name, 
-                email, 
-                role: 'user',  // 常にuser
+                role,
                 expiryDate: expiryDate 
             });
             res.json(result);
@@ -565,6 +584,11 @@ module.exports = {
 
             if (currentUserData === "NG" || currentUserData === "EXPIRED") {
                 return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
+            }
+
+            // 管理者権限チェック
+            if (currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
             }
 
             const userId = req.params.id;

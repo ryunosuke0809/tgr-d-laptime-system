@@ -64,7 +64,6 @@ module.exports = {
             return users.map(user => ({
                 id: user.id,
                 name: user.name,
-                email: user.email,
                 role: user.role,
                 expiryDate: user.expiryDate || null,
                 expiryStatus: getExpiryStatus(user.expiryDate)
@@ -84,7 +83,6 @@ module.exports = {
                 return {
                     id: user.id,
                     name: user.name,
-                    email: user.email,
                     role: user.role,
                     expiryDate: user.expiryDate || null,
                     expiryStatus: getExpiryStatus(user.expiryDate)
@@ -111,7 +109,6 @@ module.exports = {
                 id: userData.id,
                 password: userData.password,
                 name: userData.name,
-                email: userData.email,
                 role: userData.role || 'user',
                 expiryDate: userData.expiryDate || null
             });
@@ -143,7 +140,6 @@ module.exports = {
                 id: userId,
                 password: userData.password || users[index].password,
                 name: userData.name || users[index].name,
-                email: userData.email || users[index].email,
                 role: userData.role || users[index].role,
                 expiryDate: expiryDate
             };

@@ -167,8 +167,18 @@
       font-weight: 600;
     }
 
+    .role-admin {
+      background: #ff0000;
+      color: white;
+    }
+
     .role-user {
       background: #4CAF50;
+      color: white;
+    }
+
+    .role-viewer {
+      background: #2196F3;
       color: white;
     }
 
@@ -329,7 +339,7 @@
         <tr>
           <th>ユーザーID</th>
           <th>名前</th>
-          <th>メールアドレス</th>
+          <th>権限</th>
           <th>有効期限</th>
           <th>操作</th>
         </tr>
@@ -355,12 +365,19 @@
           <input type="text" id="userName" name="name" required>
         </div>
         <div class="form-group">
-          <label for="userEmail">メールアドレス *</label>
-          <input type="email" id="userEmail" name="email" required>
-        </div>
-        <div class="form-group">
           <label for="userPassword">パスワード <span id="passwordHint">*</span></label>
           <input type="password" id="userPassword" name="password">
+        </div>
+        <div class="form-group">
+          <label for="userRole">権限 *</label>
+          <select id="userRole" name="role" required>
+            <option value="admin">管理者 (admin) - 全機能</option>
+            <option value="user" selected>一般ユーザー (user) - ユーザー管理以外</option>
+            <option value="viewer">閲覧者 (viewer) - モニターのみ</option>
+          </select>
+          <small style="display: block; margin-top: 5px; color: #666;">
+            admin: 全機能 / user: ユーザー管理以外 / viewer: モニターのみ
+          </small>
         </div>
         <div class="form-group">
           <label for="userExpiryDate">有効期限</label>
@@ -410,6 +427,12 @@
       tbody.empty();
 
       users.forEach(function(user) {
+        // 権限の表示
+        const roleClass = 'role-' + user.role;
+        const roleLabel = user.role === 'admin' ? '管理者' : 
+                         user.role === 'user' ? '一般ユーザー' : '閲覧者';
+        
+        // 有効期限の表示
         let expiryDisplay = '';
         let expiryBadge = '';
         
@@ -428,7 +451,7 @@
           <tr>
             <td>${escapeHtml(user.id)}</td>
             <td>${escapeHtml(user.name)}</td>
-            <td>${escapeHtml(user.email)}</td>
+            <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
             <td>${escapeHtml(expiryDisplay)} ${expiryBadge}</td>
             <td>
               <button class="btn btn-edit" onclick="openEditModal('${user.id}')">編集</button>
@@ -472,6 +495,7 @@
               $('#userId').val(user.id);
               $('#userName').val(user.name);
               $('#userEmail').val(user.email);
+              $('#userRole').val(user.role);
               $('#userExpiryDate').val(user.expiryDate || '');
               $('#userPassword').val('');
               $('#userModal').show();
@@ -497,7 +521,7 @@
         name: $('#userName').val(),
         email: $('#userEmail').val(),
         password: $('#userPassword').val(),
-        role: 'user',
+        role: $('#userRole').val(),
         expiryDate: expiryDateValue || null
       };
 

@@ -334,6 +334,7 @@
 
 
   <div class="flex_test-box">
+    <!-- タイミングモニター - 全ロール表示 -->
     <div id="monitor" class="flex_test-item">
       <div class="l-card">
         <div class="l-thumbnail">
@@ -343,6 +344,8 @@
       </div>
     </div>
 
+    <!-- ダウンロード - admin と user のみ表示 -->
+    <% if (typeof role !== 'undefined' && (role === 'admin' || role === 'user')) { %>
     <div id="download" class="flex_test-item">
       <div class="l-card">
         <div class="l-thumbnail">
@@ -351,7 +354,10 @@
         </div>
       </div>
     </div>
+    <% } %>
 
+    <!-- ユーザー管理 - admin のみ表示 -->
+    <% if (typeof role !== 'undefined' && role === 'admin') { %>
     <div id="user" class="flex_test-item">
       <div class="l-card">
         <div class="l-thumbnail">
@@ -360,7 +366,9 @@
         </div>
       </div>
     </div>
+    <% } %>
     
+    <!-- ログアウト - 全ロール表示 -->
     <div class="flex_test-item">
       <div id="logout" class="l-card">
         <div class="l-thumbnail">
