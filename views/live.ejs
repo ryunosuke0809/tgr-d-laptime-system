@@ -787,13 +787,13 @@
             .panel .listtable {
                 table-layout: fixed;
                 width: 100%;
-                font-size: 11px;
+                font-size: 10px;
             }
 
             /* ヘッダーとデータセルの基本パディング */
             .listtable th,
             .listtable td {
-                padding: 2px 2px;
+                padding: 1px 1px;
                 white-space: nowrap;
                 overflow: hidden;
             }
@@ -802,74 +802,82 @@
             /* POS列 */
             .listtable th.pos,
             .listtable td.pos {
-                width: 35px;
-                min-width: 35px;
-                max-width: 35px;
+                width: 28px;
+                min-width: 28px;
+                max-width: 28px;
                 text-align: center;
+                font-size: 10px;
             }
 
             /* No.列 */
             .listtable th.no_title,
             .listtable td.no {
-                width: 35px;
-                min-width: 35px;
-                max-width: 35px;
+                width: 28px;
+                min-width: 28px;
+                max-width: 28px;
                 text-align: center;
+                font-size: 10px;
             }
 
             /* Info列（アイコン） */
             .listtable th.info,
             .listtable td.info {
-                width: 20px;
-                min-width: 20px;
-                max-width: 20px;
+                width: 16px;
+                min-width: 16px;
+                max-width: 16px;
                 text-align: center;
-                padding: 2px 1px;
+                padding: 1px 0px;
             }
 
-            /* ドライバー列 */
+            /* ドライバー列 - スマホ縦では50pxに縮小 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 70px;
-                min-width: 70px;
-                max-width: 70px;
+                width: 50px;
+                min-width: 50px;
+                max-width: 50px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
+                font-size: 9px;
             }
 
             .listtable td.driver div {
-                width: 70px !important;
-                max-width: 70px !important;
+                width: 50px !important;
+                max-width: 50px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                font-size: 9px;
+                line-height: 1.2;
             }
 
             /* BestTime列 */
             .listtable th.col-best,
             .listtable td.col-best {
-                width: 60px;
-                min-width: 60px;
-                max-width: 60px;
+                width: 52px;
+                min-width: 52px;
+                max-width: 52px;
                 text-align: right;
+                font-size: 10px;
             }
 
-            /* Gap列 */
+            /* Gap/LastLap列 */
             .listtable th.time:not(.col-best):not(.col-diff):not(.col-sec):not(.col-speed),
             .listtable td.time:not(.col-best):not(.col-diff):not([id$="_sec1"]):not([id$="_sec2"]):not([id$="_sec3"]):not([id$="_sec4"]):not([id$="_speed"]) {
-                width: 55px;
-                min-width: 55px;
-                max-width: 55px;
+                width: 48px;
+                min-width: 48px;
+                max-width: 48px;
                 text-align: right;
+                font-size: 10px;
             }
 
             /* Laps列 */
             .listtable th.lap:not(.col-lapno),
             .listtable td.lap:not(.col-lapno) {
-                width: 40px;
-                min-width: 40px;
-                max-width: 40px;
+                width: 32px;
+                min-width: 32px;
+                max-width: 32px;
                 text-align: center;
+                font-size: 10px;
             }
         }
 
@@ -950,22 +958,24 @@
                 padding: 1px;
             }
 
-            /* ドライバー列 - 横画面では少し広く */
+            /* ドライバー列 - 横画面では60pxに縮小 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 70px;
-                min-width: 70px;
-                max-width: 70px;
+                width: 60px;
+                min-width: 60px;
+                max-width: 60px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
+                font-size: 10px;
             }
 
             .listtable td.driver div {
-                width: 70px !important;
-                max-width: 70px !important;
+                width: 60px !important;
+                max-width: 60px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                font-size: 10px;
             }
 
             /* BestTime列 */
@@ -1081,20 +1091,20 @@
                 padding: 2px 1px;
             }
 
-            /* ドライバー列 */
+            /* ドライバー列 - PC/タブレットでも70pxに縮小 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 90px;
-                min-width: 90px;
-                max-width: 90px;
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
             }
 
             .listtable td.driver div {
-                width: 90px !important;
-                max-width: 90px !important;
+                width: 70px !important;
+                max-width: 70px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
