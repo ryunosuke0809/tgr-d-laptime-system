@@ -783,17 +783,17 @@
                 display: none;
             }
 
-            /* テーブル全体のレイアウト調整 */
+            /* テーブル全体のレイアウト調整 - スマホ縦画面専用 */
             .panel .listtable {
-                table-layout: auto;
+                table-layout: fixed;
                 width: 100%;
-                font-size: 9px;
+                font-size: 10px;
             }
 
             /* ヘッダーとデータセルの基本パディング */
             .listtable th,
             .listtable td {
-                padding: 1px 0px;
+                padding: 2px 1px;
                 white-space: nowrap;
                 overflow: hidden;
             }
@@ -802,88 +802,78 @@
             /* POS列 */
             .listtable th.pos,
             .listtable td.pos {
-                width: 26px;
-                min-width: 26px;
-                max-width: 26px;
+                width: 30px;
+                min-width: 30px;
+                max-width: 30px;
                 text-align: center;
-                font-size: 9px;
-                padding: 1px 1px;
             }
 
             /* No.列 */
             .listtable th.no_title,
             .listtable td.no {
-                width: 26px;
-                min-width: 26px;
-                max-width: 26px;
+                width: 30px;
+                min-width: 30px;
+                max-width: 30px;
                 text-align: center;
-                font-size: 9px;
-                padding: 1px 1px;
             }
 
             /* Info列（アイコン） */
             .listtable th.info,
             .listtable td.info {
-                width: 18px;
-                min-width: 18px;
-                max-width: 18px;
+                width: 20px;
+                min-width: 20px;
+                max-width: 20px;
                 text-align: center;
-                padding: 1px 1px;
+                padding: 2px 0px;
             }
 
-            /* ドライバー列 - スマホ縦では90pxに設定 */
+            /* ドライバー列 - スマホ縦では60pxに縮小 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 90px;
-                min-width: 90px;
-                max-width: 90px;
+                width: 60px;
+                min-width: 60px;
+                max-width: 60px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
-                font-size: 9px;
-                padding: 1px 2px;
+                padding-left: 2px;
             }
 
             .listtable td.driver div {
-                width: 90px !important;
-                max-width: 90px !important;
+                width: 100% !important;
+                max-width: 60px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                font-size: 9px;
-                line-height: 1.2;
+                white-space: nowrap;
             }
 
             /* BestTime列 */
             .listtable th.col-best,
             .listtable td.col-best {
-                width: 60px;
-                min-width: 60px;
-                max-width: 60px;
+                width: 58px;
+                min-width: 58px;
+                max-width: 58px;
                 text-align: right;
-                font-size: 9px;
-                padding: 1px 2px;
+                padding-right: 2px;
             }
 
             /* Gap/LastLap列 */
             .listtable th.time:not(.col-best):not(.col-diff):not(.col-sec):not(.col-speed),
             .listtable td.time:not(.col-best):not(.col-diff):not([id$="_sec1"]):not([id$="_sec2"]):not([id$="_sec3"]):not([id$="_sec4"]):not([id$="_speed"]) {
-                width: 50px;
-                min-width: 50px;
-                max-width: 50px;
+                width: 52px;
+                min-width: 52px;
+                max-width: 52px;
                 text-align: right;
-                font-size: 9px;
-                padding: 1px 2px;
+                padding-right: 2px;
             }
 
             /* Laps列 */
             .listtable th.lap:not(.col-lapno),
             .listtable td.lap:not(.col-lapno) {
-                width: 30px;
-                min-width: 30px;
-                max-width: 30px;
+                width: 35px;
+                min-width: 35px;
+                max-width: 35px;
                 text-align: center;
-                font-size: 9px;
-                padding: 1px 2px;
             }
         }
 
@@ -964,24 +954,27 @@
                 padding: 1px;
             }
 
-            /* ドライバー列 - 横画面では90pxに統一 */
+            /* ドライバー列 - 横画面では70pxに調整 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 90px;
-                min-width: 90px;
-                max-width: 90px;
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
                 font-size: 10px;
+                padding-left: 3px;
+                padding-right: 2px;
             }
 
             .listtable td.driver div {
-                width: 90px !important;
-                max-width: 90px !important;
+                width: 100% !important;
+                max-width: 70px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 font-size: 10px;
+                white-space: nowrap;
             }
 
             /* BestTime列 */
@@ -1066,53 +1059,58 @@
             /* POSUP列（順位変動アイコン） */
             .listtable th.pos:empty,
             .listtable td.posup {
-                width: 20px;
-                min-width: 20px;
+                width: 22px;
+                min-width: 22px;
                 text-align: center;
-                padding: 2px 1px;
+                padding: 2px 2px;
             }
 
             /* POS列 */
             .listtable th.pos,
             .listtable td.pos {
-                width: 40px;
-                min-width: 40px;
+                width: 38px;
+                min-width: 38px;
                 text-align: center;
+                padding: 2px 3px;
             }
 
             /* No.列 */
             .listtable th.no_title,
             .listtable td.no {
-                width: 40px;
-                min-width: 40px;
+                width: 38px;
+                min-width: 38px;
                 text-align: center;
+                padding: 2px 3px;
             }
 
             /* Info列（アイコン） */
             .listtable th.info,
             .listtable td.info {
-                width: 20px;
-                min-width: 20px;
+                width: 22px;
+                min-width: 22px;
                 text-align: center;
-                padding: 2px 1px;
+                padding: 2px 2px;
             }
 
-            /* ドライバー列 - PC/タブレットでも90pxに統一 */
+            /* ドライバー列 - PC/タブレットでは70pxに調整 */
             .listtable th.driver,
             .listtable td.driver {
-                width: 90px;
-                min-width: 90px;
-                max-width: 90px;
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
+                padding-left: 4px;
+                padding-right: 2px;
             }
 
             .listtable td.driver div {
-                width: 90px !important;
-                max-width: 90px !important;
+                width: 100% !important;
+                max-width: 70px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             /* BestTime列 */
