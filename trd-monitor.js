@@ -2,6 +2,8 @@ var express = require('express');
 var ejs = require('ejs');
 var app = express();
 
+console.log('[SyncTest] trd-monitor.js loaded at', new Date().toISOString());
+
 var bodyParser = require('body-parser');
 
 var monitor_route = require('./routes/MonitorRoute');
