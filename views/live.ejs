@@ -912,16 +912,9 @@
                 width: 54px !important;
                 min-width: 54px !important;
                 max-width: 54px !important;
-                text-align: left !important;
-                padding-left: 3px !important;
+                text-align: right !important;
+                padding-right: 3px !important;
                 font-size: 9px;
-            }
-            
-            /* BestTime ヘッダー行を明示的に左揃え */
-            #listtitle .listtable th.col-best {
-                text-align: left !important;
-                padding-left: 3px !important;
-                padding-right: 0 !important;
             }
 
             /* Gap列 - 明示的にID指定 */
@@ -1011,10 +1004,13 @@
                 display: table-cell !important;
             }
 
-            /* スマホ横ではPITを非表示 */
+            /* スマホ横ではPITとLapsを非表示 */
             #listtitle .listtable th.col-pit,
             .listtable td.col-pit,
-            .listtable td[id$="_pit"] {
+            .listtable td[id$="_pit"],
+            #listtitle .listtable th.lap:not(.col-lapno),
+            .listtable td.lap:not(.col-lapno),
+            .listtable td[id$="_lap"] {
                 display: none !important;
             }
 
@@ -1119,17 +1115,6 @@
                 min-width: 55px;
                 text-align: right !important;
                 padding-right: 4px !important;
-            }
-
-            /* Laps列 - 横画面では幅を拡大してタイトルが切れないように */
-            .listtable th.lap:not(.col-lapno),
-            .listtable td.lap:not(.col-lapno),
-            .listtable td[id$="_lap"] {
-                width: 48px;
-                min-width: 48px;
-                text-align: center;
-                padding: 1px 3px;
-                overflow: visible;
             }
 
             /* (L)列 - ベストラップ回数 */
