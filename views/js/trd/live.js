@@ -570,9 +570,9 @@ function setPassingLine(data) {
 
     $(c + "_status").html('<img src="' + pitImg + '" width="16" border=0>');
     if (lang == "EN") {
-        $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>');
+        $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>');
     } else {
-        $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '<br><div style="font-size:0.8em;">' + data.TEAM_J + '</div></div></td>');
+        $(c + "_driver").html('<div style="width: 90px; overflow: hidden; text-overflow: ellipsis;">' + data.DRIVER_J + '</div></td>');
     }
     //$(c + "_tire").html('<img src="' + tireImg + '" width="16" border=0>');
     //$(c + "_maker").html('<img src="' + makerImg + '" width="16" border=0>');
