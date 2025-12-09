@@ -135,7 +135,10 @@ background-position: center top;
 }
 .driver {
   text-align:left;
-  width: 170px;
+  width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .team {
   text-align:left;
