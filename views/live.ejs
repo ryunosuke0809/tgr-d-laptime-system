@@ -752,61 +752,127 @@
                 background: #000;
             }
 
-            /* Diff / Best / (L) / PIT を消す */
+            /* Diff / (L) / PIT を消す（BestTimeは表示する） */
             #listtitle .listtable th.col-diff,
-            #listtitle .listtable th.col-best,
             #listtitle .listtable th.col-lapno,
             #listtitle .listtable th.col-pit,
-            #listtitle .listtable th:nth-child(6),
-            #listtitle .listtitle th:nth-child(8),
-            #listtitle .listtable th:nth-child(9),
-            #listtitle .listtable th:nth-child(10),
             .listtable td.col-diff,
-            .listtable td.col-best,
             .listtable td.col-lapno,
             .listtable td.col-pit,
             .listtable td[id$="_diff"],
-            .listtable td[id$="_best"],
             .listtable td[id$="_bestlap"],
-            .listtable td[id$="_pit"],
-            .listtable tr td:nth-child(6),
-            .listtable tr td:nth-child(8),
-            .listtable tr td:nth-child(9),
-            .listtable tr td:nth-child(10) {
+            .listtable td[id$="_pit"] {
                 display: none;
             }
 
-            /* ドライバー名の列幅を制限 */
-            .listtable th.col-driver,
-            .listtable td[id$="_driver"],
-            .listtable td.driver {
-                max-width: 140px;
-                overflow: hidden;
-                text-overflow: ellipsis;
+            /* セクターとスピードは非表示 */
+            #listtitle .listtable th.col-sec,
+            #listtitle .listtable th.col-speed,
+            .listtable td[id$="_sec1"],
+            .listtable td[id$="_sec2"],
+            .listtable td[id$="_sec3"],
+            .listtable td[id$="_sec4"],
+            .listtable td[id$="_speed"] {
+                display: none;
             }
 
-            .listtable td.driver div {
-                max-width: 140px !important;
-                overflow: hidden;
-                text-overflow: ellipsis;
+            /* テーブル全体のレイアウト調整 */
+            .panel .listtable {
+                table-layout: fixed;
+                width: 100%;
+                font-size: 11px;
             }
 
-            /* 数値列のサイズ調整 */
-            .listtable th.col-pos,
-            .listtable th.col-no,
-            .listtable td.pos,
-            .listtable td.no {
+            /* ヘッダーとデータセルの基本パディング */
+            .listtable th,
+            .listtable td {
+                padding: 2px 2px;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            /* 各列の幅を明示的に指定してヘッダーとデータを揃える */
+            /* POSUP列（順位変動アイコン - racemode="R"の場合のみ） */
+            .listtable th.pos:empty,
+            .listtable td.posup {
+                width: 20px;
+                min-width: 20px;
+                max-width: 20px;
+                text-align: center;
+                padding: 2px 1px;
+            }
+
+            /* POS列 */
+            .listtable th.pos,
+            .listtable td.pos {
                 width: 35px;
+                min-width: 35px;
+                max-width: 35px;
                 text-align: center;
             }
 
-            .listtable th.col-gap,
-            .listtable th.col-lastlap,
-            .listtable th.col-laps,
-            .listtable td.time,
-            .listtable td.lap {
-                width: 55px;
+            /* No.列 */
+            .listtable th.no_title,
+            .listtable td.no {
+                width: 35px;
+                min-width: 35px;
+                max-width: 35px;
+                text-align: center;
+            }
+
+            /* Info列（アイコン） */
+            .listtable th.info,
+            .listtable td.info {
+                width: 20px;
+                min-width: 20px;
+                max-width: 20px;
+                text-align: center;
+                padding: 2px 1px;
+            }
+
+            /* ドライバー列 */
+            .listtable th.driver,
+            .listtable td.driver {
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+            }
+
+            .listtable td.driver div {
+                width: 70px !important;
+                max-width: 70px !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* BestTime列 */
+            .listtable th.col-best,
+            .listtable td.col-best {
+                width: 60px;
+                min-width: 60px;
+                max-width: 60px;
                 text-align: right;
+            }
+
+            /* Gap列 */
+            .listtable th.time:not(.col-best):not(.col-diff):not(.col-sec):not(.col-speed),
+            .listtable td.time:not(.col-best):not(.col-diff):not([id$="_sec1"]):not([id$="_sec2"]):not([id$="_sec3"]):not([id$="_sec4"]):not([id$="_speed"]) {
+                width: 55px;
+                min-width: 55px;
+                max-width: 55px;
+                text-align: right;
+            }
+
+            /* Laps列 */
+            .listtable th.lap:not(.col-lapno),
+            .listtable td.lap:not(.col-lapno) {
+                width: 40px;
+                min-width: 40px;
+                max-width: 40px;
+                text-align: center;
             }
         }
 
@@ -832,69 +898,133 @@
                 overflow-x: auto;
             }
 
+            /* すべての列を表示（セクターとスピードを含む） */
             #listtitle .listtable th,
             .listtable td {
                 display: table-cell !important;
             }
 
-            /* ただしセクター & Speed は非表示のまま */
-            #listtitle .listtable th.col-sec,
-            #listtitle .listtable th.col-speed,
-            .listtable td[id$="_sec1"],
-            .listtable td[id$="_sec2"],
-            .listtable td[id$="_sec3"],
-            .listtable td[id$="_sec4"],
-            .listtable td[id$="_speed"] {
-                display: none !important;
-            }
-
             .panel .listtable {
                 width: max-content;
                 min-width: 100%;
-                font-size: 11px;
+                font-size: 10px;
                 background: transparent;
                 table-layout: auto;
             }
 
-            /* 各列のサイズ調整 */
+            /* 各列のサイズ調整 - パディングを最小限に */
             .listtable th,
             .listtable td {
-                padding: 2px 4px;
+                padding: 1px 2px;
                 white-space: nowrap;
             }
 
-            /* ドライバー名の列幅を制限 */
-            .listtable th.col-driver,
-            .listtable td[id$="_driver"] {
-                max-width: 100px;
+            /* POSUP列（順位変動アイコン） */
+            .listtable th.pos:empty,
+            .listtable td.posup {
+                width: 18px;
+                min-width: 18px;
+                text-align: center;
+                padding: 1px;
+            }
+
+            /* POS列 */
+            .listtable th.pos,
+            .listtable td.pos {
+                width: 35px;
+                min-width: 35px;
+                text-align: center;
+            }
+
+            /* No.列 */
+            .listtable th.no_title,
+            .listtable td.no {
+                width: 35px;
+                min-width: 35px;
+                text-align: center;
+            }
+
+            /* Info列（アイコン） */
+            .listtable th.info,
+            .listtable td.info {
+                width: 18px;
+                min-width: 18px;
+                text-align: center;
+                padding: 1px;
+            }
+
+            /* ドライバー列 - 横画面では少し広く */
+            .listtable th.driver,
+            .listtable td.driver {
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+            }
+
+            .listtable td.driver div {
+                width: 70px !important;
+                max-width: 70px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
 
-            /* 数値列は狭めに */
-            .listtable th.col-pos,
-            .listtable th.col-no,
-            .listtable th.col-lapno,
-            .listtable th.col-laps,
-            .listtable td[id$="_pos"],
-            .listtable td[id$="_carno"],
-            .listtable td[id$="_bestlap"],
-            .listtable td[id$="_lap"] {
-                width: 40px;
+            /* BestTime列 */
+            .listtable th.col-best,
+            .listtable td.col-best {
+                width: 55px;
+                min-width: 55px;
+                text-align: right;
+            }
+
+            /* Laps列 */
+            .listtable th.lap:not(.col-lapno),
+            .listtable td.lap:not(.col-lapno) {
+                width: 32px;
+                min-width: 32px;
                 text-align: center;
             }
 
-            /* タイム系列は中程度 */
-            .listtable th.col-best,
-            .listtable th.col-gap,
-            .listtable th.col-diff,
-            .listtable th.col-lastlap,
-            .listtable td[id$="_best"],
-            .listtable td[id$="_gap"],
-            .listtable td[id$="_diff"],
-            .listtable td[id$="_lastlap"] {
-                width: 60px;
+            /* (L)列 - ベストラップ回数 */
+            .listtable th.col-lapno,
+            .listtable td.col-lapno {
+                width: 32px;
+                min-width: 32px;
+                text-align: center;
+            }
+
+            /* Gap, Diff, LastLap列 */
+            .listtable th.time:not(.col-best):not(.col-sec):not(.col-speed),
+            .listtable td.time:not(.col-best):not([id$="_sec1"]):not([id$="_sec2"]):not([id$="_sec3"]):not([id$="_sec4"]):not([id$="_speed"]) {
+                width: 50px;
+                min-width: 50px;
                 text-align: right;
+            }
+
+            /* セクタータイム列（S1, S2, S3, S4） */
+            .listtable th.col-sec,
+            .listtable td.col-sec {
+                width: 45px;
+                min-width: 45px;
+                text-align: right;
+            }
+
+            /* スピード列 */
+            .listtable th.col-speed,
+            .listtable td.col-speed {
+                width: 45px;
+                min-width: 45px;
+                text-align: right;
+            }
+
+            /* PIT列 */
+            .listtable th.col-pit,
+            .listtable td.col-pit {
+                width: 32px;
+                min-width: 32px;
+                text-align: center;
             }
         }
 
