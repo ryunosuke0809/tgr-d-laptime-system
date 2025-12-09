@@ -52,8 +52,7 @@ app.get('/monitor/live', (req, res) => {
   res.render('monitor/live', {
     title: 'TGR-D Timing Monitor',
     headerLabel: 'Practice2 - LIVE',
-    //wsUri: ws || 'ws://www.racelive.jp:8061/get',
-    wsUri: ws || 'ws://52.36.59.170:9101/get',
+    wsUri: ws || 'ws://www.racelive.jp:8061/get',
     sector: sector || '0',
     speed: speed || 'OFF',
     circuit: circuit || 'fsw',
