@@ -344,7 +344,8 @@
         /* content の余白調整：白い帯をなくす */
         main.content {
             box-sizing: border-box;
-            padding: 8px 8px 16px 72px !important;
+            padding: 0px !important;
+            /* 左寄せでpadding 0px */
             background: #000;
             min-height: 100vh;
             /* コンテンツを左寄せ */
@@ -815,12 +816,15 @@
                 font-size: 9px;
             }
 
-            /* ヘッダーとデータセルの基本パディング - 最小限に */
+            /* ヘッダーとデータセルの基本パディング - 統一 */
             .listtable th,
             .listtable td {
-                padding: 1px 0px;
+                padding: 2px 1px;
                 white-space: nowrap;
                 overflow: hidden;
+                vertical-align: middle;
+                /* Y軸を揃える */
+                box-sizing: border-box;
             }
 
             /* 各列の幅を明示的に指定してヘッダーとデータを揃える */
@@ -831,7 +835,6 @@
                 min-width: 28px;
                 max-width: 28px;
                 text-align: center;
-                padding: 1px 1px;
             }
 
             /* No.列 */
@@ -841,7 +844,6 @@
                 min-width: 28px;
                 max-width: 28px;
                 text-align: center;
-                padding: 1px 1px;
             }
 
             /* Info列（アイコン） */
@@ -851,7 +853,6 @@
                 min-width: 18px;
                 max-width: 18px;
                 text-align: center;
-                padding: 1px 0px;
             }
 
             /* ドライバー列 - スマホ縦では55pxに縮小 */
@@ -863,8 +864,8 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
-                padding: 1px 2px;
                 font-size: 9px;
+                padding-left: 2px;
             }
 
             .listtable td.driver div {
@@ -883,8 +884,8 @@
                 min-width: 56px;
                 max-width: 56px;
                 text-align: right;
-                padding: 1px 2px;
                 font-size: 9px;
+                padding-right: 2px;
             }
 
             /* Gap/LastLap列 */
@@ -894,8 +895,8 @@
                 min-width: 50px;
                 max-width: 50px;
                 text-align: right;
-                padding: 1px 2px;
                 font-size: 9px;
+                padding-right: 2px;
             }
 
             /* Laps列 */
@@ -905,7 +906,6 @@
                 min-width: 32px;
                 max-width: 32px;
                 text-align: center;
-                padding: 1px 1px;
                 font-size: 9px;
             }
         }
@@ -1340,10 +1340,10 @@
    中身だけ縦スクロールさせる */
         @media (min-width: 768px) {
             main.content {
-                padding: 0px 0 0px 72px !important;
+                padding: 0px 0 0px 0px !important;
+                /* 左寄せでpadding 0px */
                 display: flex;
                 justify-content: flex-start;
-                /* 左寄せ */
             }
 
             .panel {
