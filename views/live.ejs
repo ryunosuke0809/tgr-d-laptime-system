@@ -2030,39 +2030,45 @@
                 <img id="liveflag" class="flag" src="/images/trd/green_off.png" alt="flag" aria-hidden="true">
             </div>
 
-            <!-- ★ここを書き換え -->
-            <div id="Container" class="container">
-                <div class="table-scroll">
-                    <!-- ヘッダ行 -->
-                    <div id="listtitle" class="listtitle"></div>
+            <!-- Timing Monitor Panel (Default) -->
+            <div id="timingMonitorPanel" class="panel-content">
+                <div id="Container" class="container">
+                    <div class="table-scroll">
+                        <!-- ヘッダ行 -->
+                        <div id="listtitle" class="listtitle"></div>
 
-                    <!-- 一覧（縦スクロール） -->
-                    <div id="ListArea" class="listarea">
-                        <div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
+                        <!-- 一覧（縦スクロール） -->
+                        <div id="ListArea" class="listarea">
+                            <div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- ★ここまで -->
-        </section>
 
-        <!-- Track Map Panel -->
-        <section id="trackMapPanel" class="panel" style="display: none; position: absolute; top: 50px; left: 0; right: 0; bottom: 0; background: #000; z-index: 1000;">
-            <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
-                <!-- Track Map Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #1f2a2e; border-bottom: 1px solid #63C4DA;">
-                    <h2 style="margin: 0; color: #fff; font-size: 18px;">Track Map - FSW</h2>
-                    <div>
-                        <button id="trackMapNewWindow" style="margin-right: 10px; padding: 6px 12px; background: #5c9cd8; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
-                            <i class="fa fa-external-link" aria-hidden="true"></i> Open in New Window
-                        </button>
-                        <button id="trackMapClose" style="padding: 6px 12px; background: #d9534f; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
-                            <i class="fa fa-times" aria-hidden="true"></i> Close
-                        </button>
+            <!-- Track Map Panel -->
+            <div id="trackMapPanel" class="panel-content" style="display: none;">
+                <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
+                    <!-- Track Map Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #1f2a2e; border-bottom: 1px solid #63C4DA;">
+                        <h2 style="margin: 0; color: #fff; font-size: 18px;">Track Map - FSW</h2>
+                        <div>
+                            <button id="trackMapNewWindow" style="margin-right: 10px; padding: 6px 12px; background: #5c9cd8; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+                                <i class="fa fa-external-link" aria-hidden="true"></i> Open in New Window
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Track Map Content -->
+                    <div id="trackMapContent" style="flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 20px; background: #000;">
+                        <img src="/images/circuit/fsw_course.png" alt="FSW Track Map" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                     </div>
                 </div>
-                <!-- Track Map Content -->
-                <div id="trackMapContent" style="flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 20px;">
-                    <img src="/images/circuit/fsw_course.png" alt="FSW Track Map" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+
+            <!-- Track Temp Panel (Placeholder) -->
+            <div id="trackTempPanel" class="panel-content" style="display: none;">
+                <div style="padding: 20px; color: #fff; text-align: center;">
+                    <h2>Track Temperature</h2>
+                    <p>Track temperature data will be displayed here.</p>
                 </div>
             </div>
         </section>
@@ -2106,26 +2112,39 @@
             location.href = '/monitor/live?' + params;
         }
 
-        // クラスでまとめてイベント付与（Track Map以外）
+        // パネル切り替え関数
+        function switchPanel(panelName) {
+            // すべてのパネルを非表示
+            document.querySelectorAll('.panel-content').forEach(function(panel) {
+                panel.style.display = 'none';
+            });
+            
+            // 指定されたパネルを表示
+            const targetPanel = document.getElementById(panelName + 'Panel');
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+            }
+        }
+
+        // ボタンクリックでパネルを切り替え
         document.querySelectorAll('.js-monitor-link').forEach(function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
                 const titleText = el.getAttribute('title') || el.textContent.trim();
                 
-                // Track Mapの場合はパネルを表示
+                // ボタンのタイトルに応じてパネルを切り替え
                 if (titleText.includes('Map')) {
-                    document.getElementById('trackMapPanel').style.display = 'block';
+                    switchPanel('trackMap');
+                } else if (titleText.includes('Temp')) {
+                    switchPanel('trackTemp');
                 } else {
-                    jumpToMonitor();
+                    // TimingMonitor
+                    switchPanel('timingMonitor');
                 }
             });
         });
 
-        // Track Map Panel Controls
-        document.getElementById('trackMapClose').addEventListener('click', function() {
-            document.getElementById('trackMapPanel').style.display = 'none';
-        });
-
+        // Track Map New Window
         document.getElementById('trackMapNewWindow').addEventListener('click', function() {
             window.open('/track_fsw', 'TrackMapWindow', 'width=1440,height=810,scrollbars=yes,resizable=yes');
         });
