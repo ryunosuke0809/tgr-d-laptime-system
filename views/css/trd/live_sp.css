@@ -296,43 +296,37 @@ background-position: center top;
 }
 #livetitle{
   list-style: none;
-  width:600px;
+  width: auto;
   height:40px;
   /*background:url(../../../images/trd/css.png) repeat scroll -104px -139px;*/
   color:#333;
-  font-size: 25px;
+  font-size: 18px;
   font-weight:bold;
   text-decoration:none;
   text-shadow: 0 1px 1px rgba(255,255,255,.7);
-  margin: 0px;
-  padding: 0px;
-  border-top: 1px solid #ccc;
-  border-bottom: 0px solid #ccc;
+  margin: 0;
+  padding: 0;
 }
 #livetitle li {
-  padding: 7px 20px;
-  border-right: 1px solid #ccc;
-/*
-  border-left: 1px solid #ccc;
-*/
+  padding: 7px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #livelaps{
 	list-style: none;
-	position:absolute;
-	left: 125px;
-	top: -9px;
 	width:150px;
 	color:#333;
-	font-size: 27px;
+	font-size: 24px;
 	font-weight:bold;
 	text-decoration:none;
 	text-shadow: 0 1px 1px rgba(255,255,255,.7);
-	text-align:right;
-	margin: 0px;
-	padding: 0px;
+	text-align:center;
+	margin: 0;
+	padding: 0;
 }
 #livelaps li {
-  padding: 10px 20px;
+  padding: 5px 10px;
 	text-align:center;
 }
 .carno{

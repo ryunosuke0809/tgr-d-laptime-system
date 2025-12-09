@@ -19,8 +19,8 @@ if (navigator.userAgent.indexOf('Android') > 0) {
 }
 
 $(function () {
-        $("#livetitle").css("width", window.innerWidth);
-        $("#container-area").css("height", window.innerHeight - 86);
+        var headerHeight = $("#title_area").outerHeight() || 40;
+        $("#container-area").css("height", window.innerHeight - headerHeight);
         $("#Container").css("width", window.innerWidth);
         $("#content").css("width", window.innerWidth);
 });
@@ -42,7 +42,6 @@ let storage = localStorage.getItem('isVirtical');
 if (storage == "false") {
     isVirtical = false;
 } else {
-    $("#livetitle").css("width", window.innerWidth - 200);
     isVirtical = true;
 }
 
@@ -69,7 +68,9 @@ resize();
 function setResize() {
     var innerHeight = window.innerHeight;
     var innerWidth = window.innerWidth;
-    $("#container-area").css("height", innerHeight - 86);
+    var headerHeight = $("#title_area").outerHeight() || 40;
+    $("#container-area").css("height", innerHeight - headerHeight);
+    $("#Container").css("width", innerWidth);
 }
 
 $(function () {
