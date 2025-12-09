@@ -2044,6 +2044,28 @@
             </div>
             <!-- ★ここまで -->
         </section>
+
+        <!-- Track Map Panel -->
+        <section id="trackMapPanel" class="panel" style="display: none; position: absolute; top: 50px; left: 0; right: 0; bottom: 0; background: #000; z-index: 1000;">
+            <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
+                <!-- Track Map Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #1f2a2e; border-bottom: 1px solid #63C4DA;">
+                    <h2 style="margin: 0; color: #fff; font-size: 18px;">Track Map - FSW</h2>
+                    <div>
+                        <button id="trackMapNewWindow" style="margin-right: 10px; padding: 6px 12px; background: #5c9cd8; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fa fa-external-link" aria-hidden="true"></i> Open in New Window
+                        </button>
+                        <button id="trackMapClose" style="padding: 6px 12px; background: #d9534f; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fa fa-times" aria-hidden="true"></i> Close
+                        </button>
+                    </div>
+                </div>
+                <!-- Track Map Content -->
+                <div id="trackMapContent" style="flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <img src="/images/circuit/fsw_course.png" alt="FSW Track Map" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- 接続設定 -->
@@ -2084,12 +2106,28 @@
             location.href = '/monitor/live?' + params;
         }
 
-        // クラスでまとめてイベント付与
+        // クラスでまとめてイベント付与（Track Map以外）
         document.querySelectorAll('.js-monitor-link').forEach(function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
-                jumpToMonitor();
+                const titleText = el.getAttribute('title') || el.textContent.trim();
+                
+                // Track Mapの場合はパネルを表示
+                if (titleText.includes('Map')) {
+                    document.getElementById('trackMapPanel').style.display = 'block';
+                } else {
+                    jumpToMonitor();
+                }
             });
+        });
+
+        // Track Map Panel Controls
+        document.getElementById('trackMapClose').addEventListener('click', function() {
+            document.getElementById('trackMapPanel').style.display = 'none';
+        });
+
+        document.getElementById('trackMapNewWindow').addEventListener('click', function() {
+            window.open('/track_fsw', 'TrackMapWindow', 'width=1440,height=810,scrollbars=yes,resizable=yes');
         });
 
         // ===== サイドパネル開閉（History / ハンバーガー） =====
