@@ -317,28 +317,28 @@ function setListTitle() {
             '<th class="driver">Driver/Team</th>' +
             //'<th class="tire">T</th>' +
             //'<th class="maker">E</th>' +
-            '<th class="time">BestTime</th>' +
-            '<th class="lap">(L)</th>' +
+            '<th class="time col-best">BestTime</th>' +
+            '<th class="lap col-lapno">(L)</th>' +
             '<th class="time">Gap</th>' +
-            '<th class="time">Diff</th>';
+            '<th class="time col-diff">Diff</th>';
         if (sector >= 1) {
-            html += '<th class="time">S1</th>';
+            html += '<th class="time col-sec">S1</th>';
         }
         if (sector >= 2) {
-            html += '<th class="time">S2</th>';
+            html += '<th class="time col-sec">S2</th>';
         }
         if (sector >= 3) {
-            html += '<th class="time">S3</th>';
+            html += '<th class="time col-sec">S3</th>';
         }
         if (sector >= 4) {
-            html += '<th class="time">S4</th>';
+            html += '<th class="time col-sec">S4</th>';
         }
         if (speed == "ON") {
-            html += '<th class="time">Speed</th>';
+            html += '<th class="time col-speed">Speed</th>';
         }
         html += '<th class="time">LastLap</th>';
         html += '<th class="lap">Laps</th>' +
-            '<th class="pit">PIT</th>' +
+            '<th class="pit col-pit">PIT</th>' +
             '</tr></table>';
     } else {
         html = '<table class="listtable"><tr>' +
@@ -351,26 +351,26 @@ function setListTitle() {
             //'<th class="maker">E</th>' +
             '<th class="lap">Laps</th>' +
             '<th class="time">Gap</th>' +
-            '<th class="time">Diff</th>';
+            '<th class="time col-diff">Diff</th>';
         if (sector >= 1) {
-            html += '<th class="time">S1</th>';
+            html += '<th class="time col-sec">S1</th>';
         }
         if (sector >= 2) {
-            html += '<th class="time">S2</th>';
+            html += '<th class="time col-sec">S2</th>';
         }
         if (sector >= 3) {
-            html += '<th class="time">S3</th>';
+            html += '<th class="time col-sec">S3</th>';
         }
         if (sector >= 4) {
-            html += '<th class="time">S4</th>';
+            html += '<th class="time col-sec">S4</th>';
         }
         if (speed == "ON") {
-            html += '<th class="time">Speed</th>';
+            html += '<th class="time col-speed">Speed</th>';
         }
         html += '<th class="time">LastLap</th>';
-        html += '<th class="time">BestTime</th>' +
-            '<th class="lap">(L)</th>' +
-            '<th class="pit">PIT</th>' +
+        html += '<th class="time col-best">BestTime</th>' +
+            '<th class="lap col-lapno">(L)</th>' +
+            '<th class="pit col-pit">PIT</th>' +
             '</tr></table>';
     }
     $("#listtitle").html(html);
@@ -453,28 +453,28 @@ function setRowData(data) {
         }
         //html += '<td class="tire" id="' + c + '_tire"><img src="' + tireImg + '" width="16" border=0></td>' +
         //html += '<td class="maker" id="' + c + '_maker"><img src="' + makerImg + '" width="16" border=0></td>' +
-        html += '<td class="time" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
-            '<td class="lap" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
+        html += '<td class="time col-best" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
+            '<td class="lap col-lapno" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
             '<td class="time" id="' + c + '_gap"></td>' +
-            '<td class="time" id="' + c + '_diff"></td>';
+            '<td class="time col-diff" id="' + c + '_diff"></td>';
         if (sector >= 1) {
-            html += '<td class="time" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
         }
         if (sector >= 2) {
-            html += '<td class="time" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
         }
         if (sector >= 3) {
-            html += '<td class="time" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
         }
         if (sector >= 4) {
-            html += '<td class="time" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
         }
         if (speed == 'ON') {
-            html += '<td class="time" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
+            html += '<td class="time col-speed" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
         }
         html += '<td class="time" id="' + c + '_last" style="font-weight:bold;color:' + getLapColor(data.LAST_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.LAST_DISP + '</div></td>';
         html += '<td class="lap" id="' + c + '_laps">' + data.LAPS + '</td>' +
-            '<td class="pit" id="' + c + '_pit">' + data.PIT + '</td>' +
+            '<td class="pit col-pit" id="' + c + '_pit">' + data.PIT + '</td>' +
             '</tr></table>';
     } else {
         html = '<table class="listtable" style="table-layout: fixed;"><tr>' +
@@ -491,26 +491,26 @@ function setRowData(data) {
         //html += '<td class="maker" id="' + c + '_maker"><img src="' + makerImg + '" width="16" border=0></td>' +
         html += '<td class="lap" id="' + c + '_laps">' + data.LAPS + '</td>' +
             '<td class="time" id="' + c + '_gap"></td>' +
-            '<td class="time" id="' + c + '_diff"></td>';
+            '<td class="time col-diff" id="' + c + '_diff"></td>';
         if (sector >= 1) {
-            html += '<td class="time" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
         }
         if (sector >= 2) {
-            html += '<td class="time" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
         }
         if (sector >= 3) {
-            html += '<td class="time" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
         }
         if (sector >= 4) {
-            html += '<td class="time" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
+            html += '<td class="time col-sec" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
         }
         if (speed == 'ON') {
-            html += '<td class="time" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
+            html += '<td class="time col-speed" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
         }
         html += '<td class="time" id="' + c + '_last" style="font-weight:bold;color:' + getLapColor(data.LAST_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.LAST_DISP + '</div></td>';
-        html += '<td class="time" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
-            '<td class="lap" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
-            '<td class="pit" id="' + c + '_pit">' + data.PIT + '</td>' +
+        html += '<td class="time col-best" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
+            '<td class="lap col-lapno" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
+            '<td class="pit col-pit" id="' + c + '_pit">' + data.PIT + '</td>' +
             '</tr></table>';
     }
 
