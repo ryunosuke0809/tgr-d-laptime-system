@@ -850,8 +850,10 @@
                 padding: 2px 1px;
                 white-space: nowrap;
                 overflow: hidden;
-                vertical-align: middle;
+                vertical-align: middle !important;
                 box-sizing: border-box;
+                line-height: 1.3;
+                height: auto;
             }
 
             /* 各列の幅を明示的に指定してヘッダーとデータを揃える */
@@ -1016,8 +1018,10 @@
             /* 各列のサイズ調整 - パディングを最小限に */
             .listtable th,
             .listtable td {
-                padding: 1px 2px;
+                padding: 1px 3px;
                 white-space: nowrap;
+                vertical-align: middle !important;
+                line-height: 1.3;
             }
 
             /* POSUP列（順位変動アイコン） */
@@ -1085,12 +1089,13 @@
                 text-align: right;
             }
 
-            /* Laps列 */
+            /* Laps列 - 横画面では幅を拡大 */
             .listtable th.lap:not(.col-lapno),
             .listtable td.lap:not(.col-lapno) {
-                width: 32px;
-                min-width: 32px;
+                width: 38px;
+                min-width: 38px;
                 text-align: center;
+                padding: 1px 3px;
             }
 
             /* (L)列 - ベストラップ回数 */
@@ -1107,6 +1112,8 @@
                 width: 50px;
                 min-width: 50px;
                 text-align: right;
+                padding-left: 2px;
+                padding-right: 3px;
             }
 
             /* セクタータイム列（S1, S2, S3, S4） */
@@ -1286,6 +1293,38 @@
             }
         }
 
+        /* ===== ワイド画面（1110px以上）：縦位置を確実に揃える ===== */
+        @media (min-width: 1110px) {
+            .listtable th,
+            .listtable td {
+                padding: 3px 2px !important;
+                vertical-align: middle !important;
+                line-height: 1.3 !important;
+                height: auto;
+            }
+
+            /* 全列の幅を維持しつつ縦位置を整える */
+            .listtable th.pos,
+            .listtable td.pos {
+                width: 40px;
+                min-width: 40px;
+                max-width: 40px;
+            }
+
+            .listtable th.no_title,
+            .listtable td.no {
+                width: 40px;
+                min-width: 40px;
+                max-width: 40px;
+            }
+
+            .listtable th.driver,
+            .listtable td.driver {
+                width: 80px;
+                min-width: 80px;
+                max-width: 80px;
+            }
+        }
 
 
         /* ===== 追加のテーブルスタイル ===== */
@@ -1300,6 +1339,8 @@
             background: transparent;
             padding: 4px 6px;
             white-space: nowrap;
+            vertical-align: middle;
+            line-height: 1.3;
         }
 
         /* 列幅の統一設定 */
