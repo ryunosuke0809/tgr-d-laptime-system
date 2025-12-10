@@ -2080,7 +2080,17 @@
 
             <!-- Timing Monitor Panel (Default) -->
             <div id="timingMonitorPanel" class="panel-content">
-                <iframe id="timingMonitorFrame" src="/timingmonitor" style="width: 100%; height: 100%; border: none; display: block;" loading="eager"></iframe>
+                <div id="Container" class="container">
+                    <div class="table-scroll">
+                        <!-- ヘッダ行 -->
+                        <div id="listtitle" class="listtitle"></div>
+
+                        <!-- 一覧（縦スクロール） -->
+                        <div id="ListArea" class="listarea">
+                            <div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Track Map Panel -->
@@ -2184,11 +2194,20 @@
                         iframe.src = iframe.src; // Force reload
                     }
                 } else if (panelName === 'timingMonitor') {
-                    // Timing Monitor: iframe再読み込み（新しいWebSocket接続を確立）
-                    const iframe = document.getElementById('timingMonitorFrame');
-                    if (iframe) {
-                        iframe.src = iframe.src; // Force reload
-                        console.log('TimingMonitor iframe reloaded');
+                    // Timing Monitor: MixItUpのソートを再適用してレイアウトをリフレッシュ
+                    try {
+                        if (typeof racemode !== 'undefined') {
+                            if (racemode == "B") {
+                                // Best Time mode
+                                $('#Container').mixItUp('sort', 'sort:desc');
+                            } else {
+                                // Race mode
+                                $('#Container').mixItUp('sort', 'sort:desc');
+                            }
+                            console.log('TimingMonitor layout refreshed');
+                        }
+                    } catch (e) {
+                        console.log('MixItUp not initialized yet:', e);
                     }
                 }
             }
