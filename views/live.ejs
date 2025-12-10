@@ -2122,12 +2122,9 @@
                 </div>
             </div>
 
-            <!-- Track Temp Panel (Placeholder) -->
+            <!-- Track Temp Panel -->
             <div id="trackTempPanel" class="panel-content" style="display: none;">
-                <div style="padding: 20px; color: #fff; text-align: center;">
-                    <h2>Track Temperature</h2>
-                    <p>Track temperature data will be displayed here.</p>
-                </div>
+                <iframe id="trackTempFrame" src="/track_temp" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
             </div>
         </section>
     </main>
@@ -2182,16 +2179,28 @@
             if (targetPanel) {
                 targetPanel.style.display = 'block';
                 
-                // Track Mapパネルの場合、PC/タブレットでズームコントロールを表示
-                if (panelName === 'trackMap' && window.innerWidth >= 768) {
-                    document.getElementById('trackMapControls').style.display = 'flex';
-                    
-                    // iframeを強制リロードして読み込みを確実にする
-                    const iframe = document.getElementById('trackMapFrame');
-                    if (iframe && !iframe.hasAttribute('data-loaded')) {
-                        iframe.src = iframe.src; // Force reload
-                        iframe.setAttribute('data-loaded', 'true');
+                // パネルごとの処理
+                if (panelName === 'trackMap') {
+                    // Track Map: ズームコントロール表示 + iframe再読み込み
+                    if (window.innerWidth >= 768) {
+                        const controls = document.getElementById('trackMapControls');
+                        if (controls) controls.style.display = 'flex';
                     }
+                    
+                    // iframe再読み込み（常に最新データを取得）
+                    const iframe = document.getElementById('trackMapFrame');
+                    if (iframe) {
+                        iframe.src = iframe.src; // Force reload
+                    }
+                } else if (panelName === 'trackTemp') {
+                    // Track Temp: iframe再読み込み
+                    const iframe = document.getElementById('trackTempFrame');
+                    if (iframe) {
+                        iframe.src = iframe.src; // Force reload
+                    }
+                } else if (panelName === 'timingMonitor') {
+                    // Timing Monitor: live.jsの再初期化は不要（常に動作中）
+                    // 何もしない（既存のWebSocket接続を維持）
                 }
             }
         }

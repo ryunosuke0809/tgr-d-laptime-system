@@ -595,3 +595,27 @@ background-position: center top;
   opacity: 1;
 }
 
+/* スマホ横画面（ランドスケープ）でのスクロール有効化 */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden;
+    }
+    
+    #ListArea {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto !important;
+        overflow-x: hidden;
+    }
+    
+    .container {
+        overflow-y: visible !important;
+    }
+    
+    /* TimingMonitorパネルのスクロール有効化 */
+    #timingMonitorPanel {
+        max-height: 100vh;
+        overflow-y: auto !important;
+    }
+}
+
