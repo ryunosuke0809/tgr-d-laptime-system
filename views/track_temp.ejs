@@ -1,87 +1,844 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-EN" lang="en-EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Temperature</title>
+    <title>Track Temperature Monitor</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: #000;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
             color: #fff;
             font-family: 'Saira', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
-        h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
+        
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.9);
+            border-bottom: 2px solid #5c9cd8;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #5c9cd8;
+            letter-spacing: 1px;
+        }
+        
+        .header .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header .date-selector label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .header .date-selector input[type="date"] {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #5c9cd8;
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Saira', sans-serif;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        
+        .header .date-selector input[type="date"]:focus {
+            outline: none;
+            border-color: #7db4e6;
+            box-shadow: 0 0 8px rgba(92, 156, 216, 0.4);
+        }
+        
+        .header .date-selector button {
+            padding: 8px 16px;
+            background: #5c9cd8;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Saira', sans-serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .header .date-selector button:hover {
+            background: #7db4e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(92, 156, 216, 0.3);
+        }
+        
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .header .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+            animation: pulse 2s infinite;
+        }
+        
+        .header .status-indicator.connected {
+            background: #4caf50;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Main Container */
+        .container {
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        /* Statistics Summary */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: rgba(92, 156, 216, 0.1);
+            border: 1px solid rgba(92, 156, 216, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: rgba(92, 156, 216, 0.15);
+            border-color: #5c9cd8;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(92, 156, 216, 0.2);
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+        
+        .stat-card .value {
+            font-size: 2.2em;
+            font-weight: 700;
             color: #5c9cd8;
         }
-        .temp-display {
-            font-size: 4em;
-            font-weight: bold;
-            color: #ff6b6b;
-            margin: 20px 0;
-        }
-        .info {
-            font-size: 1.2em;
+        
+        .stat-card .unit {
+            font-size: 0.8em;
             color: #ccc;
-            text-align: center;
-            max-width: 600px;
+            margin-left: 4px;
         }
-        .status {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: rgba(92, 156, 216, 0.2);
-            border-radius: 8px;
+        
+        /* Chart Grid */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(92, 156, 216, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            border-color: #5c9cd8;
+            box-shadow: 0 6px 25px rgba(92, 156, 216, 0.2);
+        }
+        
+        .chart-container h3 {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #5c9cd8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chart-container .current-temp {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Responsive Design */
+        @media screen and (max-width: 1200px) {
+            .chart-grid {
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.4em;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            .stats-summary {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .chart-container {
+                padding: 15px;
+            }
+            
+            .chart-wrapper {
+                height: 220px;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            color: #5c9cd8;
+            font-size: 1.2em;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
         }
     </style>
 </head>
 <body>
-    <h1>Track Temperature Monitor</h1>
-    <div class="temp-display" id="trackTemp">--°C</div>
-    <div class="info">
-        <p>Real-time track surface temperature data will be displayed here.</p>
+    <!-- Header -->
+    <div class="header">
+        <h1>🌡️ Track Temperature Monitor</h1>
+        
+        <div class="date-selector">
+            <label for="dateSelect">Date:</label>
+            <input type="date" id="dateSelect" />
+            <button id="loadHistoryBtn">Load History</button>
+            <button id="todayBtn">Today</button>
+        </div>
+        
         <div class="status">
-            <p id="statusText">Waiting for data...</p>
+            <div class="status-indicator" id="wsStatus"></div>
+            <span id="statusText">Connecting...</span>
         </div>
     </div>
-
-    <script>
-        // WebSocket connection for track temperature data
-        // This would connect to your temperature data source
-        var tempSocket = null;
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Statistics Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="label">Average Temp</div>
+                <div class="value" id="avgTemp">--<span class="unit">°C</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Max Temp</div>
+                <div class="value" id="maxTemp">--<span class="unit">°C</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Min Temp</div>
+                <div class="value" id="minTemp">--<span class="unit">°C</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Data Points</div>
+                <div class="value" id="dataCount">--</div>
+            </div>
+        </div>
         
-        function initTempSocket() {
-            // Example: Connect to temperature data WebSocket
-            // tempSocket = new WebSocket('ws://your-server:port/temp');
-            // tempSocket.onmessage = function(event) {
-            //     var data = JSON.parse(event.data);
-            //     document.getElementById('trackTemp').textContent = data.temperature + '°C';
-            //     document.getElementById('statusText').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
-            // };
+        <!-- Chart Grid -->
+        <div class="chart-grid">
+            <!-- Finish/Sec3 Chart -->
+            <div class="chart-container">
+                <h3>
+                    <span>🏁 Finish / Sector 3</span>
+                    <span class="current-temp" id="finishTemp">--°C</span>
+                </h3>
+                <div class="chart-wrapper">
+                    <canvas id="finishChart"></canvas>
+                </div>
+            </div>
             
-            // For demo purposes, show a simulated temperature
-            simulateTemperature();
+            <!-- Pit In Chart -->
+            <div class="chart-container">
+                <h3>
+                    <span>🔴 Pit In</span>
+                    <span class="current-temp" id="pitInTemp">--°C</span>
+                </h3>
+                <div class="chart-wrapper">
+                    <canvas id="pitInChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Pit Out Chart -->
+            <div class="chart-container">
+                <h3>
+                    <span>🟢 Pit Out</span>
+                    <span class="current-temp" id="pitOutTemp">--°C</span>
+                </h3>
+                <div class="chart-wrapper">
+                    <canvas id="pitOutChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Sector 1 Chart -->
+            <div class="chart-container">
+                <h3>
+                    <span>1️⃣ Sector 1</span>
+                    <span class="current-temp" id="sec1Temp">--°C</span>
+                </h3>
+                <div class="chart-wrapper">
+                    <canvas id="sec1Chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Sector 2 Chart -->
+            <div class="chart-container">
+                <h3>
+                    <span>2️⃣ Sector 2</span>
+                    <span class="current-temp" id="sec2Temp">--°C</span>
+                </h3>
+                <div class="chart-wrapper">
+                    <canvas id="sec2Chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- WebSocket & Chart Logic -->
+    <script>
+        // ===== グローバル変数 =====
+        var webSocket = null;
+        var reconnectTimer = null;
+        var wsUri = "<%= (typeof wsUri !== 'undefined' ? wsUri : 'ws://www.racelive.jp:8061/temp') %>";
+        
+        // Chart.js インスタンス
+        var charts = {
+            finish: null,
+            pitIn: null,
+            pitOut: null,
+            sec1: null,
+            sec2: null
+        };
+        
+        // データバッファ（最大100ポイント）
+        var tempData = {
+            finish: [],
+            pitIn: [],
+            pitOut: [],
+            sec1: [],
+            sec2: []
+        };
+        
+        var maxDataPoints = 100;
+        
+        // ===== Chart.js 設定 =====
+        var chartConfig = {
+            type: 'line',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 300
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#5c9cd8',
+                        bodyColor: '#fff',
+                        borderColor: '#5c9cd8',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                minute: 'HH:mm',
+                                hour: 'HH:mm'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#999'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#999',
+                            callback: function(value) {
+                                return value + '°C';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        };
+        
+        // ===== Chart初期化 =====
+        function initCharts() {
+            console.log('[Charts] Initializing charts...');
+            
+            // Finish/Sec3 Chart
+            charts.finish = new Chart(document.getElementById('finishChart'), {
+                ...chartConfig,
+                data: {
+                    datasets: [{
+                        label: 'Finish / Sector 3',
+                        data: [],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                }
+            });
+            
+            // Pit In Chart
+            charts.pitIn = new Chart(document.getElementById('pitInChart'), {
+                ...chartConfig,
+                data: {
+                    datasets: [{
+                        label: 'Pit In',
+                        data: [],
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                }
+            });
+            
+            // Pit Out Chart
+            charts.pitOut = new Chart(document.getElementById('pitOutChart'), {
+                ...chartConfig,
+                data: {
+                    datasets: [{
+                        label: 'Pit Out',
+                        data: [],
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                }
+            });
+            
+            // Sector 1 Chart
+            charts.sec1 = new Chart(document.getElementById('sec1Chart'), {
+                ...chartConfig,
+                data: {
+                    datasets: [{
+                        label: 'Sector 1',
+                        data: [],
+                        borderColor: '#2196f3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                }
+            });
+            
+            // Sector 2 Chart
+            charts.sec2 = new Chart(document.getElementById('sec2Chart'), {
+                ...chartConfig,
+                data: {
+                    datasets: [{
+                        label: 'Sector 2',
+                        data: [],
+                        borderColor: '#9c27b0',
+                        backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                }
+            });
+            
+            console.log('[Charts] All charts initialized');
         }
         
-        function simulateTemperature() {
-            // Simulate temperature updates
-            setInterval(function() {
-                var temp = (Math.random() * 15 + 25).toFixed(1); // 25-40°C range
-                document.getElementById('trackTemp').textContent = temp + '°C';
-                document.getElementById('statusText').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+        // ===== WebSocket接続 =====
+        function initWebSocket() {
+            try {
+                console.log('[WS] Connecting to', wsUri);
+                updateStatus('Connecting...', false);
+                
+                webSocket = new WebSocket(wsUri);
+                webSocket.onopen = onOpen;
+                webSocket.onmessage = onMessage;
+                webSocket.onclose = onClose;
+                webSocket.onerror = onError;
+            } catch (e) {
+                console.error('[WS] Init error:', e);
+                updateStatus('Connection failed', false);
+                scheduleReconnect();
+            }
+        }
+        
+        function onOpen(event) {
+            console.log('[WS] Connected');
+            updateStatus('Connected', true);
+            
+            // リトライタイマー停止
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
+            
+            // 本日のデータを要求
+            requestTodayData();
+        }
+        
+        function onMessage(event) {
+            if (event && event.data) {
+                try {
+                    var data = JSON.parse(event.data);
+                    console.log('[WS] Data received:', data);
+                    processTemperatureData(data);
+                } catch (e) {
+                    console.error('[WS] Parse error:', e, event.data);
+                }
+            }
+        }
+        
+        function onError(event) {
+            console.error('[WS] Error:', event);
+            updateStatus('Connection error', false);
+        }
+        
+        function onClose(event) {
+            console.warn('[WS] Closed. Code:', event.code, 'Reason:', event.reason);
+            updateStatus('Disconnected', false);
+            webSocket = null;
+            scheduleReconnect();
+        }
+        
+        function scheduleReconnect() {
+            if (reconnectTimer) return;
+            console.log('[WS] Reconnecting in 5 seconds...');
+            reconnectTimer = setTimeout(function() {
+                reconnectTimer = null;
+                initWebSocket();
             }, 5000);
         }
         
-        // Initialize on page load
-        window.addEventListener('load', initTempSocket);
+        // ===== データ処理 =====
+        function processTemperatureData(data) {
+            // データ形式例：
+            // {
+            //     timestamp: "2025-12-10T12:34:56.789Z",
+            //     finish: 32.5,
+            //     pitIn: 30.2,
+            //     pitOut: 31.8,
+            //     sec1: 33.1,
+            //     sec2: 32.9
+            // }
+            
+            var timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+            
+            // 各セクションのデータを追加
+            if (data.finish !== undefined) addDataPoint('finish', timestamp, data.finish);
+            if (data.pitIn !== undefined) addDataPoint('pitIn', timestamp, data.pitIn);
+            if (data.pitOut !== undefined) addDataPoint('pitOut', timestamp, data.pitOut);
+            if (data.sec1 !== undefined) addDataPoint('sec1', timestamp, data.sec1);
+            if (data.sec2 !== undefined) addDataPoint('sec2', timestamp, data.sec2);
+            
+            // チャートを更新
+            updateCharts();
+            
+            // 統計を更新
+            updateStatistics();
+        }
+        
+        function addDataPoint(location, timestamp, temperature) {
+            // データポイントを追加
+            tempData[location].push({
+                x: timestamp,
+                y: temperature
+            });
+            
+            // 最大ポイント数を超えたら古いデータを削除
+            if (tempData[location].length > maxDataPoints) {
+                tempData[location].shift();
+            }
+            
+            // 現在の温度を表示
+            document.getElementById(location + 'Temp').textContent = temperature.toFixed(1) + '°C';
+        }
+        
+        function updateCharts() {
+            // 各チャートのデータを更新
+            charts.finish.data.datasets[0].data = tempData.finish;
+            charts.pitIn.data.datasets[0].data = tempData.pitIn;
+            charts.pitOut.data.datasets[0].data = tempData.pitOut;
+            charts.sec1.data.datasets[0].data = tempData.sec1;
+            charts.sec2.data.datasets[0].data = tempData.sec2;
+            
+            // チャートを再描画
+            charts.finish.update('none');
+            charts.pitIn.update('none');
+            charts.pitOut.update('none');
+            charts.sec1.update('none');
+            charts.sec2.update('none');
+        }
+        
+        function updateStatistics() {
+            // 全てのデータポイントを収集
+            var allTemps = [];
+            Object.keys(tempData).forEach(function(key) {
+                tempData[key].forEach(function(point) {
+                    allTemps.push(point.y);
+                });
+            });
+            
+            if (allTemps.length === 0) return;
+            
+            // 統計計算
+            var sum = allTemps.reduce((a, b) => a + b, 0);
+            var avg = sum / allTemps.length;
+            var max = Math.max(...allTemps);
+            var min = Math.min(...allTemps);
+            
+            // 表示更新
+            document.getElementById('avgTemp').innerHTML = avg.toFixed(1) + '<span class="unit">°C</span>';
+            document.getElementById('maxTemp').innerHTML = max.toFixed(1) + '<span class="unit">°C</span>';
+            document.getElementById('minTemp').innerHTML = min.toFixed(1) + '<span class="unit">°C</span>';
+            document.getElementById('dataCount').textContent = allTemps.length;
+        }
+        
+        // ===== UI更新 =====
+        function updateStatus(text, connected) {
+            document.getElementById('statusText').textContent = text;
+            var indicator = document.getElementById('wsStatus');
+            if (connected) {
+                indicator.classList.add('connected');
+            } else {
+                indicator.classList.remove('connected');
+            }
+        }
+        
+        // ===== データリクエスト =====
+        function requestTodayData() {
+            if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
+                console.warn('[WS] Cannot request data: not connected');
+                return;
+            }
+            
+            // 本日のデータを要求するメッセージを送信
+            var request = {
+                action: 'getTodayData',
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            webSocket.send(JSON.stringify(request));
+            console.log('[WS] Requested today data:', request);
+        }
+        
+        function requestHistoryData(date) {
+            if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
+                console.warn('[WS] Cannot request history: not connected');
+                alert('WebSocket is not connected. Please wait...');
+                return;
+            }
+            
+            // 履歴データを要求するメッセージを送信
+            var request = {
+                action: 'getHistoryData',
+                date: date
+            };
+            
+            webSocket.send(JSON.stringify(request));
+            console.log('[WS] Requested history data for:', date);
+            updateStatus('Loading history for ' + date + '...', true);
+        }
+        
+        // ===== イベントハンドラ =====
+        document.getElementById('loadHistoryBtn').addEventListener('click', function() {
+            var selectedDate = document.getElementById('dateSelect').value;
+            if (!selectedDate) {
+                alert('Please select a date');
+                return;
+            }
+            
+            // データをクリア
+            clearAllData();
+            
+            // 履歴データをリクエスト
+            requestHistoryData(selectedDate);
+        });
+        
+        document.getElementById('todayBtn').addEventListener('click', function() {
+            // 今日の日付を設定
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelect').value = today;
+            
+            // データをクリア
+            clearAllData();
+            
+            // 本日のデータをリクエスト
+            requestTodayData();
+        });
+        
+        function clearAllData() {
+            // 全データをクリア
+            tempData.finish = [];
+            tempData.pitIn = [];
+            tempData.pitOut = [];
+            tempData.sec1 = [];
+            tempData.sec2 = [];
+            
+            // チャート更新
+            updateCharts();
+            
+            // 現在温度表示をクリア
+            document.getElementById('finishTemp').textContent = '--°C';
+            document.getElementById('pitInTemp').textContent = '--°C';
+            document.getElementById('pitOutTemp').textContent = '--°C';
+            document.getElementById('sec1Temp').textContent = '--°C';
+            document.getElementById('sec2Temp').textContent = '--°C';
+            
+            // 統計をクリア
+            document.getElementById('avgTemp').innerHTML = '--<span class="unit">°C</span>';
+            document.getElementById('maxTemp').innerHTML = '--<span class="unit">°C</span>';
+            document.getElementById('minTemp').innerHTML = '--<span class="unit">°C</span>';
+            document.getElementById('dataCount').textContent = '--';
+            
+            console.log('[Data] All data cleared');
+        }
+        
+        // ===== 初期化 =====
+        window.addEventListener('load', function() {
+            console.log('[App] Page loaded, initializing...');
+            
+            // 今日の日付を設定
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelect').value = today;
+            
+            // チャート初期化
+            initCharts();
+            
+            // WebSocket接続
+            initWebSocket();
+        });
+        
+        // ===== ページアンロード時のクリーンアップ =====
+        window.addEventListener('beforeunload', function() {
+            if (webSocket) {
+                webSocket.close();
+            }
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+            }
+        });
     </script>
 </body>
 </html>
