@@ -111,19 +111,13 @@ function setData(j) {
         setLineData(j);
 
         if (racemode != "B") {
-            //if ( !isLoop ) {
+            // Race mode: sort on lap complete
             if (j.type == 'L') {
                 $('#Container').mixItUp('sort', 'sort:desc');
             }
-            //} else {
-            //    if( j.type == '1' || j.type == '2' || j.type == '3' || j.type == 'L' ) {
-            //        $('#Container').mixItUp('sort', 'sort:desc');
-            //    }
-            //}
         } else {
-            if (j.type == 'L') {
-                $('#Container').mixItUp('sort', 'sort:desc');
-            }
+            // Best time mode: sort on every passing to update best time rankings
+            $('#Container').mixItUp('sort', 'sort:desc');
         }
     } else if (j.type == 'U') { // UPDATE
         setLineData(j);
@@ -520,8 +514,8 @@ function setRowData(data) {
 
 function setPassingLine(data) {
 
-
-    var c = "#c" + data.CARNO;
+    var c = "c" + data.CARNO;
+    var id = "#" + c;
 
     var sort = 0;
     if (racemode == "B") {
@@ -531,22 +525,12 @@ function setPassingLine(data) {
             sort = -99999 - data.START_POS;
         }
     } else {
-        //if ( !isLoop ) {
         if (data.RUN_FLAG == "1") {
             sort = (data.LAPS * 10000000) - data.TOTAL_TIME;
         } else {
             sort = -99999 - data.START_POS;
         }
-        //} else {
-        //        if( data.LAPS == 0 ) {
-        //            sort = 1000000 + (data.PASSING_SECTOR * 100000) - data.PASSING_TOTAL;
-        //        } else {
-        //            sort = (data.LAPS * 10000000) + (data.PASSING_SECTOR * 100000) - data.PASSING_TOTAL;
-        //        }    
-        //}
     }
-
-
 
     var pitImg = "/images/trd/dummy.gif";
     if (data.STATUS == "P") {
@@ -561,6 +545,7 @@ function setPassingLine(data) {
             tireImg = "/images/trd/" + data.TIRE + ".png";
         }
     }
+
     var makerImg = "/images/trd/dummy.gif";
     if (data.MAKER != null) {
         if (data.MAKER.length > 0) {
@@ -568,41 +553,80 @@ function setPassingLine(data) {
         }
     }
 
-    $(c + "_status").html('<img src="' + pitImg + '" width="16" border=0>');
-    if (lang == "EN") {
-        $(c + "_driver").html('<div>' + data.DRIVER_J + '</div></td>');
+    // Rebuild the full HTML table to ensure consistent layout
+    var html = "";
+    if (racemode == "B") {
+        html = '<table class="listtable" style="table-layout: fixed;"><tr>' +
+            '<td class="pos" id="' + c + '_pos"></td>' +
+            '<td class="no" id="' + c + '_no">' + data.CARNO + '</td>' +
+            '<td class="info" id="' + c + '_status"><img src="' + pitImg + '" width="16" border=0></td>';
+        if (lang == "EN") {
+            html += '<td class="driver" id="' + c + '_driver"><div>' + data.DRIVER_J + '</div></td>';
+        } else {
+            html += '<td class="driver" id="' + c + '_driver"><div>' + data.DRIVER_J + '</div></td>';
+        }
+        html += '<td class="time col-best" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
+            '<td class="lap col-lapno" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
+            '<td class="time" id="' + c + '_gap"></td>' +
+            '<td class="time col-diff" id="' + c + '_diff"></td>';
+        if (sector >= 1) {
+            html += '<td class="time col-sec" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
+        }
+        if (sector >= 2) {
+            html += '<td class="time col-sec" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
+        }
+        if (sector >= 3) {
+            html += '<td class="time col-sec" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
+        }
+        if (sector >= 4) {
+            html += '<td class="time col-sec" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
+        }
+        if (speed == 'ON') {
+            html += '<td class="time col-speed" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
+        }
+        html += '<td class="time" id="' + c + '_last" style="font-weight:bold;color:' + getLapColor(data.LAST_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.LAST_DISP + '</div></td>';
+        html += '<td class="lap" id="' + c + '_laps">' + data.LAPS + '</td>' +
+            '<td class="pit col-pit" id="' + c + '_pit">' + data.PIT + '</td>' +
+            '</tr></table>';
     } else {
-        $(c + "_driver").html('<div>' + data.DRIVER_J + '</div></td>');
+        html = '<table class="listtable" style="table-layout: fixed;"><tr>' +
+            '<td class="posup" id="' + c + '_posup"></td>' +
+            '<td class="pos" id="' + c + '_pos"></td>' +
+            '<td class="no" id="' + c + '_no">' + data.CARNO + '</td>' +
+            '<td class="info" id="' + c + '_status"><img src="' + pitImg + '" width="16" border=0></td>';
+        if (lang == "EN") {
+            html += '<td class="driver" id="' + c + '_driver"><div>' + data.DRIVER_J + '</div></td>';
+        } else {
+            html += '<td class="driver" id="' + c + '_driver"><div>' + data.DRIVER_J + '</div></td>';
+        }
+        html += '<td class="lap" id="' + c + '_laps">' + data.LAPS + '</td>' +
+            '<td class="time" id="' + c + '_gap"></td>' +
+            '<td class="time col-diff" id="' + c + '_diff"></td>';
+        if (sector >= 1) {
+            html += '<td class="time col-sec" id="' + c + '_sec1" style="font-weight:bold;color:' + getLapColor(data.SEC1_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC1_DISP + '</div></td>';
+        }
+        if (sector >= 2) {
+            html += '<td class="time col-sec" id="' + c + '_sec2" style="font-weight:bold;color:' + getLapColor(data.SEC2_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC2_DISP + '</div></td>';
+        }
+        if (sector >= 3) {
+            html += '<td class="time col-sec" id="' + c + '_sec3" style="font-weight:bold;color:' + getLapColor(data.SEC3_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC3_DISP + '</div></td>';
+        }
+        if (sector >= 4) {
+            html += '<td class="time col-sec" id="' + c + '_sec4" style="font-weight:bold;color:' + getLapColor(data.SEC4_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.SEC4_DISP + '</div></td>';
+        }
+        if (speed == 'ON') {
+            html += '<td class="time col-speed" id="' + c + '_speed" style="font-weight:bold;color:' + getLapColor(data.SPEED_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + doubleToSpeed(data.SPEED) + '</div></td>';
+        }
+        html += '<td class="time" id="' + c + '_last" style="font-weight:bold;color:' + getLapColor(data.LAST_FLAG) + ';"><div style="width: 60px; overflow: hidden;">' + data.LAST_DISP + '</div></td>';
+        html += '<td class="time col-best" id="' + c + '_best" style="font-weight:bold;">' + data.BEST_DISP + '</td>' +
+            '<td class="lap col-lapno" id="' + c + '_bestlap">' + data.BEST_LAPS + '</td>' +
+            '<td class="pit col-pit" id="' + c + '_pit">' + data.PIT + '</td>' +
+            '</tr></table>';
     }
-    //$(c + "_tire").html('<img src="' + tireImg + '" width="16" border=0>');
-    //$(c + "_maker").html('<img src="' + makerImg + '" width="16" border=0>');
-    $(c + "_best").text(data.BEST_DISP);
-    $(c + "_bestlap").text(data.BEST_LAPS);
-    if (sector >= 1) {
-        $(c + "_sec1").text(data.SEC1_DISP);
-        $(c + "_sec1").css('color', getLapColor(data.SEC1_FLAG));
-    }
-    if (sector >= 2) {
-        $(c + "_sec2").text(data.SEC2_DISP);
-        $(c + "_sec2").css('color', getLapColor(data.SEC2_FLAG));
-    }
-    if (sector >= 3) {
-        $(c + "_sec3").text(data.SEC3_DISP);
-        $(c + "_sec3").css('color', getLapColor(data.SEC3_FLAG));
-    }
-    if (sector >= 4) {
-        $(c + "_sec4").text(data.SEC4_DISP);
-        $(c + "_sec4").css('color', getLapColor(data.SEC4_FLAG));
-    }
-    if (speed == 'ON') {
-        $(c + "_speed").text(doubleToSpeed(data.SPEED));
-        $(c + "_speed").css('color', getLapColor(data.SPEED_FLAG));
-    }
-    $(c + "_last").text(data.LAST_DISP);
-    $(c + "_laps").text(data.LAPS);
-    $(c + "_pit").text(data.PIT);
-    $(c + "_last").css('color', getLapColor(data.LAST_FLAG));
 
+    $(id).html(html);
+
+    // Apply animation for sector passing
     var sec = "";
     if (data.type == "L") {
         sec = "s4";
@@ -615,22 +639,21 @@ function setPassingLine(data) {
     }
 
     if (sec.length > 0) {
-        $(c).css('animation', sec + " 1s 1");
-        $(c).css('-webkit-animation', sec + " 1s 1");
-        $(c).on('webkitAnimationEnd', function () {
-            $(c).css('-webkit-animation', "none");
-            //            $(c).css('-webkit-animation-play-state', "paused");
-            $(c).css('background-color', "#111");
+        $(id).css('animation', sec + " 1s 1");
+        $(id).css('-webkit-animation', sec + " 1s 1");
+        $(id).on('webkitAnimationEnd', function () {
+            $(id).css('-webkit-animation', "none");
+            $(id).css('background-color', "#111");
         });
 
-        $(c).on('animationend', function () {
-            $(c).css('animation', sec + " 0s 0");
-            //            $(c).css('animation-play-state', "paused");
-            $(c).css('background-color', "#111");
+        $(id).on('animationend', function () {
+            $(id).css('animation', sec + " 0s 0");
+            $(id).css('background-color', "#111");
         });
     }
 
-    $(c).attr("data-sort", sort);
+    // Update sort attribute for mixItUp
+    $(id).attr("data-sort", sort);
 
 }
 
