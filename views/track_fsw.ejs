@@ -2002,19 +2002,17 @@
 </svg>
 
 
-    <div id="trackContainer" style="position: relative; overflow: hidden; width: 100%; height: 100vh;">
-        <div id="liveTrack" class="track" style="transform-origin: 0 0; transition: transform 0.1s ease-out;">
+    <div id="trackContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000;">
+        <div id="liveTrack" class="track" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transform-origin: center center; transition: transform 0.1s ease-out;">
             <svg id="svgA" width="100%" height="100%"></svg>
         </div>
     </div>
 
-<div id="weather">
-</div>
-    <div id="classfilter" class="classselect"></div>
-    <button id="openNewWindow" onclick="window.open(window.location.href, '_blank')" style="position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 8px 16px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">Open New Window</button>
-    <div id="Container" class="container">
-        <div id="liveButton" class="btn">
-        </div>
+    <!-- Hidden elements for data management -->
+    <div id="weather" style="display: none;"></div>
+    <div id="classfilter" class="classselect" style="display: none;"></div>
+    <div id="Container" class="container" style="display: none;">
+        <div id="liveButton" class="btn"></div>
     </div>
 
 
@@ -2027,27 +2025,43 @@
     var isPanning = false;
     var startX = 0, startY = 0;
     var translateX = 0, translateY = 0;
+    var baseScale = 1.0;
 
-    $(window).on("resize", function() {
-        if( window.innerWidth <= 1200 ) {
-            $("#course_svg").attr("width", window.innerWidth);
-            $("#course_svg").attr("height", window.innerWidth*9/16);
-            $(".track").attr("width", window.innerWidth);
-            $(".track").attr("height", window.innerWidth*9/16);
-            scale = window.innerWidth / 1440;
-        } else {
-            $("#course_svg").attr("width", 1200);
-            $("#course_svg").attr("height", 675);
-            $(".track").attr("width", 1200);
-            $(".track").attr("height", 675);
-            scale = 1200 / 1440;
-        }
+    function fitToScreen() {
+        var viewportWidth = window.innerWidth;
+        var viewportHeight = window.innerHeight;
+        var svgWidth = 1440;
+        var svgHeight = 810;
+        
+        // Calculate scale to fit within viewport while maintaining aspect ratio
+        var scaleX = viewportWidth / svgWidth;
+        var scaleY = viewportHeight / svgHeight;
+        baseScale = Math.min(scaleX, scaleY) * 0.95; // 0.95 for small margin
+        
+        // Set SVG dimensions
+        $("#course_svg").attr("width", svgWidth);
+        $("#course_svg").attr("height", svgHeight);
+        $(".track").css({
+            "width": svgWidth + "px",
+            "height": svgHeight + "px"
+        });
+        
+        scale = baseScale;
+        
+        // Reset zoom and pan
+        zoomScale = 1.0;
+        translateX = 0;
+        translateY = 0;
         updateTransform();
-    }).trigger("resize");
+    }
+
+    $(window).on("resize", fitToScreen);
+    $(document).ready(fitToScreen);
 
     // Update transform with current zoom and pan
     function updateTransform() {
-        $("#liveTrack").css("transform", "translate(" + translateX + "px, " + translateY + "px) scale(" + zoomScale + ")");
+        var finalScale = baseScale * zoomScale;
+        $("#liveTrack").css("transform", "translate(calc(-50% + " + translateX + "px), calc(-50% + " + translateY + "px)) scale(" + finalScale + ")");
     }
 
     // Mouse wheel zoom for PC/Tablet
@@ -2061,11 +2075,12 @@
         
         if (newZoom !== zoomScale) {
             var rect = this.getBoundingClientRect();
-            var mouseX = e.clientX - rect.left;
-            var mouseY = e.clientY - rect.top;
+            var mouseX = e.clientX - rect.left - rect.width / 2;
+            var mouseY = e.clientY - rect.top - rect.height / 2;
             
-            translateX = mouseX - (mouseX - translateX) * (newZoom / zoomScale);
-            translateY = mouseY - (mouseY - translateY) * (newZoom / zoomScale);
+            var scaleDiff = newZoom / zoomScale;
+            translateX = mouseX - (mouseX - translateX) * scaleDiff;
+            translateY = mouseY - (mouseY - translateY) * scaleDiff;
             
             zoomScale = newZoom;
             updateTransform();
@@ -2105,14 +2120,13 @@
                 newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
                 
                 if (newZoom !== zoomScale) {
-                    var centerX = (touch1.clientX + touch2.clientX) / 2;
-                    var centerY = (touch1.clientY + touch2.clientY) / 2;
                     var rect = this.getBoundingClientRect();
-                    centerX -= rect.left;
-                    centerY -= rect.top;
+                    var centerX = (touch1.clientX + touch2.clientX) / 2 - rect.left - rect.width / 2;
+                    var centerY = (touch1.clientY + touch2.clientY) / 2 - rect.top - rect.height / 2;
                     
-                    translateX = centerX - (centerX - translateX) * (newZoom / zoomScale);
-                    translateY = centerY - (centerY - translateY) * (newZoom / zoomScale);
+                    var scaleDiff = newZoom / zoomScale;
+                    translateX = centerX - (centerX - translateX) * scaleDiff;
+                    translateY = centerY - (centerY - translateY) * scaleDiff;
                     
                     zoomScale = newZoom;
                     updateTransform();

@@ -9,12 +9,17 @@ body {
 	color:#fff;
 	margin: 0;
 	padding: 0;
+	width: 100vw;
+	height: 100vh;
 }
 #trackContainer {
-	position: relative;
-	overflow: hidden;
-	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
 	height: 100vh;
+	overflow: hidden;
+	background: #000;
 	touch-action: none;
 	user-select: none;
 	-webkit-user-select: none;
@@ -22,12 +27,14 @@ body {
 	-ms-user-select: none;
 }
 #liveTrack {
-	transform-origin: 0 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	transform-origin: center center;
 	transition: transform 0.1s ease-out;
 }
 .track {
-	top: 0px;
-	left: 0px;
     width: 1440px;
     height: 810px;
     position: relative;
