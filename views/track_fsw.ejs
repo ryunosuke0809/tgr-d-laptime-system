@@ -2048,7 +2048,13 @@
             svgA.style.pointerEvents = 'none';
             liveTrack.firstElementChild.appendChild(svgA);
             
-            console.log('Track SVG loaded successfully');
+            // Initialize Snap.svg AFTER svgA is added to DOM
+            snapA = Snap('#svgA');
+            
+            console.log('Track SVG loaded successfully, snapA initialized:', snapA);
+            
+            // Initialize WebSocket connection after SVG setup
+            init();
         } else {
             console.error('Failed to load track SVG: courseSvg=', courseSvg, 'liveTrack=', liveTrack);
         }
@@ -2433,7 +2439,8 @@ console.log($("#c" + j.CARNO).css('background-color'));
         }
     }
 
-    var snapA = Snap('#svgA');
+    // snapA will be initialized in $(document).ready after svgA is created
+    var snapA;
     var sec1Path = "M701.676,222.449h607.743c0,0,35.961,3.173,23.269,29.607c0,0-52.875,57.103-67.68,63.443c0,0-14.803,10.576-50.749,17.977l-159.908,36.848";
     var sec2Path = "M1054.351,370.324l-69.55,16.027c0,0-30.663,6.34-39.12,78.245c0,0-7.401,93.057-79.309,116.318c0,0-88.104,31.717-124.945-50.758c0,0-5.458-15.859,0-51.812c0,0,2.999-75.072,0-85.646c0,0,5.453-27.496-37.899-19.039c0,0-30.669,9.519-46.528,25.379l-62.381,100.449c0,0-10.575,23.273-39.126,33.842l-105.737,47.586c0,0-27.497,11.629-54.986,10.568l-131.744-6.309";
     var sec3Path = "M263.024,585.174l-44.845-2.143c0,0-27.49-6.354-8.457-26.441c0,0,24.316-28.715-5.291-43.434c0,0-30.663-10.496-41.238-41.16c0,0-16.682-46.527-15.743-70.841c0,0,0.939-33.836,35.831-29.607l40.183,8.458c0,0,40.182,7.401,60.276-17.977c0,0,20.088-19.032,20.088-35.947l1.062-20.094c0,0,2.111-24.323-38.071-15.859c0,0-65.554,17.97-97.279,2.11c0,0-37.01-13.741-42.3-35.953c0,0-9.28-33.836,20.211-33.836h554.225";
