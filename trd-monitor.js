@@ -61,8 +61,8 @@ app.get('/monitor/live', (req, res) => {
 });
 
 // Direct access routes (without session check for development)
-app.get('/live_sp', (req, res) => {
-  res.render('../views/live_sp.ejs', {});
+app.get('/timingmonitor', (req, res) => {
+  res.render('../views/timingmonitor.ejs', {});
 });
 
 app.get('/track_fsw', (req, res) => {
