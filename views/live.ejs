@@ -2194,10 +2194,31 @@
                         iframe.src = iframe.src; // Force reload
                     }
                 } else if (panelName === 'timingMonitor') {
-                    // Timing Monitor: WebSocket再接続 + MixItUpのソートを再適用
-                    console.log('[Panel] TimingMonitor selected - reconnecting WebSocket');
+                    // Timing Monitor: データエリアクリア + WebSocket再接続 + 再表示
+                    console.log('[Panel] TimingMonitor selected - clearing data and reconnecting');
                     
-                    // 既存のWebSocket接続をクローズ
+                    // 1. データエリアをクリア
+                    try {
+                        // ListAreaの内容をクリア（初期要素のみ残す）
+                        $('#ListArea').html('<div id="c-1" class="mix category-0" data-sort="-99999999999"></div>');
+                        console.log('[Data] ListArea cleared');
+                        
+                        // ヘッダ行をクリア
+                        $('#listtitle').empty();
+                        console.log('[Data] listtitle cleared');
+                        
+                        // MixItUpを破棄して再初期化
+                        try {
+                            $('#Container').mixItUp('destroy');
+                            console.log('[MixItUp] Destroyed for reset');
+                        } catch (e) {
+                            console.log('[MixItUp] Not initialized, skip destroy:', e);
+                        }
+                    } catch (e) {
+                        console.warn('[Data] Error clearing data area:', e);
+                    }
+                    
+                    // 2. 既存のWebSocket接続をクローズ
                     if (typeof webSocket !== 'undefined' && webSocket !== null) {
                         try {
                             webSocket.close();
@@ -2207,30 +2228,14 @@
                         }
                     }
                     
-                    // WebSocket再接続
+                    // 3. WebSocket再接続（データが流れてきたらlive.jsが自動的にMixItUpを再初期化）
                     if (typeof init === 'function') {
                         setTimeout(function() {
                             init();
-                            console.log('[WS] Reconnection initiated');
+                            console.log('[WS] Reconnection initiated - data will flow and rebuild UI');
                         }, 100);
                     } else {
                         console.error('[WS] init() function not found');
-                    }
-                    
-                    // MixItUpレイアウトリフレッシュ
-                    try {
-                        if (typeof racemode !== 'undefined') {
-                            setTimeout(function() {
-                                if (racemode == "B") {
-                                    $('#Container').mixItUp('sort', 'sort:desc');
-                                } else {
-                                    $('#Container').mixItUp('sort', 'sort:desc');
-                                }
-                                console.log('[MixItUp] TimingMonitor layout refreshed');
-                            }, 200);
-                        }
-                    } catch (e) {
-                        console.log('[MixItUp] Not initialized yet:', e);
                     }
                 }
             }
