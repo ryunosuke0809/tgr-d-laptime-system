@@ -188,5 +188,20 @@ module.exports = {
         } catch (err) {
             throw err;
         }
+    },
+
+    // ユーザーのパスワードを取得（管理者用）
+    getUserPassword: async function(userId) {
+        try {
+            const users = await readUsers();
+            const user = users.find(u => u.id === userId);
+            
+            if (user) {
+                return user.password;
+            }
+            return null;
+        } catch (err) {
+            throw err;
+        }
     }
 }

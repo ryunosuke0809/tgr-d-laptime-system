@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <style>
     * {
@@ -135,7 +136,7 @@
 
     table {
       width: 100%;
-      background: rgba(26, 26, 46, 0.8);
+      background: rgba(0, 0, 0, 0.8);
       border-collapse: collapse;
       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.5);
       border-radius: 8px;
@@ -168,6 +169,37 @@
     tbody tr:hover {
       background: rgba(92, 156, 216, 0.15);
       transform: translateX(3px);
+    }
+
+    .password-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .password-display {
+      font-family: monospace;
+      letter-spacing: 2px;
+      color: #5c9cd8;
+    }
+
+    .password-toggle {
+      background: none;
+      border: none;
+      color: #5c9cd8;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .password-toggle:hover {
+      background: rgba(92, 156, 216, 0.2);
+      color: #7db4e6;
+    }
+
+    .password-toggle i {
+      font-size: 16px;
     }
 
     .role-badge {
@@ -231,10 +263,10 @@
     }
 
     .modal-content {
-      background: rgba(26, 26, 46, 0.95);
+      background: rgba(0, 0, 0, 0.95);
       margin: 5% auto;
       padding: 30px;
-      border: 2px solid #5c9cd8;
+      border: 2px solid #fff;
       border-radius: 12px;
       width: 500px;
       max-width: 90%;
@@ -338,7 +370,7 @@
     .back-link {
       display: inline-block;
       margin-bottom: 20px;
-      color: #5c9cd8;
+      color: #fff;
       text-decoration: none;
       font-weight: 600;
       transition: all 0.3s;
@@ -377,6 +409,7 @@
       <thead>
         <tr>
           <th>ユーザーID</th>
+          <th>パスワード</th>
           <th>名前</th>
           <th>権限</th>
           <th>有効期限</th>
@@ -436,6 +469,7 @@
   <script>
     let isEditMode = false;
     let editingUserId = null;
+    let usersData = []; // パスワード情報を保持
 
     // ページロード時にユーザー一覧を取得
     $(document).ready(function() {
@@ -449,6 +483,7 @@
         method: 'GET',
         success: function(response) {
           if (response.success) {
+            usersData = response.users;
             displayUsers(response.users);
           } else {
             showMessage('ユーザーの読み込みに失敗しました', 'error');
@@ -486,9 +521,20 @@
           expiryBadge = '<span class="expiry-badge expiry-valid">有効</span>';
         }
         
+        // パスワードをマスク表示（デフォルト）
+        const passwordMask = '********';
+        
         const row = `
           <tr>
             <td>${escapeHtml(user.id)}</td>
+            <td>
+              <div class="password-cell">
+                <span class="password-display" id="pwd-${escapeHtml(user.id)}" data-visible="false">${passwordMask}</span>
+                <button class="password-toggle" onclick="togglePassword('${escapeHtml(user.id)}')">
+                  <i class="fa-regular fa-eye" id="eye-${escapeHtml(user.id)}"></i>
+                </button>
+              </div>
+            </td>
             <td>${escapeHtml(user.name)}</td>
             <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
             <td>${escapeHtml(expiryDisplay)} ${expiryBadge}</td>
@@ -500,6 +546,38 @@
         `;
         tbody.append(row);
       });
+    }
+
+    // パスワード表示/非表示の切り替え
+    function togglePassword(userId) {
+      const pwdElement = $('#pwd-' + userId);
+      const eyeIcon = $('#eye-' + userId);
+      const isVisible = pwdElement.attr('data-visible') === 'true';
+      
+      if (isVisible) {
+        // 非表示にする
+        pwdElement.text('********');
+        pwdElement.attr('data-visible', 'false');
+        eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+      } else {
+        // 表示する（サーバーから取得）
+        $.ajax({
+          url: '/user/api/users/' + userId + '/password',
+          method: 'GET',
+          success: function(response) {
+            if (response.success && response.password) {
+              pwdElement.text(response.password);
+              pwdElement.attr('data-visible', 'true');
+              eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+              showMessage('パスワードの取得に失敗しました', 'error');
+            }
+          },
+          error: function() {
+            showMessage('パスワードの取得に失敗しました', 'error');
+          }
+        });
+      }
     }
 
     // 新規作成モーダルを開く

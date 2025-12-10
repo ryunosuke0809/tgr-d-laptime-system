@@ -17,6 +17,7 @@ router.get('/admin', userController.showAdminPage);
 
 // ユーザー管理 API
 router.get('/api/users', userController.getAllUsersAPI);
+router.get('/api/users/:id/password', userController.getUserPasswordAPI);
 router.post('/api/users', userController.createUserAPI);
 router.put('/api/users/:id', userController.updateUserAPI);
 router.delete('/api/users/:id', userController.deleteUserAPI);

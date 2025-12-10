@@ -604,6 +604,40 @@ module.exports = {
             console.error('Error deleting user:', err);
             res.status(500).json({ success: false, message: err.message });
         }
+    },
+
+    // ユーザーのパスワードを取得（API）
+    getUserPasswordAPI: async function (req, res, next) {
+        try {
+            if (!req.session || !req.session.username) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+
+            const currentUserData = await new Promise((resolve, reject) => {
+                loginModel.getUserData(req.session.username, '').then(resolve).catch(reject);
+            });
+
+            if (currentUserData === "NG" || currentUserData === "EXPIRED") {
+                return res.status(401).json({ success: false, message: 'Unauthorized or expired account' });
+            }
+
+            // 管理者権限チェック
+            if (currentUserData.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Admin access required' });
+            }
+
+            const userId = req.params.id;
+            const password = await userModel.getUserPassword(userId);
+            
+            if (password) {
+                res.json({ success: true, password: password });
+            } else {
+                res.status(404).json({ success: false, message: 'User not found' });
+            }
+        } catch (err) {
+            console.error('Error getting user password:', err);
+            res.status(500).json({ success: false, message: err.message });
+        }
     }
 }
 
