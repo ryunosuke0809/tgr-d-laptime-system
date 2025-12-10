@@ -2018,7 +2018,7 @@
 
 <script type="text/javascript">
 
-    var scale = 0.5;
+    var scale = 1.0; // Keep at 1.0 for SVG coordinates (no longer used for scaling)
     var zoomScale = 1.0;
     var minZoom = 0.5;
     var maxZoom = 3.0;
@@ -2038,7 +2038,7 @@
         var scaleY = viewportHeight / svgHeight;
         baseScale = Math.min(scaleX, scaleY) * 0.95; // 0.95 for small margin
         
-        // Set SVG dimensions
+        // Set SVG dimensions to original size (1440x810)
         $("#course_svg").attr("width", svgWidth);
         $("#course_svg").attr("height", svgHeight);
         $(".track").css({
@@ -2046,7 +2046,8 @@
             "height": svgHeight + "px"
         });
         
-        scale = baseScale;
+        // Keep scale at 1.0 for correct SVG coordinate mapping
+        scale = 1.0;
         
         // Reset zoom and pan
         zoomScale = 1.0;
@@ -2417,7 +2418,7 @@ console.log($("#c" + j.CARNO).css('background-color'));
             if( seleList[carno] == true ) {
                     fillColor = "#FF3333";
             }
-            circleList[carno] = snapA.circle(-100*scale, -100*scale, 14);
+            circleList[carno] = snapA.circle(-100, -100, 14);
             circleList[carno].attr({
                     id: 'circle'+carno,
                     fill: fillColor,
@@ -2426,7 +2427,7 @@ console.log($("#c" + j.CARNO).css('background-color'));
                     display: disp
             });
 
-            textList[carno] = snapA.text(-100*scale, -100*scale, carno);
+            textList[carno] = snapA.text(-100, -100, carno);
             textList[carno].attr({
                     id: 'text'+carno,
                     fill:"#fff",
@@ -2438,24 +2439,24 @@ console.log($("#c" + j.CARNO).css('background-color'));
                 id: 'squiggle',
                 fill: 'none'
 		    });
-            circleList[carno] = snapA.circle(-100*scale, -100*scale, 14);
+            circleList[carno] = snapA.circle(-100, -100, 14);
             circleList[carno].attr({
                     id: 'circle'+carno,
                     fill: fillColor,
                     stroke: strokeColor,
                     strokeWidth: 2,
-                    cx: initPath.getPointAtLength(0).x*scale,
-                    cy: initPath.getPointAtLength(0).y*scale,
+                    cx: initPath.getPointAtLength(0).x,
+                    cy: initPath.getPointAtLength(0).y,
                     display: disp
             });
-            textList[carno] = snapA.text(-100*scale, -100*scale, carno);
+            textList[carno] = snapA.text(-100, -100, carno);
             textList[carno].attr({
                     id: 'text'+carno,
                     fill:"#fff",
                     fontSize:"12px",
                     textpath:sec1Path,
-                    x: initPath.getPointAtLength(0).x*scale-6,
-                    y: initPath.getPointAtLength(0).y*scale+6,
+                    x: initPath.getPointAtLength(0).x-6,
+                    y: initPath.getPointAtLength(0).y+6,
                     display: disp
             });
             seleList[carno] = false;
@@ -2558,12 +2559,12 @@ console.log($("#c" + j.CARNO).css('background-color'));
                 movePoint = myPathA.getPointAtLength(value);
                 try {
                     circleList[carno].attr({
-                        cx: movePoint.x*scale,
-                        cy: movePoint.y*scale
+                        cx: movePoint.x,
+                        cy: movePoint.y
                     });
                     textList[carno].attr({
-                        x: movePoint.x*scale-((carno.length-1)*6),
-                        y: movePoint.y*scale+6
+                        x: movePoint.x-((carno.length-1)*6),
+                        y: movePoint.y+6
                     })
                } catch (e) {
                }
