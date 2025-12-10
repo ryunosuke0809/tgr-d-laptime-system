@@ -1,7 +1,7 @@
 body {
 	background: #000;
 	/*font-family:Hiragino Kaku Gothic ProN,Meiryo,sans-serif;*/
-        /*font-family: termina,Saira Expanded,Noto Sans JP,������ ProN W3,Hiragino Kaku Gothic ProN,����,meiryo,osaka,�� �����
+        /*font-family: termina,Saira Expanded,Noto Sans JP,������ ProN W3,Hiragino Kaku Gothic ProN,����,meiryo,osaka,�� �����
 ,MS PGothic,sans-serif;*/
 	font-size:11px;
 	font-weight:normal;
@@ -176,7 +176,7 @@ button.graph {
     border-color: #66cdaa;
     background-color: #000;
     text-shadow: 1px 1px 2px #000;
-    /* �p�ۂ̎w�� */
+    /* �p�ۂ̎w�� */
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
@@ -627,4 +627,66 @@ input:checked + .slider:before {
 }
 .hidden {
     display: none;
+}
+
+/* スマホ横画面（ランドスケープ）でのスクロール有効化 */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+    }
+    
+    main {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+    }
+    
+    #ListArea {
+        max-height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .listarea {
+        max-height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+    }
+    
+    .container {
+        overflow-y: visible !important;
+        height: auto !important;
+    }
+    
+    .table-scroll {
+        max-height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* TimingMonitorパネルのスクロール有効化 */
+    #timingMonitorPanel {
+        max-height: 100vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #timingMonitorPanel .table-scroll {
+        max-height: calc(100vh - 60px) !important;
+        overflow-y: auto !important;
+    }
+    
+    #Container {
+        overflow-y: visible !important;
+    }
+}
+
+/* より低い画面高さ向け（小型スマホ横画面） */
+@media screen and (max-height: 400px) {
+    #ListArea,
+    .table-scroll,
+    #timingMonitorPanel .table-scroll {
+        max-height: calc(100vh - 50px) !important;
+    }
 }
