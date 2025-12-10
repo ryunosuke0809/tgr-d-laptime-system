@@ -2194,20 +2194,43 @@
                         iframe.src = iframe.src; // Force reload
                     }
                 } else if (panelName === 'timingMonitor') {
-                    // Timing Monitor: MixItUpのソートを再適用してレイアウトをリフレッシュ
+                    // Timing Monitor: WebSocket再接続 + MixItUpのソートを再適用
+                    console.log('[Panel] TimingMonitor selected - reconnecting WebSocket');
+                    
+                    // 既存のWebSocket接続をクローズ
+                    if (typeof webSocket !== 'undefined' && webSocket !== null) {
+                        try {
+                            webSocket.close();
+                            console.log('[WS] Existing connection closed for reconnection');
+                        } catch (e) {
+                            console.warn('[WS] Error closing existing connection:', e);
+                        }
+                    }
+                    
+                    // WebSocket再接続
+                    if (typeof init === 'function') {
+                        setTimeout(function() {
+                            init();
+                            console.log('[WS] Reconnection initiated');
+                        }, 100);
+                    } else {
+                        console.error('[WS] init() function not found');
+                    }
+                    
+                    // MixItUpレイアウトリフレッシュ
                     try {
                         if (typeof racemode !== 'undefined') {
-                            if (racemode == "B") {
-                                // Best Time mode
-                                $('#Container').mixItUp('sort', 'sort:desc');
-                            } else {
-                                // Race mode
-                                $('#Container').mixItUp('sort', 'sort:desc');
-                            }
-                            console.log('TimingMonitor layout refreshed');
+                            setTimeout(function() {
+                                if (racemode == "B") {
+                                    $('#Container').mixItUp('sort', 'sort:desc');
+                                } else {
+                                    $('#Container').mixItUp('sort', 'sort:desc');
+                                }
+                                console.log('[MixItUp] TimingMonitor layout refreshed');
+                            }, 200);
                         }
                     } catch (e) {
-                        console.log('MixItUp not initialized yet:', e);
+                        console.log('[MixItUp] Not initialized yet:', e);
                     }
                 }
             }
