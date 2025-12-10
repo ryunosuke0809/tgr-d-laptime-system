@@ -2199,8 +2199,21 @@
                         iframe.src = iframe.src; // Force reload
                     }
                 } else if (panelName === 'timingMonitor') {
-                    // Timing Monitor: live.jsの再初期化は不要（常に動作中）
-                    // 何もしない（既存のWebSocket接続を維持）
+                    // Timing Monitor: MixItUpのソートを再適用してレイアウトをリフレッシュ
+                    try {
+                        if (typeof racemode !== 'undefined') {
+                            if (racemode == "B") {
+                                // Best Time mode
+                                $('#Container').mixItUp('sort', 'sort:desc');
+                            } else {
+                                // Race mode
+                                $('#Container').mixItUp('sort', 'sort:desc');
+                            }
+                            console.log('TimingMonitor layout refreshed');
+                        }
+                    } catch (e) {
+                        console.log('MixItUp not initialized yet:', e);
+                    }
                 }
             }
         }
@@ -2211,13 +2224,15 @@
                 e.preventDefault();
                 const titleText = el.getAttribute('title') || el.textContent.trim();
                 
-                // ボタンのタイトルに応じてパネルを切り替え
+                // ボタンのタイトルに応じて処理を分岐
                 if (titleText.includes('Map')) {
-                    switchPanel('trackMap');
+                    // Track Map: 新規ウィンドウで開く
+                    window.open('/track_fsw', 'TrackMapWindow', 'width=1440,height=810,scrollbars=yes,resizable=yes');
                 } else if (titleText.includes('Temp')) {
+                    // Track Temp: 埋め込みパネルを再表示（iframe再読み込み）
                     switchPanel('trackTemp');
                 } else {
-                    // TimingMonitor
+                    // TimingMonitor: 埋め込みパネルを再表示
                     switchPanel('timingMonitor');
                 }
                 
