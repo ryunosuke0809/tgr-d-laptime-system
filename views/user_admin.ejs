@@ -680,10 +680,12 @@
             }
           },
           error: function(xhr) {
+            console.log('[Create User Error]', xhr.status, xhr.responseJSON);
             const response = xhr.responseJSON;
             let errorMessage = 'サーバーエラーが発生しました';
             
             if (response?.message) {
+              console.log('[Error Message]', response.message);
               // サーバーからのエラーメッセージを日本語化
               if (response.message.includes('already exists')) {
                 errorMessage = 'このユーザーIDは既に使用されています';
@@ -694,6 +696,7 @@
               }
             }
             
+            console.log('[Final Error Message]', errorMessage);
             showMessage(errorMessage, 'error');
           }
         });

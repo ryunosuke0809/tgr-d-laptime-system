@@ -99,23 +99,29 @@ module.exports = {
         try {
             const users = await readUsers();
             
-            // IDの重複チェック
-            if (users.find(u => u.id === userData.id)) {
+            // IDの重複チェック（大文字小文字を区別しない）
+            const existingUser = users.find(u => u.id.toLowerCase() === userData.id.toLowerCase());
+            if (existingUser) {
+                console.error('[UserModel] Duplicate user ID detected:', userData.id);
                 throw new Error('User ID already exists');
             }
             
             // 新しいユーザーを追加
-            users.push({
+            const newUser = {
                 id: userData.id,
                 password: userData.password,
                 name: userData.name,
                 role: userData.role || 'user',
                 expiryDate: userData.expiryDate || null
-            });
+            };
+            
+            users.push(newUser);
+            console.log('[UserModel] Creating new user:', newUser.id);
             
             await writeUsers(users);
             return { success: true, message: 'User created successfully' };
         } catch (err) {
+            console.error('[UserModel] Error in createUser:', err.message);
             throw err;
         }
     },

@@ -531,6 +531,12 @@ module.exports = {
             res.json(result);
         } catch (err) {
             console.error('Error creating user:', err);
+            
+            // エラーメッセージに応じて適切なステータスコードを返す
+            if (err.message && err.message.includes('already exists')) {
+                return res.status(409).json({ success: false, message: err.message });
+            }
+            
             res.status(500).json({ success: false, message: err.message });
         }
     },
