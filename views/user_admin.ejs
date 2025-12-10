@@ -17,9 +17,10 @@
 
     body {
       font-family: 'Open Sans', sans-serif;
-      background: #fafafa;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
       margin: 0;
       padding: 0;
+      min-height: 100vh;
     }
 
     .header {
@@ -70,9 +71,10 @@
     }
 
     h1 {
-      color: #333;
+      color: #5c9cd8;
       font-size: 28px;
       margin-bottom: 20px;
+      font-weight: 700;
     }
 
     .actions {
@@ -133,30 +135,39 @@
 
     table {
       width: 100%;
-      background: white;
+      background: rgba(26, 26, 46, 0.8);
       border-collapse: collapse;
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
       overflow: hidden;
+      border: 1px solid rgba(92, 156, 216, 0.3);
     }
 
     thead {
-      background: #333;
-      color: white;
+      background: rgba(92, 156, 216, 0.2);
+      color: #5c9cd8;
+      border-bottom: 2px solid #5c9cd8;
     }
 
     th, td {
       padding: 15px;
       text-align: left;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
     }
 
     th {
       font-weight: 600;
     }
 
+    tbody tr {
+      background: rgba(26, 26, 46, 0.6);
+      transition: all 0.3s ease;
+    }
+    
     tbody tr:hover {
-      background: #f5f5f5;
+      background: rgba(92, 156, 216, 0.15);
+      transform: translateX(3px);
     }
 
     .role-badge {
@@ -220,28 +231,36 @@
     }
 
     .modal-content {
-      background-color: #fefefe;
+      background: rgba(26, 26, 46, 0.95);
       margin: 5% auto;
       padding: 30px;
-      border: 1px solid #888;
-      border-radius: 8px;
+      border: 2px solid #5c9cd8;
+      border-radius: 12px;
       width: 500px;
       max-width: 90%;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+    }
+    
+    .modal-content h2 {
+      color: #5c9cd8;
+      font-weight: 700;
+      margin-bottom: 25px;
     }
 
     .close {
-      color: #aaa;
+      color: #999;
       float: right;
       font-size: 28px;
       font-weight: bold;
       line-height: 20px;
       cursor: pointer;
+      transition: color 0.3s;
     }
 
     .close:hover,
     .close:focus {
-      color: black;
+      color: #ff0000;
     }
 
     .form-group {
@@ -252,22 +271,40 @@
       display: block;
       margin-bottom: 5px;
       font-weight: 600;
-      color: #333;
+      color: #5c9cd8;
     }
 
     .form-group input,
     .form-group select {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid rgba(92, 156, 216, 0.3);
+      border-radius: 6px;
       font-size: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transition: all 0.3s;
+    }
+    
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .form-group select option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+    
+    .form-group small {
+      color: #999 !important;
     }
 
     .form-group input:focus,
     .form-group select:focus {
       outline: none;
-      border-color: #ff0000;
+      border-color: #5c9cd8;
+      box-shadow: 0 0 8px rgba(92, 156, 216, 0.4);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .modal-actions {
@@ -287,27 +324,29 @@
     }
 
     .message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+      border: 1px solid #4caf50;
     }
 
     .message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+      border: 1px solid #f44336;
     }
 
     .back-link {
       display: inline-block;
       margin-bottom: 20px;
-      color: #ff0000;
+      color: #5c9cd8;
       text-decoration: none;
       font-weight: 600;
+      transition: all 0.3s;
     }
 
     .back-link:hover {
-      text-decoration: underline;
+      color: #7db4e6;
+      transform: translateX(-3px);
     }
   </style>
 </head>
@@ -564,7 +603,20 @@
           },
           error: function(xhr) {
             const response = xhr.responseJSON;
-            showMessage(response?.message || 'サーバーエラーが発生しました', 'error');
+            let errorMessage = 'サーバーエラーが発生しました';
+            
+            if (response?.message) {
+              // サーバーからのエラーメッセージを日本語化
+              if (response.message.includes('already exists')) {
+                errorMessage = 'このユーザーIDは既に使用されています';
+              } else if (response.message.includes('Required fields')) {
+                errorMessage = '必須項目が入力されていません';
+              } else {
+                errorMessage = response.message;
+              }
+            }
+            
+            showMessage(errorMessage, 'error');
           }
         });
       }
