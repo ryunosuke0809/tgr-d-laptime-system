@@ -69,6 +69,10 @@ app.get('/track_fsw', (req, res) => {
   res.render('../views/track_fsw.ejs', {});
 });
 
+app.get('/track_temp', (req, res) => {
+  res.render('../views/track_temp.ejs', {});
+});
+
 app.get('/live', (req, res) => {
   res.render('../views/live.ejs', {});
 });

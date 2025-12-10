@@ -2003,8 +2003,10 @@
 
 
     <div id="trackContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000;">
-        <div id="liveTrack" class="track" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transform-origin: center center; transition: transform 0.1s ease-out;">
-            <svg id="svgA" width="100%" height="100%"></svg>
+        <div id="liveTrack" class="track" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transform-origin: center center; transition: transform 0.1s ease-out; width: 1440px; height: 810px;">
+            <div style="position: relative; width: 100%; height: 100%;">
+                <!-- Course SVG will be moved here dynamically -->
+            </div>
         </div>
     </div>
 
@@ -2014,6 +2016,44 @@
     <div id="Container" class="container" style="display: none;">
         <div id="liveButton" class="btn"></div>
     </div>
+    
+    <script>
+    // Move course_svg into liveTrack container and create overlay
+    $(document).ready(function() {
+        var courseSvg = document.getElementById('course_svg');
+        var liveTrack = document.getElementById('liveTrack');
+        if (courseSvg && liveTrack) {
+            // Ensure SVG is visible
+            courseSvg.style.display = 'block';
+            courseSvg.style.position = 'absolute';
+            courseSvg.style.top = '0';
+            courseSvg.style.left = '0';
+            courseSvg.style.width = '100%';
+            courseSvg.style.height = '100%';
+            
+            // Move SVG to liveTrack
+            liveTrack.firstElementChild.appendChild(courseSvg);
+            
+            // Create overlay SVG for dynamic elements (cars, markers)
+            var svgA = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgA.setAttribute('id', 'svgA');
+            svgA.setAttribute('width', '1440');
+            svgA.setAttribute('height', '810');
+            svgA.setAttribute('viewBox', '0 0 1440 810');
+            svgA.style.position = 'absolute';
+            svgA.style.top = '0';
+            svgA.style.left = '0';
+            svgA.style.width = '100%';
+            svgA.style.height = '100%';
+            svgA.style.pointerEvents = 'none';
+            liveTrack.firstElementChild.appendChild(svgA);
+            
+            console.log('Track SVG loaded successfully');
+        } else {
+            console.error('Failed to load track SVG: courseSvg=', courseSvg, 'liveTrack=', liveTrack);
+        }
+    });
+    </script>
 
 
 <script type="text/javascript">

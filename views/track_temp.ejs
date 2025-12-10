@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-EN" lang="en-EN">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Temperature</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Saira', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #5c9cd8;
+        }
+        .temp-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+        .info {
+            font-size: 1.2em;
+            color: #ccc;
+            text-align: center;
+            max-width: 600px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(92, 156, 216, 0.2);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Track Temperature Monitor</h1>
+    <div class="temp-display" id="trackTemp">--°C</div>
+    <div class="info">
+        <p>Real-time track surface temperature data will be displayed here.</p>
+        <div class="status">
+            <p id="statusText">Waiting for data...</p>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection for track temperature data
+        // This would connect to your temperature data source
+        var tempSocket = null;
+        
+        function initTempSocket() {
+            // Example: Connect to temperature data WebSocket
+            // tempSocket = new WebSocket('ws://your-server:port/temp');
+            // tempSocket.onmessage = function(event) {
+            //     var data = JSON.parse(event.data);
+            //     document.getElementById('trackTemp').textContent = data.temperature + '°C';
+            //     document.getElementById('statusText').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+            // };
+            
+            // For demo purposes, show a simulated temperature
+            simulateTemperature();
+        }
+        
+        function simulateTemperature() {
+            // Simulate temperature updates
+            setInterval(function() {
+                var temp = (Math.random() * 15 + 25).toFixed(1); // 25-40°C range
+                document.getElementById('trackTemp').textContent = temp + '°C';
+                document.getElementById('statusText').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+            }, 5000);
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', initTempSocket);
+    </script>
+</body>
+</html>
