@@ -173,7 +173,7 @@ module.exports = {
                 id: userId,
                 password: userData.password || users[index].password,
                 name: userData.name || users[index].name,
-                company: userData.company || users[index].company,
+                company: userData.hasOwnProperty('company') ? userData.company : users[index].company,
                 role: userData.role || users[index].role,
                 expiryStartDate: expiryStartDate,
                 expiryEndDate: expiryEndDate

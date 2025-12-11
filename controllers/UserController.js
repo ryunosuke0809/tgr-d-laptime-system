@@ -540,18 +540,20 @@ module.exports = {
                 return res.status(403).json({ success: false, message: 'Admin access required' });
             }
 
-            const { id, password, name, role, expiryDate } = req.body;
+            const { id, password, name, company, role, expiryStartDate, expiryEndDate } = req.body;
 
-            if (!id || !password || !name || !role) {
+            if (!id || !password || !name) {
                 return res.status(400).json({ success: false, message: 'Required fields are missing' });
             }
 
             const result = await userModel.createUser({ 
                 id, 
                 password, 
-                name, 
+                name,
+                company: company || null,
                 role: role || 'user',
-                expiryDate: expiryDate || null 
+                expiryStartDate: expiryStartDate || null,
+                expiryEndDate: expiryEndDate || null
             });
             res.json(result);
         } catch (err) {
@@ -587,13 +589,15 @@ module.exports = {
             }
 
             const userId = req.params.id;
-            const { password, name, role, expiryDate } = req.body;
+            const { password, name, company, role, expiryStartDate, expiryEndDate } = req.body;
 
             const result = await userModel.updateUser(userId, { 
                 password, 
-                name, 
+                name,
+                company,
                 role,
-                expiryDate: expiryDate 
+                expiryStartDate: expiryStartDate,
+                expiryEndDate: expiryEndDate
             });
             res.json(result);
         } catch (err) {
