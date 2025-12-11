@@ -1,0 +1,72 @@
+[
+    {
+        "id": "t_kataoka",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "片岡太郎",
+        "expiryDate": "2026-12-31"
+    },
+    {
+        "id": "t_fukugi",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "福木太郎",
+        "expiryDate": null
+    },
+    {
+        "id": "k_terao",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "寺尾一郎",
+        "expiryDate": "2025-12-31"
+    },
+    {
+        "id": "y_sakurai",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "桜井陽介",
+        "expiryDate": null
+    },
+    {
+        "id": "r_yoshida",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "吉田龍",
+        "expiryDate": "2026-06-30"
+    },
+    {
+        "id": "m_kitabayashi",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "北林誠",
+        "expiryDate": null
+    },
+    {
+        "id": "k_yagiura",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "柳浦健一",
+        "expiryDate": "2026-03-31"
+    },
+    {
+        "id": "y_tamura",
+        "password": "tgrd250910rs",
+        "role": "user",
+        "name": "田村裕一",
+        "expiryDate": null
+    },
+    {
+        "id": "viewer_test",
+        "password": "viewer123",
+        "role": "viewer",
+        "name": "閲覧者テスト",
+        "expiryDate": null
+    },
+    {
+        "id": "shidara",
+        "password": "shidara",
+        "role": "admin",
+        "name": "設楽管理者",
+        "expiryDate": null
+    }
+]

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - TRD Monitor</title>
+    <link href="/css/trd/history.css" type="text/css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@100;600;700&display=swap" rel="stylesheet">
+</head>
+<body bgcolor="#000">
+    <!-- Personal Dialog (Lap Details) -->
+    <div id="PersonalDialog" style="display: none; background: #000;">
+        <div class="personalarea">
+            <table>
+                <tr>
+                    <th>Lap</th>
+                    <th>LapTime</th>
+                    <th>Sec1</th>
+                    <th>Sec2</th>
+                    <th>Sec3</th>
+                    <th>Speed</th>
+                    <th>Pit</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Live Track Area (Placeholder) -->
+    <div id="liveTrack" class="trackarea"></div>
+
+    <!-- History Container: PC横並び、スマホ縦並び -->
+    <div class="history-container">
+        <!-- Session Menu Area (Left on PC, Top on Mobile) -->
+        <!-- PC版: アコーディオンメニュー -->
+        <div class="menuarea menuarea-pc">
+            <ul id="accordion">
+                <li>
+                    <a id="<%= raceid %>" href="#">RESULT<span class="arrow"></span></a>
+                    <ul id="active">
+                        <% if (sessions && sessions.length > 0) { %>
+                            <% sessions.forEach(function(session) { %>
+                                <li id="<%= session.sessionid %>" class="test<% if (sessionid && sessionid == session.sessionid) { %> sele<% } %>">
+                                    <a href="javascript:getResult('<%= raceid %>','<%= session.sessionid %>');">
+                                        <img src="/images/download.png" border="0" width="30" style="position: absolute;top: 10px;left: 5px;" 
+                                             onclick="getCsv('<%= raceid %>','<%= session.sessionid %>'); event.stopPropagation();">
+                                        <%= session.sessionname %>
+                                        <img src="/images/dummy.gif" border="0" width="20"/>
+                                    </a>
+                                </li>
+                            <% }); %>
+                        <% } else { %>
+                            <li style="padding: 20px; color: #999; text-align: center;">
+                                No data available
+                            </li>
+                        <% } %>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- スマホ版: プルダウンメニュー -->
+        <div class="menuarea menuarea-mobile">
+            <div class="mobile-session-selector">
+                <div class="select-wrapper">
+                    <select id="sessionSelect" class="session-select">
+                        <option value="">-- セッションを選択 --</option>
+                        <% if (sessions && sessions.length > 0) { %>
+                            <% sessions.forEach(function(session) { %>
+                                <option value="<%= session.sessionid %>" data-raceid="<%= raceid %>" 
+                                        <% if (sessionid && sessionid == session.sessionid) { %>selected<% } %>>
+                                    <%= session.sessionname %>
+                                </option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="" disabled>No data available</option>
+                        <% } %>
+                    </select>
+                    <button id="csvDownloadBtn" class="csv-download-btn" title="CSV Download" <% if (!sessions || sessions.length === 0) { %>disabled<% } %>>
+                        <i class="fa fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result List Area (Right on PC, Bottom on Mobile) -->
+        <div class="listarea">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="h1" width="30">Pos</th>
+                        <th class="h2" width="30">No</th>
+                        <th class="h3" width="160">Driver</th>
+                        <th class="h5" width="60">BestTime</th>
+                        <th class="h6" width="30">inLap</th>
+                        <th class="h7" width="60">Gap</th>
+                        <th class="h8" width="60">Diff</th>
+                        <th class="h9" width="30">Laps</th>
+                        <th class="h10" width="80">TotalTime</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (!sessions || sessions.length === 0) { %>
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                                <i class="fa fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                <div>No race data available for this event.</div>
+                                <div style="font-size: 12px; margin-top: 10px;">Please check back later or contact administrator.</div>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type='text/javascript'>
+        let isVirtical = "";
+        var isSmartPhone = "";
+
+        $(function () {
+            const ua = navigator.userAgent;
+            if (ua.indexOf('iPhone') > -1 || (ua.indexOf('Android') > -1 && ua.indexOf('Mobile') > -1)) {
+                isSmartPhone = true;
+                localStorage.setItem('isSmartPhone', JSON.stringify(isSmartPhone));
+            } else {
+                isSmartPhone = false;
+                localStorage.setItem('isSmartPhone', JSON.stringify(isSmartPhone));
+            }
+        });
+
+        window.addEventListener("orientationchange", () => {
+            var direction = Math.abs(window.orientation);
+            if (direction == 90) {
+                isVirtical = false;
+                localStorage.setItem('isVirtical_result', JSON.stringify(isVirtical));
+            } else {
+                isVirtical = true;
+                localStorage.setItem('isVirtical_result', JSON.stringify(isVirtical));
+            }
+            location.reload();
+        });
+
+        let storage_vi = localStorage.getItem('isVirtical_result');
+        if (storage_vi == "false") {
+            isVirtical = false;
+        } else {
+            isVirtical = true;
+        }
+
+        let storage_sp = localStorage.getItem('isSmartPhone');
+        if (storage_sp == "false") {
+            isSmartPhone = false;
+        } else {
+            isSmartPhone = true;
+        }
+
+        if (isSmartPhone){
+            document.body.style.transformOrigin='top left';
+            document.body.style.transform='scale(' + 1.5 + ')';
+            document.body.style.width=Math.round(1000/1.5)/10 + '%';
+        }
+
+        // Mobile: Session dropdown handler
+        $(function() {
+            $('#sessionSelect').on('change', function() {
+                var selectedSessionId = $(this).val();
+                var raceid = $(this).find(':selected').data('raceid');
+                
+                if (selectedSessionId) {
+                    getResult(raceid, selectedSessionId);
+                }
+            });
+
+            // Mobile: CSV download button
+            $('#csvDownloadBtn').on('click', function() {
+                var selectedSessionId = $('#sessionSelect').val();
+                var raceid = $('#sessionSelect').find(':selected').data('raceid');
+                
+                if (selectedSessionId) {
+                    getCsv(raceid, selectedSessionId);
+                } else {
+                    alert('セッションを選択してください');
+                }
+            });
+        });
+
+        // Accordion menu behavior (PC only)
+        $(function() {
+            $("#accordion li ul").hide();
+            $("#active").show();
+            $("#accordion > li > a").click(function(){
+                var click = $("+ul",this);
+                click.slideDown();
+                $("#accordion ul").not(click).slideUp();
+                $(".arrow").removeClass("rotate");
+                $("> .arrow",this).addClass("rotate");
+                return false;
+            });
+            $("#accordion > li > ul > li").click(function(){
+                $(".test").removeClass("sele");
+                $(this).addClass("sele");
+                return true;
+            });
+
+            // Expand first menu item
+            $("#<%= raceid %>").click(function(){
+                var click = $("+ul",this);
+                click.slideDown();
+                $("#accordion ul").not(click).slideUp();
+                $(".arrow").removeClass("rotate");
+                $("> .arrow",this).addClass("rotate");
+                return false;
+            });
+            $('#<%= raceid %>').trigger("click");
+
+            // Load default session data
+            <% if (sessionid) { %>
+                getResult('<%= raceid %>', '<%= sessionid %>');
+            <% } %>
+        });
+
+        // Show personal lap details dialog
+        function personalClick(d, s, c, t1, t2) {
+            var u = "/history/api/personal?raceid=" + d + "&sessionid=" + s + "&carno=" + c;
+            var t = t1 + "." + t2;
+            $.post(u, function(j){
+                setPersonal(j, t);
+            }, "json");
+        }
+
+        function setPersonal(j, t) {
+            console.log(j);
+            $('.personalarea table tr').remove();
+            $('.personalarea table').append('<tr><th>Lap</th><th>Laptime</th><th>Sec1</th><th>Sec2</th><th>Sec3</th><th>Speed</th><th>Pit</th></tr>');
+            for(var index in j.rows) { 
+                $('.personalarea table').append('<tr>' + '</tr>');
+                $('.personalarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[1] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[2] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[3] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[4] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[5] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[8] + '</td>');
+                $('.personalarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[11] + '</td>');
+            }
+
+            $('#PersonalDialog').dialog({
+                title: t,
+                modal: false,
+                height: 500,
+                width : 440,
+                position: {
+                    of : '#liveTrack',
+                    at: 'left top',
+                    my: 'right top'
+                },
+                close: function(event) {
+                }
+            });
+        }
+
+        // Load result data
+        function getResult(d, s){
+            var u = "/history/api/result?raceid=" + d + "&sessionid=" + s;
+            $.post(u, function(j){
+                setData(d, j);
+            }, "json");
+        }
+
+        function setData(d, j) {
+            $('.listarea table tbody tr').remove();
+            var passIdx = -1;
+            var idx = 0;
+            for(var index in j.rows) {
+                if( j.mode == "0" ) {
+                    $(".listarea th.h1").text("Pos");
+                    $(".listarea th.h2").text("No");
+                    $(".listarea th.h3").text("Driver");
+                    $(".listarea th.h5").text("BestTime");
+                    $(".listarea th.h6").text("inLap");
+                    $(".listarea th.h7").text("Gap");
+                    $(".listarea th.h8").text("Diff");
+                    $(".listarea th.h9").text("Laps");
+                    $(".listarea th.h10").text("TotalTime");
+                } else {
+                    $(".listarea th.h1").text("Pos");
+                    $(".listarea th.h2").text("No");
+                    $(".listarea th.h3").text("Driver");
+                    $(".listarea th.h5").text("TotalTime");
+                    $(".listarea th.h6").text("Laps");
+                    $(".listarea th.h7").text("Gap");
+                    $(".listarea th.h8").text("Diff");
+                    $(".listarea th.h9").text("BestTime");
+                    $(".listarea th.h10").text("inLap");
+                }
+                $('.listarea table').append('<tr>' + '</tr>');
+                if( j.mode == "0" ) {
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[0] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[1] + '</td>');
+                    $('.listarea table tr:last').append('<td align="left" width="160"><a href="javascript:personalClick(\'' + d + '\',\'' + j.rows[index].cell[10] + '\',\'' + j.rows[index].cell[11] + '\',\'' + j.rows[index].cell[1] + '\',\'' + j.rows[index].cell[2] + '\');"><div style="width: 160px; overflow: hidden;">' + j.rows[index].cell[2] + '</div></a></td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[4] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[5] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[6] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[7] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[8] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="80">' + j.rows[index].cell[9] + '</td>');
+                } else {
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[0] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[1] + '</td>');
+                    $('.listarea table tr:last').append('<td align="left" width="160"><a href="javascript:personalClick(\'' + d + '\',\'' + j.rows[index].cell[10] + '\',\'' + j.rows[index].cell[11] + '\',\'' + j.rows[index].cell[1] + '\',\'' + j.rows[index].cell[2] + '\');"><div style="width: 160px; overflow: hidden;">' + j.rows[index].cell[2] + '</div></a></td>');
+                    $('.listarea table tr:last').append('<td align="right" width="80">' + j.rows[index].cell[4] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[5] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[6] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[7] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="60">' + j.rows[index].cell[8] + '</td>');
+                    $('.listarea table tr:last').append('<td align="right" width="30">' + j.rows[index].cell[9] + '</td>');
+                }
+                idx ++;
+            }
+        }
+
+        function doubleToTime(dTime) {
+            if( dTime <= 0 ) {
+                return "";
+            }
+            var hh = 0;
+            var mi = 0;
+            var ss = 0;
+            if( dTime > 3600 ) {
+                hh = Math.floor(dTime / 3600);
+            }
+            var m1 = dTime - (hh * 3600);
+            if( m1 > 60 ) {
+                mi = Math.floor(m1 / 60);
+            }
+            ss = m1 - (mi * 60);
+            if( hh > 0 ) {
+                return hh + ":" + ("00"+mi).substr(-2) + ":" + ss.toFixed(3);
+            } else if( mi > 0 ) {
+                return mi + ":" + ("00"+ss.toFixed(3)).substr(-6);
+            } else {
+                return ("00"+ss.toFixed(3)).substr(-6);
+            }
+        }
+
+        // CSV Export functionality
+        function getCsv(id, ss){
+            event.stopPropagation();
+            
+            //Result
+            var u = "/history/api/result?raceid=" + id + "&sessionid=" + ss;
+            $.post(u, function(j){
+                var jsonData = [];
+                var carList = [];
+                var idx = 0;
+                for(var index in j.rows) {
+                    var obj = {
+                        "Pos" : j.rows[index].cell[0],
+                        "No" : j.rows[index].cell[1],
+                        "Driver" : j.rows[index].cell[2],
+                        "Team" : j.rows[index].cell[3],
+                        "BestTime" : j.rows[index].cell[4],
+                        "Lap(B)" : j.rows[index].cell[5],
+                        "Gap" : j.rows[index].cell[6],
+                        "Diff" : j.rows[index].cell[7],
+                        "Laps" : j.rows[index].cell[8],
+                        "TotalTime" :j.rows[index].cell[9] 
+                    };
+                    jsonData.push(obj);
+                    carList.push(j.rows[index].cell[1]);
+                    idx ++;
+                }
+
+                var filename = j.descr + '_result';
+                exportCSV(jsonData,',', filename);
+
+                //Personal
+                getCsvPersonal(carList,id,ss,j.descr);
+            }, "json");
+        }
+
+        function getCsvPersonal (carList,id,ss,session){
+            var jsonData = [];
+            for(var i=0; i < carList.length; i++) {
+                var u = "/history/api/personal?raceid=" + id + "&sessionid=" + ss + "&carno=" + carList[i];
+                $.post(u, function(j){
+                    var idx = 0;
+                    for(var index in j.rows) {
+                        var obj = {
+                            "Lap" : j.rows[index].cell[1],
+                            "Driver" : j.rows[index].cell[12],
+                            "LapTime" : j.rows[index].cell[2],
+                            "Sec1" : j.rows[index].cell[3],
+                            "Sec2" : j.rows[index].cell[4],
+                            "Sec3" : j.rows[index].cell[5],
+                            "Speed" : j.rows[index].cell[8],
+                            "Pit" : j.rows[index].cell[11],
+                        };
+                        jsonData.push(obj);
+                        idx ++;
+                    }
+                }, "json");
+            }
+
+            setTimeout(() => {
+                var filename = session + '_personal';
+                exportCSV(jsonData,',', filename);
+            }, 1000);
+        }
+
+        //jsonをcsv文字列に編集する
+        function jsonToCsv(json, delimiter) {
+            var header = Object.keys(json[0]).join(delimiter) + "\n";
+            var body = json.map(function(d){
+                return Object.keys(d).map(function(key) {
+                    return d[key];
+                }).join(delimiter);
+            }).join("\n");
+            return header + body;
+        }
+
+        //csv変換
+        function exportCSV(items, delimiter, filename) {
+            //文字列に変換する
+            var csv = jsonToCsv(items, delimiter);
+
+            //拡張子
+            var extention = delimiter==","?"csv":"tsv";
+
+            //出力ファイル名
+            var exportedFilenmae = (filename  || 'export') + '.' + extention;
+
+            //BLOBに変換
+            //UTF-8 BOMを追加する
+            const BOM = '\uFEFF';
+            var blob = new Blob([BOM + csv], { type: 'text/csv' });
+
+            if (navigator.msSaveBlob) { // for IE 10+
+                navigator.msSaveBlob(blob, exportedFilenmae);
+            } else {
+                //anchorを生成してclickイベントを呼び出す。
+                var link = document.createElement("a");
+                if (link.download !== undefined) {
+                    var url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", exportedFilenmae);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

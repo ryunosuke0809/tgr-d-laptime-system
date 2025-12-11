@@ -462,13 +462,13 @@
                 scrollbar-gutter: stable;
                 padding-right: 0 !important;
             }
-            
+
             /* ヘッダーのスクロールバーを透明に */
             .table-scroll #listtitle::-webkit-scrollbar {
                 width: 15px;
                 background: transparent;
             }
-            
+
             .table-scroll #listtitle::-webkit-scrollbar-thumb {
                 background: transparent;
             }
@@ -831,7 +831,7 @@
             .listtable td {
                 display: table-cell !important;
             }
-            
+
             /* 確実に表示する列 */
             .listtable th.pos,
             .listtable th.no_title,
@@ -977,7 +977,7 @@
                 padding-right: 3px !important;
                 font-size: 11px;
             }
-            
+
             /* LastLap列 - 明示的にID指定 */
             .listtable td[id$="_last"] {
                 width: 48px !important;
@@ -1230,6 +1230,7 @@
 
         /* ===== PC / タブレット（768px以上）：スマホ横と同じ表示内容 ===== */
         @media (min-width: 768px) {
+
             /* すべての列を表示（セクターとスピードを含む） */
             #listtitle .listtable th,
             .listtable td {
@@ -1382,6 +1383,7 @@
 
         /* ===== ワイド画面（1000px以上）：縦位置と右寄せを確実に適用 ===== */
         @media (min-width: 1000px) {
+
             .listtable th,
             .listtable td {
                 padding: 3px 2px !important;
@@ -1667,6 +1669,32 @@
                 width: 100%;
             }
         }
+
+
+        /* ===== Track Temp / Track Map 用パネル高さ調整 ===== */
+
+        /* すべての panel-content をパネルいっぱいに広げる */
+        .panel-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            /* はみ出し防止 */
+        }
+
+        /* Track Temp / Track Map パネルは panel の高さをフルで使う */
+        #trackTempPanel,
+        #trackMapPanel,
+        #timingMonitorPanel {
+            height: 100%;
+        }
+
+        /* iframe 自体も親パネルの高さをフルで使う */
+        #trackTempFrame,
+        #trackMapFrame {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border: none;
+        }
     </style>
 
 
@@ -1749,7 +1777,7 @@
 
                 <li class="trd-tree-divider"></li>
 
-                <!-- ★History ルート -->
+                <!-- ★History ルート (Event-based with raceid only) -->
                 <li class="trd-tree-node" data-node-id="history">
                     <button class="trd-tree-toggle">
                         <i class="fa fa-history"></i><span>History</span>
@@ -1765,157 +1793,18 @@
                             </button>
 
                             <ul class="trd-tree-children">
-                                <!-- 2025.10 フル Day2 -->
-                                <li class="trd-tree-node" data-node-id="2025-10-full-day2">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.10 フル Day2</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day2/practice4">Practice4</a>
-                                        </li>
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day2/practice5">Practice5</a>
-                                        </li>
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day2/practice6">Practice6</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2025.10 フル Day1 -->
-                                <li class="trd-tree-node" data-node-id="2025-10-full-day1">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.10 フル Day1</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day1/practice3">Practice3</a>
-                                        </li>
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day1/practice2">Practice2</a>
-                                        </li>
-                                        <li class="trd-tree-leaf">
-                                            <a class="trd-tree-link"
-                                                href="/history/2025/10/full/day1/practice1">Practice1</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2025.08 ショート Day4 -->
-                                <li class="trd-tree-node" data-node-id="2025-08-short-day4">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.08 ショート Day4</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day4/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2025.08 ショート Day3 -->
-                                <li class="trd-tree-node" data-node-id="2025-08-short-day3">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.08 ショート Day3</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day3/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2025.08 ショート Day2 -->
-                                <li class="trd-tree-node" data-node-id="2025-08-short-day2">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.08 ショート Day2</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day2/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2025.08 ショート Day1 -->
-                                <li class="trd-tree-node" data-node-id="2025-08-short-day1">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2025.08 ショート Day1</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2025/08/short/day1/free1">フリー走行①</a></li>
-                                    </ul>
+                                <!-- 2025.07 TGR-DC -->
+                                <li class="trd-tree-leaf">
+                                    <a class="trd-tree-link" href="/history/2025070">
+                                        <span class="dot"></span><span>2025.07 TGR-DC</span>
+                                    </a>
                                 </li>
                             </ul>
                         </li>
 
                         <!-- ===== 2024 ===== -->
+                        <!-- データベースファイル追加時にここに2024イベントを追加 -->
+                        <!--
                         <li class="trd-tree-node" data-node-id="year-2024">
                             <button class="trd-tree-toggle">
                                 <span class="dot"></span><span>2024</span>
@@ -1923,439 +1812,14 @@
                             </button>
 
                             <ul class="trd-tree-children">
-                                <!-- 2024.10 フル Day2 -->
-                                <li class="trd-tree-node" data-node-id="2024-10-full-day2">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.10 フル Day2</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day2/practice4">Practice4</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day2/practice5">Practice5</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day2/practice6">Practice6</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2024.10 フル Day1 -->
-                                <li class="trd-tree-node" data-node-id="2024-10-full-day1">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.10 フル Day1</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day1/practice3">Practice3</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day1/practice2">Practice2</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/10/full/day1/practice1">Practice1</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2024.08 ショート Day4 -->
-                                <li class="trd-tree-node" data-node-id="2024-08-short-day4">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.08 ショート Day4</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day4/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2024.08 ショート Day3 -->
-                                <li class="trd-tree-node" data-node-id="2024-08-short-day3">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.08 ショート Day3</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day3/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2024.08 ショート Day2 -->
-                                <li class="trd-tree-node" data-node-id="2024-08-short-day2">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.08 ショート Day2</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day2/free1">フリー走行①</a></li>
-                                    </ul>
-                                </li>
-
-                                <!-- 2024.08 ショート Day1 -->
-                                <li class="trd-tree-node" data-node-id="2024-08-short-day1">
-                                    <button class="trd-tree-toggle">
-                                        <span class="dot"></span><span>2024.08 ショート Day1</span>
-                                        <i class="fa fa-chevron-right chevron" aria-hidden="true"></i>
-                                    </button>
-                                    <ul class="trd-tree-children">
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free8">フリー走行⑧</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free7">フリー走行⑦</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free6">フリー走行⑥</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free5">フリー走行⑤</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free4">フリー走行④</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free3">フリー走行③</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free2">フリー走行②</a></li>
-                                        <li class="trd-tree-leaf"><a class="trd-tree-link"
-                                                href="/history/2024/08/short/day1/free1">フリー走行①</a></li>
-                                    </ul>
+                                <li class="trd-tree-leaf">
+                                    <a class="trd-tree-link" href="/history/2024XXX">
+                                        <span class="dot"></span><span>2024.XX イベント名</span>
+                                    </a>
                                 </li>
                             </ul>
                         </li>
+                        -->
 
                     </ul>
                 </li>
-            </ul>
-        </nav>
-    </aside>
-
-
-
-
-    <!-- live.js フック -->
-    <ul id="livetitle" class="visually-hidden">
-        <li class="title"></li>
-    </ul>
-
-    <main class="content">
-        <section class="panel">
-
-            <!-- Timing Monitor Panel (Default) -->
-            <div id="timingMonitorPanel" class="panel-content">
-                <div id="Container" class="container">
-                    <div class="table-scroll">
-                        <!-- ヘッダ行 -->
-                        <div id="listtitle" class="listtitle"></div>
-
-                        <!-- 一覧（縦スクロール） -->
-                        <div id="ListArea" class="listarea">
-                            <div id="c-1" class="mix category-0" data-sort="-99999999999"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Track Map Panel -->
-            <div id="trackMapPanel" class="panel-content" style="display: none; position: relative;">
-                <!-- Track Map Content with iframe for dynamic track_fsw.ejs -->
-                <div id="trackMapContent" style="width: 100%; height: 100%; background: #000; position: relative;">
-                    <iframe id="trackMapFrame" src="/track_fsw" style="width: 100%; height: 100%; border: none; display: block;" loading="eager"></iframe>
-                    
-                    <!-- Zoom Controls (PC/Tablet only) -->
-                    <div id="trackMapControls" style="position: absolute; bottom: 20px; right: 20px; display: none; flex-direction: column; gap: 10px; z-index: 100;">
-                        <button id="trackMapZoomIn" style="width: 44px; height: 44px; background: rgba(92, 156, 216, 0.9); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                            <i class="fa fa-plus"></i>
-                        </button>
-                        <button id="trackMapZoomOut" style="width: 44px; height: 44px; background: rgba(92, 156, 216, 0.9); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                            <i class="fa fa-minus"></i>
-                        </button>
-                        <button id="trackMapReset" style="width: 44px; height: 44px; background: rgba(92, 156, 216, 0.9); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                            <i class="fa fa-refresh"></i>
-                        </button>
-                        <button id="trackMapNewWindow" style="width: 44px; height: 44px; background: rgba(92, 156, 216, 0.9); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                            <i class="fa fa-external-link"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Track Temp Panel -->
-            <div id="trackTempPanel" class="panel-content" style="display: none;">
-                <iframe id="trackTempFrame" src="/track_temp" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
-            </div>
-        </section>
-    </main>
-
-    <!-- 接続設定 -->
-    <script>
-
-
-        var uri = "<%= (typeof wsUri   !== 'undefined' ? wsUri   : 'ws://www.racelive.jp:8061/get') %>";
-        var sector = "<%= (typeof sector  !== 'undefined' ? sector  : '3') %>";
-        var speed = "<%= (typeof speed   !== 'undefined' ? speed   : 'ON') %>";
-        var circuit = "<%= (typeof circuit !== 'undefined' ? circuit : 'fsw') %>";
-    </script>
-
-    <!-- 既存ライブロジック -->
-    <script src="/js/trd/live.js"></script>
-
-    <!-- UI 制御 -->
-    <script>
-        // サーバ側で埋め込み
-        var uid = "<%= (typeof id  !== 'undefined' ? id  : (typeof username !== 'undefined' ? username : '')) %>";
-        var sid = "<%= (typeof sid !== 'undefined' ? sid : '') %>";
-
-        // 戻るボタン
-        $('#btnBack, #back').off('click').on('click', function () {
-            var url = '/user/menu?u=' + encodeURIComponent(uid) + '&s=' + encodeURIComponent(sid);
-            window.location.href = url;
-        });
-
-        // TimingMonitor → LiveTiming 自身への遷移（将来別ページに飛ばす場合用）
-        function jumpToMonitor() {
-            const token = Math.random().toString(32).slice(2);
-            const params = new URLSearchParams({
-                ws: (typeof uri !== 'undefined' ? uri : 'ws://52.36.59.170:9101/get'),
-                sector: (typeof sector !== 'undefined' ? sector : '0'),
-                speed: (typeof speed !== 'undefined' ? speed : 'OFF'),
-                circuit: (typeof circuit !== 'undefined' ? circuit : 'fsw'),
-                token: token
-            }).toString();
-            location.href = '/monitor/live?' + params;
-        }
-
-        // パネル切り替え関数
-        function switchPanel(panelName) {
-            // すべてのパネルを非表示
-            document.querySelectorAll('.panel-content').forEach(function(panel) {
-                panel.style.display = 'none';
-            });
-            
-            // 指定されたパネルを表示
-            const targetPanel = document.getElementById(panelName + 'Panel');
-            if (targetPanel) {
-                targetPanel.style.display = 'block';
-                
-                // パネルごとの処理
-                if (panelName === 'trackMap') {
-                    // Track Map: ズームコントロール表示 + iframe再読み込み
-                    if (window.innerWidth >= 768) {
-                        const controls = document.getElementById('trackMapControls');
-                        if (controls) controls.style.display = 'flex';
-                    }
-                    
-                    // iframe再読み込み（常に最新データを取得）
-                    const iframe = document.getElementById('trackMapFrame');
-                    if (iframe) {
-                        iframe.src = iframe.src; // Force reload
-                    }
-                } else if (panelName === 'trackTemp') {
-                    // Track Temp: iframe再読み込み
-                    const iframe = document.getElementById('trackTempFrame');
-                    if (iframe) {
-                        iframe.src = iframe.src; // Force reload
-                    }
-                } else if (panelName === 'timingMonitor') {
-                    // Timing Monitor: データエリアクリア + WebSocket再接続 + 再表示
-                    console.log('[Panel] TimingMonitor selected - clearing data and reconnecting');
-                    
-                    // 1. データエリアをクリア
-                    try {
-                        // ListAreaの内容をクリア（初期要素のみ残す）
-                        $('#ListArea').html('<div id="c-1" class="mix category-0" data-sort="-99999999999"></div>');
-                        console.log('[Data] ListArea cleared');
-                        
-                        // ヘッダ行をクリア
-                        $('#listtitle').empty();
-                        console.log('[Data] listtitle cleared');
-                        
-                        // MixItUpを破棄して再初期化
-                        try {
-                            $('#Container').mixItUp('destroy');
-                            console.log('[MixItUp] Destroyed for reset');
-                        } catch (e) {
-                            console.log('[MixItUp] Not initialized, skip destroy:', e);
-                        }
-                    } catch (e) {
-                        console.warn('[Data] Error clearing data area:', e);
-                    }
-                    
-                    // 2. 既存のWebSocket接続をクローズ
-                    if (typeof webSocket !== 'undefined' && webSocket !== null) {
-                        try {
-                            webSocket.close();
-                            console.log('[WS] Existing connection closed for reconnection');
-                        } catch (e) {
-                            console.warn('[WS] Error closing existing connection:', e);
-                        }
-                    }
-                    
-                    // 3. WebSocket再接続（データが流れてきたらlive.jsが自動的にMixItUpを再初期化）
-                    if (typeof init === 'function') {
-                        setTimeout(function() {
-                            init();
-                            console.log('[WS] Reconnection initiated - data will flow and rebuild UI');
-                        }, 100);
-                    } else {
-                        console.error('[WS] init() function not found');
-                    }
-                }
-            }
-        }
-
-        // ボタンクリックでパネルを切り替え
-        document.querySelectorAll('.js-monitor-link').forEach(function (el) {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                const titleText = el.getAttribute('title') || el.textContent.trim();
-                
-                // ボタンのタイトルに応じて処理を分岐
-                if (titleText.includes('Map')) {
-                    // Track Map: 新規ウィンドウで開く
-                    window.open('/track_fsw', 'TrackMapWindow', 'width=1440,height=810,scrollbars=yes,resizable=yes');
-                } else if (titleText.includes('Temp')) {
-                    // Track Temp: 埋め込みパネルを再表示（iframe再読み込み）
-                    switchPanel('trackTemp');
-                } else {
-                    // TimingMonitor: 埋め込みパネルを再表示
-                    switchPanel('timingMonitor');
-                }
-                
-                // サイドナビを自動で閉じる（モバイル時）
-                const sidenav = document.getElementById('trd-sidenav');
-                if (sidenav && sidenav.classList.contains('open')) {
-                    sidenav.classList.remove('open');
-                    document.body.classList.remove('sidenav-open');
-                }
-            });
-        });
-
-        // Track Map Controls
-        var currentZoom = 1.0;
-        
-        document.getElementById('trackMapZoomIn').addEventListener('click', function() {
-            currentZoom += 0.2;
-            if (currentZoom > 3.0) currentZoom = 3.0;
-            applyZoom();
-        });
-
-        document.getElementById('trackMapZoomOut').addEventListener('click', function() {
-            currentZoom -= 0.2;
-            if (currentZoom < 0.5) currentZoom = 0.5;
-            applyZoom();
-        });
-
-        document.getElementById('trackMapReset').addEventListener('click', function() {
-            currentZoom = 1.0;
-            applyZoom();
-        });
-
-        document.getElementById('trackMapNewWindow').addEventListener('click', function() {
-            window.open('/track_fsw', 'TrackMapWindow', 'width=1440,height=810,scrollbars=yes,resizable=yes');
-        });
-
-        function applyZoom() {
-            const iframe = document.getElementById('trackMapFrame');
-            if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
-                const svg = iframe.contentWindow.document.getElementById('course_svg');
-                if (svg) {
-                    svg.style.transform = 'scale(' + currentZoom + ')';
-                    svg.style.transformOrigin = 'center center';
-                }
-            }
-        }
-
-        // ===== サイドパネル開閉（History / ハンバーガー） =====
-        (function () {
-            const sidenav = document.getElementById('trd-sidenav');
-            const railMenu = document.getElementById('railMenu');
-            const railHistory = document.getElementById('railHistory');
-            const headerMenu = document.getElementById('headerMenu');   // ★追加
-
-            if (!sidenav) return;
-
-            function toggleSideNav() {
-                sidenav.classList.toggle('open');
-                document.body.classList.toggle('sidenav-open');
-            }
-
-            if (railMenu) {
-                railMenu.addEventListener('click', function () {
-                    toggleSideNav();
-                });
-            }
-
-            // ★追加：ヘッダーのハンバーガーからも開閉
-            if (headerMenu) {
-                headerMenu.addEventListener('click', function () {
-                    toggleSideNav();
-                });
-            }
-
-            // ★履歴ボタンでも開閉
-            if (railHistory) {
-                railHistory.addEventListener('click', function () {
-                    toggleSideNav();
-                });
-            }
-
-            // ツリーの開閉
-            $('.trd-tree-toggle').on('click', function () {
-                var $node = $(this).closest('.trd-tree-node');
-                $node.toggleClass('expanded');
-            });
-        })();
-
-        // ===== live.js からのタイトル同期 =====
-        $(function () {
-            const $title = $('#livetitle .title');
-            const $brandSession = $('#brandSession');
-            if ($title.length && $brandSession.length) {
-                const observer = new MutationObserver(function () {
-                    $brandSession.text($title.text());
-                });
-                observer.observe($title[0], { childList: true, characterData: true, subtree: true });
-            }
-        });
-    </script>
-</body>
-
-</html>

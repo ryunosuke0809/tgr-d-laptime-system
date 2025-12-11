@@ -1,0 +1,398 @@
+/* History Page CSS - Responsive Layout (PC: Left Menu / Mobile: Top Menu) */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Saira', sans-serif;
+    background-color: #000;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* Container: PC横並び、スマホ縦並び */
+.history-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background: #0a0a0a;
+}
+
+/* Menu Area (Session Selection) - PC: 左側固定幅 */
+.menuarea {
+    background: linear-gradient(135deg, #1a0000 0%, #2a0000 100%);
+    overflow-y: auto;
+    border-right: 2px solid #cc0000;
+    flex-shrink: 0;
+}
+
+/* List Area (Result Table) - PC: 右側残り全体 */
+.listarea {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    background: #0a0a0a;
+}
+
+/* PC Layout (768px以上): 左右並び、アコーディオン表示 */
+@media (min-width: 768px) {
+    .history-container {
+        flex-direction: row;
+    }
+    
+    .menuarea {
+        width: 300px;
+        max-width: 300px;
+        height: 100vh;
+    }
+    
+    .listarea {
+        height: 100vh;
+    }
+
+    /* PC版: アコーディオン表示、プルダウン非表示 */
+    .menuarea-pc {
+        display: block;
+    }
+    
+    .menuarea-mobile {
+        display: none;
+    }
+}
+
+/* Mobile Layout (767px以下): 上下並び、プルダウン表示 */
+@media (max-width: 767px) {
+    .history-container {
+        flex-direction: column;
+    }
+    
+    .menuarea {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #cc0000;
+        padding: 10px;
+        max-height: none;
+        height: auto;
+    }
+    
+    .listarea {
+        width: 100%;
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    /* スマホ版: プルダウン表示、アコーディオン非表示 */
+    .menuarea-pc {
+        display: none;
+    }
+    
+    .menuarea-mobile {
+        display: block;
+    }
+}
+
+/* Mobile Session Selector (プルダウン) */
+.mobile-session-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.select-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+.session-select {
+    flex: 1;
+    padding: 12px 15px;
+    font-size: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #1a0000 0%, #2a0000 100%);
+    border: 1px solid #cc0000;
+    border-radius: 8px;
+    outline: none;
+    font-family: 'Saira', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.session-select:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 8px rgba(204, 0, 0, 0.5);
+}
+
+.session-select option {
+    background: #1a0000;
+    color: #fff;
+    padding: 10px;
+}
+
+.csv-download-btn {
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.csv-download-btn:hover {
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(204, 0, 0, 0.4);
+}
+
+.csv-download-btn:active {
+    transform: translateY(0);
+}
+
+.csv-download-btn:disabled {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.csv-download-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Accordion Menu Styles */
+#accordion {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#accordion > li {
+    border-bottom: 1px solid #cc0000;
+}
+
+#accordion > li > a {
+    display: block;
+    padding: 15px 20px;
+    color: #ff3333;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    position: relative;
+    transition: background 0.3s;
+}
+
+#accordion > li > a:hover {
+    background: rgba(204, 0, 0, 0.2);
+}
+
+#accordion > li > a .arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s;
+}
+
+#accordion > li > a .arrow.rotate {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+#accordion ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: #1a0000;
+}
+
+#accordion ul li {
+    border-bottom: 1px solid #330000;
+    position: relative;
+}
+
+#accordion ul li a {
+    display: block;
+    padding: 12px 20px 12px 50px;
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+#accordion ul li:hover {
+    background: rgba(204, 0, 0, 0.2);
+}
+
+#accordion ul li.sele {
+    background: rgba(204, 0, 0, 0.4);
+    border-left: 4px solid #ff0000;
+}
+
+#accordion ul li.sele a {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Result Table Styles */
+.listarea table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(26, 0, 0, 0.8);
+    border: 1px solid #cc0000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.listarea thead {
+    background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.listarea th {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #fff;
+    border-right: 1px solid #330000;
+    font-size: 14px;
+}
+
+.listarea th:last-child {
+    border-right: none;
+}
+
+.listarea tbody tr {
+    border-bottom: 1px solid #330000;
+    transition: background 0.3s;
+}
+
+.listarea tbody tr:hover {
+    background: rgba(204, 0, 0, 0.15);
+}
+
+.listarea td {
+    padding: 10px 8px;
+    border-right: 1px solid #330000;
+    font-size: 13px;
+}
+
+.listarea td:last-child {
+    border-right: none;
+}
+
+.listarea td a {
+    color: #cccccc;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.listarea td a:hover {
+    color: #ff3333;
+    text-decoration: underline;
+}
+
+/* Personal Dialog */
+.personalarea {
+    padding: 10px;
+    background: #0a0a0a;
+}
+
+.personalarea table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(26, 26, 46, 0.9);
+    border: 1px solid #0f3460;
+}
+
+.personalarea th {
+    padding: 10px 8px;
+    background: #0f3460;
+    color: #5c9cd8;
+    font-weight: 600;
+    border-right: 1px solid #0a0e13;
+    font-size: 12px;
+}
+
+.personalarea th:last-child {
+    border-right: none;
+}
+
+.personalarea td {
+    padding: 8px;
+    border-bottom: 1px solid #0a0e13;
+    border-right: 1px solid #0a0e13;
+    color: #b0c4de;
+    font-size: 12px;
+}
+
+.personalarea td:last-child {
+    border-right: none;
+}
+
+/* jQuery UI Dialog Override */
+.ui-dialog {
+    background: #0a0a0a !important;
+    border: 2px solid #0f3460 !important;
+    border-radius: 8px !important;
+}
+
+.ui-dialog-titlebar {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%) !important;
+    border: none !important;
+    color: #5c9cd8 !important;
+}
+
+.ui-dialog-titlebar-close {
+    background: rgba(92, 156, 216, 0.2) !important;
+    border: 1px solid #5c9cd8 !important;
+}
+
+.ui-dialog-titlebar-close:hover {
+    background: rgba(92, 156, 216, 0.4) !important;
+}
+
+/* Track Area (hidden placeholder) */
+.trackarea {
+    display: none;
+}
+
+/* Mobile Specific Adjustments */
+@media (max-width: 767px) {
+    .listarea th,
+    .listarea td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .listarea table {
+        font-size: 11px;
+    }
+}
+
+/* Smartphone Portrait */
+@media (max-width: 480px) {
+    .listarea table {
+        font-size: 10px;
+    }
+    
+    .listarea th,
+    .listarea td {
+        padding: 6px 3px;
+    }
+}
+
+/* Smartphone Landscape */
+@media (max-height: 500px) and (orientation: landscape) {
+    .menuarea {
+        max-height: 30vh;
+    }
+}

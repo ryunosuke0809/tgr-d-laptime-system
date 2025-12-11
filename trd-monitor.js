@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var monitor_route = require('./routes/MonitorRoute');
 var login_route = require('./routes/LoginRoute');
 var user_route = require('./routes/UserRoute');
+var history_route = require('./routes/HistoryRoute');
 var session = require('express-session')
 
 app.use(session({
@@ -34,10 +35,12 @@ app.use("/images", express.static(__dirname + "/views/images"));
 app.use("/font", express.static(__dirname + "/views/font"));
 app.use("/jquery", express.static(__dirname + "/views/jquery"));
 app.use("/lib", express.static(__dirname + "/views/lib"));
+app.use("/sample", express.static(__dirname + "/views/sample"));
 
 app.use('/login', login_route);
 app.use('/monitor', monitor_route);
 app.use('/user', user_route);
+app.use('/history', history_route);
 
 //テンプレートエンジンの指定
 app.engine('ejs', ejs.renderFile);

@@ -3,17 +3,34 @@ const fs = require('fs');
 
 console.log('START LOGIN MODEL');
 
-// 有効期限チェック
-function isAccountExpired(expiryDate) {
-    if (!expiryDate) {
-        // nullの場合は無期限
+// 有効期限チェック（期間対応）
+function isAccountExpired(expiryStartDate, expiryEndDate) {
+    // 開始日と終了日が両方nullの場合は無期限
+    if (!expiryStartDate && !expiryEndDate) {
         return false;
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 時刻を00:00:00にリセット
-    const expiry = new Date(expiryDate);
-    expiry.setHours(0, 0, 0, 0);
-    return today > expiry;
+    
+    const now = new Date();
+    
+    // 開始日チェック
+    if (expiryStartDate) {
+        const startDate = new Date(expiryStartDate);
+        startDate.setHours(0, 0, 0, 0);
+        if (now < startDate) {
+            return true; // まだ有効期間開始前
+        }
+    }
+    
+    // 終了日チェック
+    if (expiryEndDate) {
+        const endDate = new Date(expiryEndDate);
+        endDate.setHours(23, 59, 59, 999);
+        if (now > endDate) {
+            return true; // 有効期間終了後
+        }
+    }
+    
+    return false; // 有効期間内
 }
 
 module.exports = {
@@ -36,8 +53,8 @@ module.exports = {
                 if (userData == undefined) {
                     resolve("NG");
                 } else {
-                    // 有効期限チェック
-                    if (isAccountExpired(userData.expiryDate)) {
+                    // 有効期限チェック（期間対応）
+                    if (isAccountExpired(userData.expiryStartDate, userData.expiryEndDate)) {
                         resolve("EXPIRED");
                     } else {
                         resolve(userData);

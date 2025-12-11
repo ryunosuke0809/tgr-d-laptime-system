@@ -1,7 +1,9 @@
 require('date-utils');
 const iconv = require("iconv-lite");
 const fs = require('fs');
-
+const multer = require('multer');
+const path = require('path');
+const XLSX = require('xlsx');
 
 const express = require('express');
 //const userModel = require('../models/UserModel');
@@ -10,6 +12,29 @@ const Views = '../views/'
 
 const loginModel = require('../models/LoginModel');
 const userModel = require('../models/UserModel');
+
+// Multer設定：CSV/Excelアップロード用
+const upload = multer({
+    dest: path.join(__dirname, '../uploads/csv/'),
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = [
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+        if (allowedTypes.includes(file.mimetype) || 
+            file.originalname.endsWith('.csv') || 
+            file.originalname.endsWith('.xlsx') ||
+            file.originalname.endsWith('.xls')) {
+            cb(null, true);
+        } else {
+            cb(new Error('CSVまたはExcelファイルのみアップロード可能です'));
+        }
+    },
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB
+    }
+});
 
 console.log('START USER CONTROLLER');
 
@@ -644,7 +669,337 @@ module.exports = {
             console.error('Error getting user password:', err);
             res.status(500).json({ success: false, message: err.message });
         }
-    }
+    },
+
+    // CSVアップロード処理
+    uploadCSV: [
+        upload.single('csvfile'),
+        async function (req, res, next) {
+            try {
+                if (!req.file) {
+                    return res.status(400).json({ success: false, message: 'ファイルがアップロードされていません' });
+                }
+
+                const fileExtension = path.extname(req.file.originalname).toLowerCase();
+                let records = [];
+
+                // Excel形式の場合
+                if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+                    console.log('[File Upload] Processing Excel file:', req.file.originalname);
+                    
+                    try {
+                        const workbook = XLSX.readFile(req.file.path);
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+                        
+                        // ヘッダー行を探す（「会社」列を含む行）
+                        let headerRowIndex = -1;
+                        for (let i = 0; i < rawData.length; i++) {
+                            if (rawData[i].some(cell => String(cell).includes('会社') || String(cell).includes('ユーザー'))) {
+                                headerRowIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        if (headerRowIndex === -1) {
+                            fs.unlinkSync(req.file.path);
+                            return res.status(400).json({ success: false, message: 'Excelファイルにヘッダー行が見つかりません' });
+                        }
+                        
+                        const headers = rawData[headerRowIndex].map(h => String(h).trim());
+                        console.log('[Excel Upload] Headers:', headers);
+                        
+                        // データ行を解析
+                        for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+                            const row = rawData[i];
+                            if (!row || row.every(cell => !cell)) continue; // 空行はスキップ
+                            
+                            const record = {};
+                            headers.forEach((header, index) => {
+                                record[header] = row[index] ? String(row[index]).trim() : '';
+                            });
+                            records.push(record);
+                        }
+                        
+                        console.log(`[Excel Upload] Parsed ${records.length} records`);
+                        
+                    } catch (err) {
+                        console.error('[Excel Upload] Error:', err);
+                        fs.unlinkSync(req.file.path);
+                        return res.status(400).json({ success: false, message: 'Excelファイルの読み込みに失敗しました: ' + err.message });
+                    }
+                    
+                } else {
+                    // CSV形式の場合（既存の処理）
+                    console.log('[File Upload] Processing CSV file:', req.file.originalname);
+                    
+                    // CSVファイルを読み込み（バッファとして読み込む）
+                    const fileBuffer = fs.readFileSync(req.file.path);
+                
+                // 文字コード自動検出と変換
+                let fileContent;
+                let encoding = 'utf-8';
+                
+                // BOMをチェックして文字コードを判定
+                if (fileBuffer.length >= 3 && 
+                    fileBuffer[0] === 0xEF && 
+                    fileBuffer[1] === 0xBB && 
+                    fileBuffer[2] === 0xBF) {
+                    // UTF-8 with BOM
+                    encoding = 'utf-8';
+                    fileContent = fileBuffer.toString('utf-8');
+                } else if (fileBuffer.length >= 2 && 
+                           fileBuffer[0] === 0xFF && 
+                           fileBuffer[1] === 0xFE) {
+                    // UTF-16 LE with BOM
+                    encoding = 'utf-16le';
+                    fileContent = iconv.decode(fileBuffer, 'utf-16le');
+                } else {
+                    // BOMがない場合は内容から推測
+                    try {
+                        fileContent = fileBuffer.toString('utf-8');
+                        
+                        // UTF-8として正しく読めているかチェック（置換文字 U+FFFD がないか）
+                        if (fileContent.includes('\uFFFD')) {
+                            // UTF-8で読めなかった場合、Shift-JISとして読み込み
+                            encoding = 'Shift_JIS';
+                            fileContent = iconv.decode(fileBuffer, 'Shift_JIS');
+                        }
+                    } catch (err) {
+                        // UTF-8でエラーが出た場合もShift-JISで試行
+                        encoding = 'Shift_JIS';
+                        fileContent = iconv.decode(fileBuffer, 'Shift_JIS');
+                    }
+                }
+                
+                console.log(`[CSV Upload] Detected encoding: ${encoding}`);
+                
+                // BOM除去（文字列として読み込んだ後のBOM）
+                if (fileContent.charCodeAt(0) === 0xFEFF) {
+                    fileContent = fileContent.slice(1);
+                }
+                
+                // CSVをパース（ネイティブJavaScript実装）
+                // クォート付きフィールド対応の簡易CSVパーサー
+                function parseCSVLine(line) {
+                    const result = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        
+                        if (char === '"') {
+                            if (inQuotes && line[i + 1] === '"') {
+                                current += '"';
+                                i++;
+                            } else {
+                                inQuotes = !inQuotes;
+                            }
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current.trim());
+                    return result;
+                }
+                
+                const lines = fileContent.split(/\r?\n/).filter(line => line.trim());
+                
+                if (lines.length < 2) { // ヘッダー + 最低1行のデータ
+                    fs.unlinkSync(req.file.path); // 一時ファイル削除
+                    return res.status(400).json({ success: false, message: 'CSVファイルが空です' });
+                }
+                
+                // ヘッダー行を解析
+                const headers = parseCSVLine(lines[0]);
+                
+                // データ行を解析
+                const records = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    const record = {};
+                    headers.forEach((header, index) => {
+                        record[header] = values[index] || '';
+                    });
+                    records.push(record);
+                }
+
+                    if (records.length === 0) {
+                        fs.unlinkSync(req.file.path); // 一時ファイル削除
+                        return res.status(400).json({ success: false, message: 'CSVファイルにデータがありません' });
+                    }
+                } // CSV処理の終わり
+
+                // 共通: レコード数チェック
+                if (records.length === 0) {
+                    fs.unlinkSync(req.file.path);
+                    return res.status(400).json({ success: false, message: 'ファイルにデータがありません' });
+                }
+
+                // ユーザーデータを一括登録
+                const results = {
+                    success: 0,
+                    failed: 0,
+                    errors: []
+                };
+
+                // 日付フォーマットを正規化する関数（2025/9/1 → 2025-09-01）
+                function normalizeDateFormat(dateStr) {
+                    if (!dateStr || dateStr.trim() === '') {
+                        return null;
+                    }
+                    
+                    // YYYY/M/D または YYYY/MM/DD 形式を YYYY-MM-DD に変換
+                    const match = dateStr.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+                    if (match) {
+                        const year = match[1];
+                        const month = match[2].padStart(2, '0');
+                        const day = match[3].padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    }
+                    
+                    // すでに YYYY-MM-DD 形式の場合はそのまま返す
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                        return dateStr;
+                    }
+                    
+                    return null;
+                }
+                
+                // 閲覧期間をパースする関数（Excel形式用）
+                function parseExpiryPeriod(periodStr) {
+                    if (!periodStr || periodStr.includes('無期限')) {
+                        return { startDate: null, endDate: null };
+                    }
+                    
+                    // "9/1-9/5" や "9/1-9/5\r\n期間のみ" 形式に対応
+                    const match = periodStr.match(/(\d+)\/(\d+)\s*-\s*(\d+)\/(\d+)/);
+                    if (match) {
+                        const startMonth = match[1].padStart(2, '0');
+                        const startDay = match[2].padStart(2, '0');
+                        const endMonth = match[3].padStart(2, '0');
+                        const endDay = match[4].padStart(2, '0');
+                        
+                        // 年は2025年として設定（仮）
+                        return {
+                            startDate: `2025-${startMonth}-${startDay}`,
+                            endDate: `2025-${endMonth}-${endDay}`
+                        };
+                    }
+                    
+                    return { startDate: null, endDate: null };
+                }
+
+                for (const record of records) {
+                    try {
+                        // CSV/Excelの列名に対応
+                        const userId = record.id || record.ID || record.ユーザーID || record[''];
+                        const userName = record.name || record.NAME || record.名前 || record.ユーザー名;
+                        const userPassword = record.password || record.PASSWORD || record.パスワード || record.PW;
+                        const userCompany = record.company || record.COMPANY || record.会社区分 || record.会社;
+                        
+                        // 日付取得（CSVの直接指定を優先）
+                        let expiryStartDate = record.expiryStartDate || record.EXPIRYSTARTDATE || record.開始日;
+                        let expiryEndDate = record.expiryEndDate || record.EXPIRYENDDATE || record.終了日;
+                        
+                        // CSVに直接日付がある場合は正規化
+                        if (expiryStartDate) {
+                            expiryStartDate = normalizeDateFormat(expiryStartDate);
+                        }
+                        if (expiryEndDate) {
+                            expiryEndDate = normalizeDateFormat(expiryEndDate);
+                        }
+                        
+                        // 日付がない場合、閲覧期間文字列をパース（Excel形式）
+                        if (!expiryStartDate && !expiryEndDate) {
+                            const expiryPeriodStr = record.expiryDate || record.expiration_date || record.有効期限 || record.閲覧期間 || '';
+                            const expiryPeriod = parseExpiryPeriod(expiryPeriodStr);
+                            expiryStartDate = expiryPeriod.startDate;
+                            expiryEndDate = expiryPeriod.endDate;
+                        }
+                        
+                        const userData = {
+                            id: userId,
+                            name: userName,
+                            password: userPassword,
+                            company: userCompany || null,
+                            role: record.role || record.ROLE || record.ロール || 'user',
+                            expiryStartDate: expiryStartDate,
+                            expiryEndDate: expiryEndDate
+                        };
+
+                        // 必須項目チェック
+                        if (!userData.id || !userData.name || !userData.password) {
+                            results.failed++;
+                            results.errors.push(`行${results.success + results.failed}: 必須項目（ユーザーID, 名前, パスワード）が不足しています`);
+                            continue;
+                        }
+
+                        // 会社区分のバリデーションと正規化
+                        const validCompanies = ['TOYOTA', 'TGR-DC', '講師', 'TGR-D', 'aZillion', 'DAIHATSU', 'SUBARU'];
+                        if (userData.company && !validCompanies.includes(userData.company)) {
+                            // 会社名を標準化
+                            const companyUpper = userData.company.toUpperCase();
+                            if (companyUpper.includes('TOYOTA')) {
+                                userData.company = 'TOYOTA';
+                            } else if (companyUpper.includes('TGR-DC')) {
+                                userData.company = 'TGR-DC';
+                            } else if (companyUpper.includes('TGR-D') || companyUpper === 'TGRD') {
+                                userData.company = 'TGR-D';
+                            } else if (companyUpper.includes('DAIHATSU') || userData.company.includes('ダイハツ')) {
+                                userData.company = 'DAIHATSU';
+                            } else if (companyUpper.includes('SUBARU') || userData.company.includes('スバル')) {
+                                userData.company = 'SUBARU';
+                            } else if (userData.company.includes('講師')) {
+                                userData.company = '講師';
+                            } else if (companyUpper.includes('AZILLION')) {
+                                userData.company = 'aZillion';
+                            }
+                        }
+
+                        // ユーザー登録（userModelを使用）
+                        try {
+                            const result = await userModel.createUser(userData);
+                            if (result.success) {
+                                results.success++;
+                            } else {
+                                results.failed++;
+                                results.errors.push(`行${results.success + results.failed}: ${userData.id} - 登録失敗`);
+                            }
+                        } catch (err) {
+                            results.failed++;
+                            results.errors.push(`行${results.success + results.failed}: ${userData.id} - ${err.message}`);
+                        }
+
+                    } catch (err) {
+                        results.failed++;
+                        results.errors.push(`行${results.success + results.failed}: ${err.message}`);
+                    }
+                }
+
+                // 一時ファイル削除
+                fs.unlinkSync(req.file.path);
+
+                res.json({
+                    success: true,
+                    message: `登録完了: ${results.success}件成功, ${results.failed}件失敗`,
+                    details: results
+                });
+
+            } catch (err) {
+                console.error('CSV upload error:', err);
+                if (req.file && fs.existsSync(req.file.path)) {
+                    fs.unlinkSync(req.file.path);
+                }
+                res.status(500).json({ success: false, message: err.message });
+            }
+        }
+    ]
 }
 
 

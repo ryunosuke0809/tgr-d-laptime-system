@@ -1,7 +1,14 @@
 {
+  "name": "trd-monitor",
+  "version": "1.0.0",
+  "description": "TRD Monitor Application",
+  "engines": {
+    "node": ">=14.9.0"
+  },
   "dependencies": {
     "archiver": "^5.3.1",
     "babel-preset-php": "^2.0.0",
+    "better-sqlite3": "^11.8.1",
     "date-utils": "^1.2.21",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
@@ -15,6 +22,7 @@
     "socket.io-client": "^4.5.1",
     "socketio": "^1.0.0",
     "websocket": "^1.0.34",
+    "xlsx": "^0.18.5",
     "xml-js": "^1.6.11",
     "xml2js": "^0.6.2"
   }

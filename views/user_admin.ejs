@@ -66,7 +66,7 @@
     .main-content {
       margin-top: 90px;
       padding: 20px;
-      max-width: 1400px;
+      max-width: 1600px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -80,6 +80,9 @@
 
     .actions {
       margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -134,6 +137,94 @@
       background: #da190b;
     }
 
+    /* フィルター・ソートエリア */
+    .filter-sort-area {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(92, 156, 216, 0.3);
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .filter-group label {
+      color: #5c9cd8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 8px 12px;
+      border: 1px solid rgba(92, 156, 216, 0.3);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 14px;
+      min-width: 150px;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #5c9cd8;
+      box-shadow: 0 0 5px rgba(92, 156, 216, 0.4);
+    }
+
+    .filter-group select option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .btn-filter {
+      padding: 8px 16px;
+      background: #5c9cd8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn-filter:hover {
+      background: #4a8ac0;
+    }
+
+    .btn-reset {
+      padding: 8px 16px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn-reset:hover {
+      background: #555;
+    }
+
     table {
       width: 100%;
       background: rgba(0, 0, 0, 0.8);
@@ -159,6 +250,31 @@
 
     th {
       font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    th:hover {
+      background: rgba(92, 156, 216, 0.3);
+    }
+
+    th.sortable::after {
+      content: ' ⇅';
+      opacity: 0.3;
+      font-size: 12px;
+    }
+
+    th.sort-asc::after {
+      content: ' ▲';
+      opacity: 1;
+      font-size: 12px;
+    }
+
+    th.sort-desc::after {
+      content: ' ▼';
+      opacity: 1;
+      font-size: 12px;
     }
 
     tbody tr {
@@ -168,7 +284,6 @@
     
     tbody tr:hover {
       background: rgba(92, 156, 216, 0.15);
-      transform: translateX(3px);
     }
 
     .password-cell {
@@ -180,13 +295,13 @@
     .password-display {
       font-family: monospace;
       letter-spacing: 2px;
-      color: #5c9cd8;
+      color: #f44336;
     }
 
     .password-toggle {
       background: none;
       border: none;
-      color: #5c9cd8;
+      color: #ffff;
       cursor: pointer;
       padding: 4px 8px;
       border-radius: 4px;
@@ -195,7 +310,7 @@
 
     .password-toggle:hover {
       background: rgba(92, 156, 216, 0.2);
-      color: #7db4e6;
+      color: #fff;
     }
 
     .password-toggle i {
@@ -223,6 +338,17 @@
     .role-viewer {
       background: #2196F3;
       color: white;
+    }
+
+    .company-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(92, 156, 216, 0.3);
+      color: #5c9cd8;
+      border: 1px solid #5c9cd8;
     }
 
     .expiry-badge {
@@ -329,6 +455,8 @@
     
     .form-group small {
       color: #999 !important;
+      display: block;
+      margin-top: 5px;
     }
 
     .form-group input:focus,
@@ -394,8 +522,6 @@
   <div class="main-content">
     <a href="/user/menu" class="back-link">← メニューに戻る</a>
     
-    <h1>ユーザー管理</h1>
-
     <div id="message" class="message"></div>
 
     <div class="actions">
@@ -403,17 +529,75 @@
         <i class="material-icons" style="vertical-align: middle; font-size: 18px;">add</i>
         新規ユーザー作成
       </button>
+      <button class="btn btn-secondary" onclick="openCSVUploadModal()">
+        <i class="fa fa-upload" style="margin-right: 5px;"></i>
+        CSVアップロード
+      </button>
+      <a href="/sample/users_template.csv" download class="btn btn-secondary">
+        <i class="fa fa-download" style="margin-right: 5px;"></i>
+        CSVテンプレート
+      </a>
+    </div>
+
+    <!-- フィルター・ソートエリア -->
+    <div class="filter-sort-area">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>ユーザーID/名前</label>
+          <input type="text" id="filterSearch" placeholder="検索...">
+        </div>
+        <div class="filter-group">
+          <label>権限</label>
+          <select id="filterRole">
+            <option value="">全て</option>
+            <option value="admin">管理者</option>
+            <option value="user">一般ユーザー</option>
+            <option value="viewer">閲覧者</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>会社区分</label>
+          <select id="filterCompany">
+            <option value="">全て</option>
+            <option value="TOYOTA">TOYOTA</option>
+            <option value="TGR-DC">TGR-DC</option>
+            <option value="講師">講師</option>
+            <option value="TGR-D">TGR-D</option>
+            <option value="aZillion">aZillion</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>有効期限</label>
+          <select id="filterExpiry">
+            <option value="">全て</option>
+            <option value="valid">有効</option>
+            <option value="expired">期限切れ</option>
+            <option value="unlimited">無期限</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn-filter" onclick="applyFilter()">
+            <i class="fa fa-filter" style="margin-right: 5px;"></i>
+            フィルター
+          </button>
+          <button class="btn-reset" onclick="resetFilter()">
+            <i class="fa fa-redo" style="margin-right: 5px;"></i>
+            リセット
+          </button>
+        </div>
+      </div>
     </div>
 
     <table id="userTable">
       <thead>
         <tr>
-          <th>ユーザーID</th>
+          <th class="sortable" data-column="id">ユーザーID</th>
           <th>パスワード</th>
-          <th>名前</th>
-          <th>権限</th>
-          <th>有効期限</th>
-          <th>操作</th>
+          <th class="sortable" data-column="name">名前</th>
+          <th class="sortable" data-column="company">会社区分</th>
+          <th class="sortable" data-column="role">権限</th>
+          <th class="sortable" data-column="expiryDate">有効期限</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="userTableBody">
@@ -437,6 +621,17 @@
           <input type="text" id="userName" name="name" required>
         </div>
         <div class="form-group">
+          <label for="userCompany">会社区分 *</label>
+          <select id="userCompany" name="company" required>
+            <option value="">選択してください</option>
+            <option value="TOYOTA">TOYOTA</option>
+            <option value="TGR-DC">TGR-DC</option>
+            <option value="講師">講師</option>
+            <option value="TGR-D">TGR-D</option>
+            <option value="aZillion">aZillion</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="userPassword">パスワード <span id="passwordHint">*</span></label>
           <input type="password" id="userPassword" name="password">
         </div>
@@ -447,16 +642,20 @@
             <option value="user" selected>一般ユーザー (user) - ユーザー管理以外</option>
             <option value="viewer">閲覧者 (viewer) - モニターのみ</option>
           </select>
-          <small style="display: block; margin-top: 5px; color: #666;">
-            admin: 全機能 / user: ユーザー管理以外 / viewer: モニターのみ
-          </small>
+          <small>admin: 全機能 / user: ユーザー管理以外 / viewer: モニターのみ</small>
         </div>
         <div class="form-group">
-          <label for="userExpiryDate">有効期限</label>
-          <input type="date" id="userExpiryDate" name="expiryDate">
-          <small style="display: block; margin-top: 5px; color: #666;">
-            無期限の場合は空欄のままにしてください
-          </small>
+          <label>ログイン可能期間</label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="flex: 1;">
+              <input type="date" id="userExpiryStartDate" name="expiryStartDate" placeholder="開始日">
+            </div>
+            <span style="color: #5c9cd8;">～</span>
+            <div style="flex: 1;">
+              <input type="date" id="userExpiryEndDate" name="expiryEndDate" placeholder="終了日">
+            </div>
+          </div>
+          <small>両方空白で無期限。期間を設定する場合は開始日と終了日の両方を入力してください（例: 2025-09-01 ～ 2025-09-05）</small>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
@@ -466,15 +665,92 @@
     </div>
   </div>
 
+  <!-- CSVアップロードモーダル -->
+  <div id="csvUploadModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCSVUploadModal()">&times;</span>
+      <h2>CSVファイルアップロード</h2>
+      
+      <div style="margin: 20px 0; padding: 15px; background: rgba(92, 156, 216, 0.1); border-radius: 4px; border: 1px solid rgba(92, 156, 216, 0.3);">
+        <h3 style="margin-top: 0; color: #5c9cd8;">Excel/CSV形式</h3>
+        <p style="margin: 5px 0; color: #ccc;">ExcelファイルまたはCSVファイルをアップロードできます：</p>
+        <code style="display: block; padding: 10px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(92, 156, 216, 0.3); border-radius: 4px; margin: 10px 0; color: #5c9cd8;">
+          会社, ユーザー名, ユーザーID, PW, 閲覧期間
+        </code>
+        <p style="margin: 5px 0; color: #ccc; font-size: 13px;">
+          <strong>Excel形式:</strong><br>
+          ※ ヘッダー行: 会社, ユーザー名, (ユーザーID列), PW, 閲覧期間<br>
+          ※ 閲覧期間: 「9/1-9/5」形式 または 「無期限」<br>
+          ※ 会社: TOYOTA, TGR-DC, DAIHATSU, SUBARU など<br>
+          <br>
+          <strong>CSV形式:</strong><br>
+          ※ 列名: id, name, password, company, role, expiryStartDate, expiryEndDate<br>
+          ※ expiryStartDate/expiryEndDate: YYYY-MM-DD形式（両方空白で無期限）<br>
+          ※ role は user または admin（省略時は user）
+        </p>
+      </div>
+
+      <form id="csvUploadForm" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="csvfile">Excel/CSVファイル</label>
+          <input type="file" id="csvfile" name="csvfile" accept=".csv,.xlsx,.xls" required>
+        </div>
+        
+        <div id="uploadProgress" style="display: none; margin: 15px 0;">
+          <div style="background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div id="progressBar" style="width: 0%; height: 30px; background: #ff0000; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600;">
+              0%
+            </div>
+          </div>
+        </div>
+
+        <div id="uploadResult" style="display: none; margin: 15px 0; padding: 15px; border-radius: 4px;"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeCSVUploadModal()">キャンセル</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-upload" style="margin-right: 5px;"></i>
+            アップロード
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let isEditMode = false;
     let editingUserId = null;
-    let usersData = []; // パスワード情報を保持
+    let usersData = []; // 全ユーザーデータ
+    let filteredUsers = []; // フィルター後のデータ
+    let sortColumn = '';
+    let sortOrder = 'asc';
 
     // ページロード時にユーザー一覧を取得
     $(document).ready(function() {
       loadUsers();
+      setupSortHandlers();
     });
+
+    // ソートハンドラーの設定
+    function setupSortHandlers() {
+      $('.sortable').on('click', function() {
+        const column = $(this).data('column');
+        if (sortColumn === column) {
+          sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortColumn = column;
+          sortOrder = 'asc';
+        }
+        updateSortIndicators();
+        sortAndDisplayUsers();
+      });
+    }
+
+    // ソートインジケーターの更新
+    function updateSortIndicators() {
+      $('.sortable').removeClass('sort-asc sort-desc');
+      $(`.sortable[data-column="${sortColumn}"]`).addClass(`sort-${sortOrder}`);
+    }
 
     // ユーザー一覧を読み込む
     function loadUsers() {
@@ -484,7 +760,8 @@
         success: function(response) {
           if (response.success) {
             usersData = response.users;
-            displayUsers(response.users);
+            filteredUsers = [...usersData];
+            sortAndDisplayUsers();
           } else {
             showMessage('ユーザーの読み込みに失敗しました', 'error');
           }
@@ -495,10 +772,87 @@
       });
     }
 
+    // フィルター適用
+    function applyFilter() {
+      const searchText = $('#filterSearch').val().toLowerCase();
+      const roleFilter = $('#filterRole').val();
+      const companyFilter = $('#filterCompany').val();
+      const expiryFilter = $('#filterExpiry').val();
+
+      filteredUsers = usersData.filter(user => {
+        // 検索フィルター
+        if (searchText && 
+            !user.id.toLowerCase().includes(searchText) && 
+            !user.name.toLowerCase().includes(searchText)) {
+          return false;
+        }
+
+        // 権限フィルター
+        if (roleFilter && user.role !== roleFilter) {
+          return false;
+        }
+
+        // 会社区分フィルター
+        if (companyFilter && user.company !== companyFilter) {
+          return false;
+        }
+
+        // 有効期限フィルター
+        if (expiryFilter && user.expiryStatus !== expiryFilter) {
+          return false;
+        }
+
+        return true;
+      });
+
+      sortAndDisplayUsers();
+    }
+
+    // フィルターリセット
+    function resetFilter() {
+      $('#filterSearch').val('');
+      $('#filterRole').val('');
+      $('#filterCompany').val('');
+      $('#filterExpiry').val('');
+      filteredUsers = [...usersData];
+      sortAndDisplayUsers();
+    }
+
+    // ソートと表示
+    function sortAndDisplayUsers() {
+      if (sortColumn) {
+        filteredUsers.sort((a, b) => {
+          let aVal = a[sortColumn] || '';
+          let bVal = b[sortColumn] || '';
+
+          // 日付の場合（期間対応：終了日でソート）
+          if (sortColumn === 'expiryDate') {
+            const aDate = a.expiryEndDate || a.expiryStartDate;
+            const bDate = b.expiryEndDate || b.expiryStartDate;
+            if (!aDate) return sortOrder === 'asc' ? 1 : -1;
+            if (!bDate) return sortOrder === 'asc' ? -1 : 1;
+            aVal = new Date(aDate);
+            bVal = new Date(bDate);
+          }
+
+          if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+          if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      displayUsers(filteredUsers);
+    }
+
     // ユーザー一覧を表示
     function displayUsers(users) {
       const tbody = $('#userTableBody');
       tbody.empty();
+
+      if (users.length === 0) {
+        tbody.append('<tr><td colspan="7" style="text-align: center; color: #999;">該当するユーザーが見つかりません</td></tr>');
+        return;
+      }
 
       users.forEach(function(user) {
         // 権限の表示
@@ -506,7 +860,10 @@
         const roleLabel = user.role === 'admin' ? '管理者' : 
                          user.role === 'user' ? '一般ユーザー' : '閲覧者';
         
-        // 有効期限の表示
+        // 会社区分の表示
+        const companyDisplay = user.company || '未設定';
+        
+        // ログイン可能期間の表示
         let expiryDisplay = '';
         let expiryBadge = '';
         
@@ -514,10 +871,24 @@
           expiryDisplay = '無期限';
           expiryBadge = '<span class="expiry-badge expiry-unlimited">無期限</span>';
         } else if (user.expiryStatus === 'expired') {
-          expiryDisplay = user.expiryDate;
+          // 期間表示
+          if (user.expiryStartDate && user.expiryEndDate) {
+            expiryDisplay = `${user.expiryStartDate} ～ ${user.expiryEndDate}`;
+          } else if (user.expiryEndDate) {
+            expiryDisplay = `～ ${user.expiryEndDate}`;
+          } else if (user.expiryStartDate) {
+            expiryDisplay = `${user.expiryStartDate} ～`;
+          }
           expiryBadge = '<span class="expiry-badge expiry-expired">期限切れ</span>';
         } else {
-          expiryDisplay = user.expiryDate;
+          // 期間表示
+          if (user.expiryStartDate && user.expiryEndDate) {
+            expiryDisplay = `${user.expiryStartDate} ～ ${user.expiryEndDate}`;
+          } else if (user.expiryEndDate) {
+            expiryDisplay = `～ ${user.expiryEndDate}`;
+          } else if (user.expiryStartDate) {
+            expiryDisplay = `${user.expiryStartDate} ～`;
+          }
           expiryBadge = '<span class="expiry-badge expiry-valid">有効</span>';
         }
         
@@ -536,9 +907,10 @@
               </div>
             </td>
             <td>${escapeHtml(user.name)}</td>
+            <td><span class="company-badge">${escapeHtml(companyDisplay)}</span></td>
             <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
             <td>${escapeHtml(expiryDisplay)} ${expiryBadge}</td>
-            <td>
+            <td style="white-space: nowrap;">
               <button class="btn btn-edit" onclick="openEditModal('${user.id}')">編集</button>
               <button class="btn btn-delete" onclick="deleteUser('${user.id}')">削除</button>
             </td>
@@ -602,24 +974,17 @@
       $('#passwordHint').text('(変更する場合のみ入力)');
 
       // ユーザー情報を取得して表示
-      $.ajax({
-        url: '/user/api/users',
-        method: 'GET',
-        success: function(response) {
-          if (response.success) {
-            const user = response.users.find(u => u.id === userId);
-            if (user) {
-              $('#userId').val(user.id);
-              $('#userName').val(user.name);
-              $('#userEmail').val(user.email);
-              $('#userRole').val(user.role);
-              $('#userExpiryDate').val(user.expiryDate || '');
-              $('#userPassword').val('');
-              $('#userModal').show();
-            }
-          }
-        }
-      });
+      const user = usersData.find(u => u.id === userId);
+      if (user) {
+        $('#userId').val(user.id);
+        $('#userName').val(user.name);
+        $('#userCompany').val(user.company || '');
+        $('#userRole').val(user.role);
+        $('#userExpiryStartDate').val(user.expiryStartDate || '');
+        $('#userExpiryEndDate').val(user.expiryEndDate || '');
+        $('#userPassword').val('');
+        $('#userModal').show();
+      }
     }
 
     // モーダルを閉じる
@@ -632,14 +997,16 @@
     $('#userForm').submit(function(e) {
       e.preventDefault();
 
-      const expiryDateValue = $('#userExpiryDate').val();
+      const expiryStartDateValue = $('#userExpiryStartDate').val();
+      const expiryEndDateValue = $('#userExpiryEndDate').val();
       const formData = {
         id: $('#userId').val(),
         name: $('#userName').val(),
-        email: $('#userEmail').val(),
+        company: $('#userCompany').val(),
         password: $('#userPassword').val(),
         role: $('#userRole').val(),
-        expiryDate: expiryDateValue || null
+        expiryStartDate: expiryStartDateValue || null,
+        expiryEndDate: expiryEndDateValue || null
       };
 
       if (isEditMode) {
@@ -680,13 +1047,10 @@
             }
           },
           error: function(xhr) {
-            console.log('[Create User Error]', xhr.status, xhr.responseJSON);
             const response = xhr.responseJSON;
             let errorMessage = 'サーバーエラーが発生しました';
             
             if (response?.message) {
-              console.log('[Error Message]', response.message);
-              // サーバーからのエラーメッセージを日本語化
               if (response.message.includes('already exists')) {
                 errorMessage = 'このユーザーIDは既に使用されています';
               } else if (response.message.includes('Required fields')) {
@@ -696,7 +1060,6 @@
               }
             }
             
-            console.log('[Final Error Message]', errorMessage);
             showMessage(errorMessage, 'error');
           }
         });
@@ -741,6 +1104,7 @@
 
     // HTMLエスケープ
     function escapeHtml(text) {
+      if (!text) return '';
       const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -748,13 +1112,106 @@
         '"': '&quot;',
         "'": '&#039;'
       };
-      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+      return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
     }
+
+    // CSVアップロードモーダルを開く
+    function openCSVUploadModal() {
+      document.getElementById('csvUploadModal').style.display = 'block';
+      document.getElementById('csvUploadForm').reset();
+      document.getElementById('uploadProgress').style.display = 'none';
+      document.getElementById('uploadResult').style.display = 'none';
+    }
+
+    // CSVアップロードモーダルを閉じる
+    function closeCSVUploadModal() {
+      document.getElementById('csvUploadModal').style.display = 'none';
+    }
+
+    // CSVアップロード処理
+    $('#csvUploadForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const fileInput = document.getElementById('csvfile');
+      
+      if (!fileInput.files[0]) {
+        alert('ファイルを選択してください');
+        return;
+      }
+
+      // プログレス表示
+      $('#uploadProgress').show();
+      $('#uploadResult').hide();
+      $('#progressBar').css('width', '0%').text('0%');
+
+      // アップロード実行
+      $.ajax({
+        url: '/user/api/users/upload-csv',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhr: function() {
+          const xhr = new window.XMLHttpRequest();
+          xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+              const percentComplete = Math.round((e.loaded / e.total) * 100);
+              $('#progressBar').css('width', percentComplete + '%').text(percentComplete + '%');
+            }
+          }, false);
+          return xhr;
+        },
+        success: function(response) {
+          $('#progressBar').css('width', '100%').text('100%');
+          
+          let resultHtml = '<strong>アップロード完了</strong><br>';
+          resultHtml += response.message + '<br><br>';
+          
+          if (response.details && response.details.errors.length > 0) {
+            resultHtml += '<strong>エラー詳細:</strong><br>';
+            resultHtml += '<div style="max-height: 150px; overflow-y: auto; font-size: 12px;">';
+            response.details.errors.forEach(err => {
+              resultHtml += err + '<br>';
+            });
+            resultHtml += '</div>';
+          }
+          
+          $('#uploadResult')
+            .html(resultHtml)
+            .css('background', response.details.failed === 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 243, 205, 0.2)')
+            .css('border', response.details.failed === 0 ? '1px solid #4caf50' : '1px solid #ffeaa7')
+            .css('color', response.details.failed === 0 ? '#4caf50' : '#ff9800')
+            .show();
+
+          // ユーザー一覧を再読み込み
+          loadUsers();
+
+          // 3秒後にモーダルを閉じる（成功時のみ）
+          if (response.details.failed === 0) {
+            setTimeout(() => {
+              closeCSVUploadModal();
+            }, 3000);
+          }
+        },
+        error: function(xhr, status, error) {
+          $('#uploadResult')
+            .html('<strong>エラー:</strong><br>' + (xhr.responseJSON?.message || error))
+            .css('background', 'rgba(244, 67, 54, 0.2)')
+            .css('border', '1px solid #f44336')
+            .css('color', '#f44336')
+            .show();
+        }
+      });
+    });
 
     // モーダル外クリックで閉じる
     window.onclick = function(event) {
       if (event.target.id === 'userModal') {
         closeModal();
+      }
+      if (event.target.id === 'csvUploadModal') {
+        closeCSVUploadModal();
       }
     }
   </script>

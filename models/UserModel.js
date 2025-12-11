@@ -31,25 +31,42 @@ function writeUsers(users) {
     });
 }
 
-// 有効期限チェック
-function isAccountExpired(expiryDate) {
-    if (!expiryDate) {
-        // nullの場合は無期限
+// 有効期限チェック（期間対応）
+function isAccountExpired(expiryStartDate, expiryEndDate) {
+    // 開始日と終了日が両方nullの場合は無期限
+    if (!expiryStartDate && !expiryEndDate) {
         return false;
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 時刻を00:00:00にリセット
-    const expiry = new Date(expiryDate);
-    expiry.setHours(0, 0, 0, 0);
-    return today > expiry;
+    
+    const now = new Date();
+    
+    // 開始日チェック
+    if (expiryStartDate) {
+        const startDate = new Date(expiryStartDate);
+        startDate.setHours(0, 0, 0, 0);
+        if (now < startDate) {
+            return true; // まだ有効期間開始前
+        }
+    }
+    
+    // 終了日チェック
+    if (expiryEndDate) {
+        const endDate = new Date(expiryEndDate);
+        endDate.setHours(23, 59, 59, 999);
+        if (now > endDate) {
+            return true; // 有効期間終了後
+        }
+    }
+    
+    return false; // 有効期間内
 }
 
 // 有効期限の状態を取得
-function getExpiryStatus(expiryDate) {
-    if (!expiryDate) {
+function getExpiryStatus(expiryStartDate, expiryEndDate) {
+    if (!expiryStartDate && !expiryEndDate) {
         return 'unlimited'; // 無期限
     }
-    if (isAccountExpired(expiryDate)) {
+    if (isAccountExpired(expiryStartDate, expiryEndDate)) {
         return 'expired'; // 期限切れ
     }
     return 'valid'; // 有効
@@ -64,9 +81,11 @@ module.exports = {
             return users.map(user => ({
                 id: user.id,
                 name: user.name,
+                company: user.company || null,
                 role: user.role,
-                expiryDate: user.expiryDate || null,
-                expiryStatus: getExpiryStatus(user.expiryDate)
+                expiryStartDate: user.expiryStartDate || null,
+                expiryEndDate: user.expiryEndDate || null,
+                expiryStatus: getExpiryStatus(user.expiryStartDate, user.expiryEndDate)
             }));
         } catch (err) {
             throw err;
@@ -83,9 +102,11 @@ module.exports = {
                 return {
                     id: user.id,
                     name: user.name,
+                    company: user.company || null,
                     role: user.role,
-                    expiryDate: user.expiryDate || null,
-                    expiryStatus: getExpiryStatus(user.expiryDate)
+                    expiryStartDate: user.expiryStartDate || null,
+                    expiryEndDate: user.expiryEndDate || null,
+                    expiryStatus: getExpiryStatus(user.expiryStartDate, user.expiryEndDate)
                 };
             }
             return null;
@@ -111,8 +132,10 @@ module.exports = {
                 id: userData.id,
                 password: userData.password,
                 name: userData.name,
+                company: userData.company || null,
                 role: userData.role || 'user',
-                expiryDate: userData.expiryDate || null
+                expiryStartDate: userData.expiryStartDate || null,
+                expiryEndDate: userData.expiryEndDate || null
             };
             
             users.push(newUser);
@@ -137,17 +160,23 @@ module.exports = {
             }
             
             // ユーザー情報を更新（IDは変更不可）
-            // expiryDateは明示的にnullが渡された場合はnullに設定
-            const expiryDate = userData.hasOwnProperty('expiryDate') 
-                ? (userData.expiryDate || null) 
-                : users[index].expiryDate;
+            // 有効期限は明示的にnullが渡された場合はnullに設定
+            const expiryStartDate = userData.hasOwnProperty('expiryStartDate') 
+                ? (userData.expiryStartDate || null) 
+                : users[index].expiryStartDate;
+            
+            const expiryEndDate = userData.hasOwnProperty('expiryEndDate') 
+                ? (userData.expiryEndDate || null) 
+                : users[index].expiryEndDate;
             
             users[index] = {
                 id: userId,
                 password: userData.password || users[index].password,
                 name: userData.name || users[index].name,
+                company: userData.company || users[index].company,
                 role: userData.role || users[index].role,
-                expiryDate: expiryDate
+                expiryStartDate: expiryStartDate,
+                expiryEndDate: expiryEndDate
             };
             
             await writeUsers(users);

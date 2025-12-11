@@ -1,0 +1,6 @@
+﻿id,name,password,company,role,expiryStartDate,expiryEndDate
+m_kaji,加地雅哉,c97cxs8v,TOYOTA,user,2025-09-01,2025-09-05
+t_kataoka,片岡龍也,tgrd250910rs,TGR-DC,admin,,
+instructor1,講師ユーザー,pass123,講師,user,2025-09-01,2025-09-05
+tgrd1,TGR-Dユーザー,pass456,TGR-D,user,2025-09-01,2025-09-05
+azillion1,aZillionユーザー,pass789,aZillion,user,2025-09-01,2025-09-05

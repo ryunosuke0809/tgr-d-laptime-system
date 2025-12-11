@@ -22,6 +22,9 @@ router.post('/api/users', userController.createUserAPI);
 router.put('/api/users/:id', userController.updateUserAPI);
 router.delete('/api/users/:id', userController.deleteUserAPI);
 
+// CSVアップロード
+router.post('/api/users/upload-csv', userController.uploadCSV);
+
 app.use(express.static('views/css'));
 app.use(express.static('views/js'));
 app.use(express.static('views/images'));
