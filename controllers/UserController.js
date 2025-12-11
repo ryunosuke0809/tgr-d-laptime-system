@@ -677,10 +677,31 @@ module.exports = {
 
     // CSVアップロード処理
     uploadCSV: [
-        upload.single('csvfile'),
+        function (req, res, next) {
+            upload.single('csvfile')(req, res, function(err) {
+                if (err) {
+                    console.error('[CSV Upload] Multer error:', err);
+                    return res.status(400).json({ success: false, message: err.message || 'ファイルアップロードエラー' });
+                }
+                next();
+            });
+        },
         async function (req, res, next) {
             try {
+                console.log('[CSV Upload] File received:', req.file);
+                console.log('[CSV Upload] Session:', req.session);
+                
+                // セッションチェック
+                if (!req.session || !req.session.username) {
+                    console.error('[CSV Upload] No session found');
+                    if (req.file && fs.existsSync(req.file.path)) {
+                        fs.unlinkSync(req.file.path);
+                    }
+                    return res.status(401).json({ success: false, message: 'セッションが無効です。再度ログインしてください。' });
+                }
+                
                 if (!req.file) {
+                    console.error('[CSV Upload] No file in request');
                     return res.status(400).json({ success: false, message: 'ファイルがアップロードされていません' });
                 }
 
