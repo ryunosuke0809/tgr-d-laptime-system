@@ -902,22 +902,18 @@ module.exports = {
                 for (const record of records) {
                     try {
                         // CSV/Excelの列名に対応
-                        const userId = record.id || record.ID || record.ユーザーID || record[''];
-                        const userName = record.name || record.NAME || record.名前 || record.ユーザー名;
-                        const userPassword = record.password || record.PASSWORD || record.パスワード || record.PW;
-                        const userCompany = record.company || record.COMPANY || record.会社区分 || record.会社;
+                        const userId = (record.id || record.ID || record.ユーザーID || record[''] || '').trim();
+                        const userName = (record.name || record.NAME || record.名前 || record.ユーザー名 || '').trim();
+                        const userPassword = (record.password || record.PASSWORD || record.パスワード || record.PW || '').trim();
+                        const userCompany = (record.company || record.COMPANY || record.会社区分 || record.会社 || '').trim() || null;
                         
                         // 日付取得（CSVの直接指定を優先）
-                        let expiryStartDate = record.expiryStartDate || record.EXPIRYSTARTDATE || record.開始日;
-                        let expiryEndDate = record.expiryEndDate || record.EXPIRYENDDATE || record.終了日;
+                        let expiryStartDate = record.expiryStartDate || record.EXPIRYSTARTDATE || record.開始日 || '';
+                        let expiryEndDate = record.expiryEndDate || record.EXPIRYENDDATE || record.終了日 || '';
                         
-                        // CSVに直接日付がある場合は正規化
-                        if (expiryStartDate) {
-                            expiryStartDate = normalizeDateFormat(expiryStartDate);
-                        }
-                        if (expiryEndDate) {
-                            expiryEndDate = normalizeDateFormat(expiryEndDate);
-                        }
+                        // 空文字列をnullに変換してから正規化
+                        expiryStartDate = expiryStartDate.trim() === '' ? null : normalizeDateFormat(expiryStartDate);
+                        expiryEndDate = expiryEndDate.trim() === '' ? null : normalizeDateFormat(expiryEndDate);
                         
                         // 日付がない場合、閲覧期間文字列をパース（Excel形式）
                         if (!expiryStartDate && !expiryEndDate) {
@@ -931,8 +927,8 @@ module.exports = {
                             id: userId,
                             name: userName,
                             password: userPassword,
-                            company: userCompany || null,
-                            role: record.role || record.ROLE || record.ロール || 'user',
+                            company: userCompany,
+                            role: (record.role || record.ROLE || record.ロール || 'user').trim() || 'user',
                             expiryStartDate: expiryStartDate,
                             expiryEndDate: expiryEndDate
                         };
