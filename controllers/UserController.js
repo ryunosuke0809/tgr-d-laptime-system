@@ -853,6 +853,10 @@ module.exports = {
                     });
                     records.push(record);
                 }
+                
+                console.log(`[CSV Upload] Parsed ${records.length} records`);
+                console.log('[CSV Upload] Headers:', headers);
+                console.log('[CSV Upload] First record:', records[0]);
 
                     if (records.length === 0) {
                         fs.unlinkSync(req.file.path); // 一時ファイル削除
@@ -985,14 +989,18 @@ module.exports = {
 
                         // ユーザー登録（userModelを使用）
                         try {
+                            console.log(`[CSV Upload] Creating user:`, userData.id);
                             const result = await userModel.createUser(userData);
                             if (result.success) {
                                 results.success++;
+                                console.log(`[CSV Upload] User created successfully:`, userData.id);
                             } else {
                                 results.failed++;
                                 results.errors.push(`行${results.success + results.failed}: ${userData.id} - 登録失敗`);
+                                console.error(`[CSV Upload] User creation failed:`, userData.id);
                             }
                         } catch (err) {
+                            console.error(`[CSV Upload] Error creating user ${userData.id}:`, err.message);
                             results.failed++;
                             results.errors.push(`行${results.success + results.failed}: ${userData.id} - ${err.message}`);
                         }
@@ -1005,6 +1013,8 @@ module.exports = {
 
                 // 一時ファイル削除
                 fs.unlinkSync(req.file.path);
+                
+                console.log(`[CSV Upload] Completed - Success: ${results.success}, Failed: ${results.failed}`);
 
                 res.json({
                     success: true,
