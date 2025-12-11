@@ -857,14 +857,10 @@ module.exports = {
                 console.log(`[CSV Upload] Parsed ${records.length} records`);
                 console.log('[CSV Upload] Headers:', headers);
                 console.log('[CSV Upload] First record:', records[0]);
-
-                    if (records.length === 0) {
-                        fs.unlinkSync(req.file.path); // 一時ファイル削除
-                        return res.status(400).json({ success: false, message: 'CSVファイルにデータがありません' });
-                    }
                 } // CSV処理の終わり
 
                 // 共通: レコード数チェック
+                console.log(`[Upload] Final records count: ${records.length}`);
                 if (records.length === 0) {
                     fs.unlinkSync(req.file.path);
                     return res.status(400).json({ success: false, message: 'ファイルにデータがありません' });
